@@ -186,122 +186,30 @@ textarea{ height:90px; resize:none; }
 </div>
 
 <script>
-// 🔗 URL WEB APP – SOSTITUISCI CON IL TUO /exec !!!
+// 🔗 QUI METTO DIRETTAMENTE IL TUO URL /exec
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwsD7II1g9yJ_ooInF9nUhTXpCFwEwquaMnshynZrpeTNGasXtYpc6F_f89jjwnBSUM/exec";
 
-// ------------------
-const condominio = { /* (TUTTO IL TUO OGGETTO LISTA CONDOMINI COME PRIMA) */ };
-// ------------------
+// 🔵 OGGETTO DEL CONDOMINIO (IDENTICO AL TUO)
+const condominio = {
+  "SCALA 131": { piani:{ 9:{dx:"BARBA / RIPANDELLI",sx:"BORDIGNON"},8:{dx:"BROCCARDO",sx:"ROMEO / VALENTINO"},7:{dx:"GERMANO",sx:"GERMANO"},6:{dx:"NASELLI / DE REGIBUS",sx:"RAGAZZONE / CUGNO"},5:{dx:"SALVO",sx:"GARBARDINO"},4:{dx:"VIRANDO",sx:"BRUNETTI"},3:{dx:"TREBIAN / MINIUSSI",sx:"BROCARDO / VAGNONE"},2:{dx:"MANCA / FOTI",sx:"MILEO / RAIMONDI"},1:{dx:"FERRERO / PEROSINO",sx:"AUTOMOBILE CLUB TORINO"},portico:["SARA ASSICURAZIONI (131/A)","VIA DELLE FIRME OUTLET (131/C)"]}},
+  "SCALA 131 BIS": { piani:{9:{dx:"ROETTI",sx:"COLPO / TOMASSO"},8:{dx:"BOSIO / ANERDI",sx:"CAMPODONICO"},7:{dx:"BEFFA / GAGLIANO",sx:"SACCO / ARENGA"},6:{dx:"ZANNINI",sx:"IANNIELLO / BACCAGLINI"},5:{dx:"NEGRÒ / DE MARTINI",sx:"MONTAGNINO"},4:{dx:"D’ADAMO",sx:"MARTINETTO / BELLUCCIO"},3:{dx:"BOGGIO LOTTO",sx:"IMPEDOVO"},2:{dx:"CURCI / HADJ AHMED",sx:"BACCAGLINI"},1:{dx:"CAUDA / BASSINO",sx:"CAUDA / GALLINO"},portico:["MODERN MAX STYLE (131BIS/A)","IL REGNO DEL CAFFÈ (131BIS/C)"]}},
+  "SCALA 133": { piani:{9:{dx:"MONACO",sx:"P. MERLIN / C. RAPETTI"},8:{dx:"CONTI / CARDACI",sx:"ANERDI / BOSIO"},7:{dx:"ANSINI / ARPAIA",sx:"LOTITO"},6:{dx:"RACCA",sx:"SPADAFORA / BERTELLI"},5:{dx:"PUGLIA / LA ROSA",sx:"BILOTTA / BERRUTO"},4:{dx:"MODEO / OTTONE",sx:"MOSAGNA / MINATO"},3:{dx:"CANGIANO / CORDERO",sx:"LA IACONA / PEDULLÀ"},2:{dx:"BALOCCO",sx:"BRUNETTI / REY"},1:{dx:"AQUILINO / DI PUMPO",sx:"PARPAGLIONE / BERTERO"},portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]}}
+};
 
-// COSTRUZIONE CARD (identico al tuo)
+// COSTRUZIONE CARDS
 const container = document.querySelector(".container");
-Object.keys(condominio).forEach(scala => {
-  const box = document.createElement("div");
-  box.className = "scalaBox";
-  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
 
-  const piani = condominio[scala].piani;
-
+Object.keys(condominio).forEach(scala=>{
+  const box=document.createElement("div");
+  box.className="scalaBox";
+  box.innerHTML=`<div class="scalaTitle">${scala}</div>`;
+  const piani=condominio[scala].piani;
   Object.keys(piani)
-    .filter(p => !isNaN(p))
+    .filter(p=>!isNaN(p))
     .sort((a,b)=>b-a)
-    .forEach(piano => {
-      const dati = piani[piano];
-
-      box.innerHTML += `
+    .forEach(piano=>{
+      const dati=piani[piano];
+      box.innerHTML+=`
         <div class="pianoBox">
           <div class="pianoTop">${piano}° piano</div>
           <div class="cards">
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-              ${dati.dx}
-              <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-            </div>
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-              ${dati.sx}
-              <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-            </div>
-          </div>
-        </div>`;
-    });
-
-  if (piani.portico) {
-    let html = `
-      <div class="pianoBox">
-        <div class="pianoTop">Portico</div>
-        <div class="cards">`;
-
-    piani.portico.forEach(nome => {
-      html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
-          ${nome}
-          <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-        </div>`;
-    });
-
-    html += `</div></div>`;
-    box.innerHTML += html;
-  }
-
-  container.appendChild(box);
-});
-
-let elementoSelezionato = null;
-let nominativo = "";
-
-function apri(scala, piano, lato, nome, elem){
-  elementoSelezionato = elem;
-  nominativo = nome;
-
-  document.getElementById("modalTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  document.getElementById("modalSegnalazione").style.display="flex";
-}
-
-function chiudiModal(){ document.getElementById("modalSegnalazione").style.display="none"; }
-function chiudiConferma(){ document.getElementById("modalConferma").style.display="none"; }
-
-function confermaInvio(){
-  document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
-
-  document.getElementById("modalConferma").style.display="flex";
-}
-
-// 🚨 FUNZIONE SPECIALE CHE FUNZIONA SU GOOGLE SITES
-function inviaSegnalazioneFinale(){
-
-  const tipo = document.getElementById("tipoInput").value;
-  const temp = document.getElementById("tempInput").value;
-  const desc = document.getElementById("descrizioneInput").value;
-
-  const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
-  const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
-  let lato = "CIVILE";
-  if(nominativo.includes("(")) lato = "NEGOZIO";
-  else if(elementoSelezionato.outerHTML.includes("DX")) lato = "DX";
-  else if(elementoSelezionato.outerHTML.includes("SX")) lato = "SX";
-
-  // 🌟 FORM INVISIBILE CHE GOOGLE SITES ACCETTA
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = WEBHOOK_URL;
-
-  const params = { scala, piano, lato, nome: nominativo, temperatura: temp, tipo, descrizione: desc };
-
-  for (const k in params) {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = k;
-    input.value = params[k];
-    form.appendChild(input);
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-}
-
-</script>
-
-</body>
-</html>
