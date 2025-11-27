@@ -179,13 +179,47 @@ textarea{ height:90px; resize:none; }
   </div>
 </div>
 
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
+    authDomain: "segnalazioni-guala.firebaseapp.com",
+    projectId: "segnalazioni-guala",
+    storageBucket: "segnalazioni-guala.firebasestorage.app",
+    messagingSenderId: "118462666966",
+    appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function salvaSegnalazione(dati) {
+    try {
+      await addDoc(collection(db, "segnalazioni"), {
+        timestamp: new Date(),
+        scala: dati.scala,
+        piano: dati.piano,
+        lato: dati.lato,
+        nome: dati.nome,
+        temperatura: dati.temperatura,
+        tipo: dati.tipo,
+        descrizione: dati.descrizione
+      });
+
+      alert("Segnalazione inviata correttamente.");
+    } catch (err) {
+      console.error("Errore Firestore:", err);
+      alert("Errore durante l'invio.");
+    }
+  }
+
+  window.salvaSegnalazione = salvaSegnalazione;
+</script>
+
 <script>
-// ---------------------------------------------------------
-// 🔗 WEBHOOK GOOGLE SCRIPT
-// ---------------------------------------------------------
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwsD7II1g9yJ_ooInF9nUhTXpCFwEwquaMnshynZrpeTNGasXtYpc6F_f89jjwnBSUM/exec";
-
-
 // ---------------------------------------------------------
 const condominio = {
   "SCALA 131": {
@@ -234,7 +268,6 @@ const condominio = {
   }
 };
 
-// ---------------------------------------------------------
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -306,9 +339,7 @@ function chiudiConferma(){ document.getElementById("modalConferma").style.displa
 
 function confermaInvio(){
   document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:\n\n👉 ${nominativo}?
-
-`;
+    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
   document.getElementById("modalConferma").style.display="flex";
 }
 
@@ -319,26 +350,6 @@ function inviaSegnalazioneFinale(){
   const temp = document.getElementById("tempInput").value;
   const desc = document.getElementById("descrizioneInput").value;
 
-  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
-
-  let colore = "alert-green";
-  if(["118","112","115"].includes(tipo)) colore="alert-red";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) colore="alert-orange";
-  else if(["serramenti","antincendio"].includes(tipo)) colore="alert-yellow";
-
-  elementoSelezionato.classList.add(colore);
-
-  const dot = elementoSelezionato.querySelector(".tempDot");
-  const label = elementoSelezionato.querySelector(".tempBox");
-
-  if(temp){
-    if(temp >= 28) dot.className="tempDot t-red";
-    else if(temp >= 24) dot.className="tempDot t-yellow";
-    else dot.className="tempDot t-blue";
-
-    label.innerHTML = `<span class="tempDot ${dot.classList[1]}"></span>${temp}°C`;
-  }
-
   const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
   const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
   let lato = "CIVILE";
@@ -346,25 +357,14 @@ function inviaSegnalazioneFinale(){
   else if(elementoSelezionato.outerHTML.includes("DX")) lato = "DX";
   else if(elementoSelezionato.outerHTML.includes("SX")) lato = "SX";
 
-  fetch(WEBHOOK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      scala: scala,
-      piano: piano.trim(),
-      lato: lato,
-      nome: nominativo,
-      temperatura: temp || "",
-      tipo: tipo,
-      descrizione: desc
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("Risposta Google Script:", data);
-  })
-  .catch(err => {
-    console.error("Errore nel fetch:", err);
+  salvaSegnalazione({
+    scala,
+    piano: piano.trim(),
+    lato,
+    nome: nominativo,
+    temperatura: temp || "",
+    tipo,
+    descrizione: desc
   });
 
   document.getElementById("modalConferma").style.display="none";
