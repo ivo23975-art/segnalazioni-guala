@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<link rel="manifest" href="manifest.json">
-<script>
-if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js");}
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
@@ -18,32 +13,25 @@ if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worke
   --border: #cc0000;
   --shadow: 0 4px 14px rgba(0,0,0,0.12);
   --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
-
   --t-blue: #0077ff;
   --t-yellow: #ffcc00;
   --t-red: #d50000;
 }
-
 body {
   background: var(--bg);
   margin: 0;
   padding: 1rem;
   font-family: system-ui, sans-serif;
 }
-
 h1, h2 { text-align: center; }
 h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
 h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
-
 .container {
   display: grid;
   grid-template-columns: repeat(3,1fr);
   gap: 1rem;
 }
-@media (max-width: 900px) {
-  .container { grid-template-columns: 1fr; }
-}
-
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 .scalaBox {
   background: white;
   padding: 1rem;
@@ -52,14 +40,12 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   max-height: 87vh;
   overflow-y: auto;
 }
-
 .scalaTitle {
   font-size: 1.4rem;
   text-align: center;
   font-weight: bold;
   margin-bottom: 1rem;
 }
-
 .pianoBox {
   background: white;
   border: 1px solid #e3e3e3;
@@ -68,14 +54,16 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   margin-bottom: 1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
-.pianoTop { text-align: center; font-weight: bold; margin-bottom: .8rem; }
-
+.pianoTop {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: .8rem;
+}
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
   gap: .8rem;
 }
-
 .card {
   background: var(--card-bg);
   border: 2px solid var(--border);
@@ -91,7 +79,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   transform: translateY(-4px);
   box-shadow: var(--shadow-strong);
 }
-
 .tempBox {
   display:flex; gap:4px; justify-content:center; margin-top:4px;
   font-size:.85rem;
@@ -100,12 +87,10 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-blue { background: var(--t-blue); }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
-
 .alert-red { background:#ff0000!important;color:white;animation:redBlink 1s infinite; }
 .alert-orange { background:#ff8800!important;color:white;animation:orangeBlink 1.4s infinite; }
 .alert-yellow { background:#fff06a!important;animation:yellowBlink 1.8s infinite; }
 .alert-green { background:#00b454!important;color:white; }
-
 @keyframes redBlink {0%,100%{background:#b00000;}50%{background:#ff4444;}}
 @keyframes orangeBlink {0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
 @keyframes yellowBlink {0%,100%{background:#d4bf00;}50%{background:#fff455;}}
@@ -120,13 +105,11 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   background:white; padding:1rem;
   width:92%; max-width:420px; border-radius:1rem;
 }
-
 input,select,textarea {
   width:100%; padding:.6rem; margin-top:.5rem;
   border:1px solid #ccc; border-radius:.6rem;
 }
 textarea{ height:90px; resize:none; }
-
 .btn {
   width:100%; padding:.8rem; margin-top:.7rem;
   background:var(--primary);
@@ -197,8 +180,13 @@ textarea{ height:90px; resize:none; }
 </div>
 
 <script>
+// ---------------------------------------------------------
+// 🔗 WEBHOOK GOOGLE SCRIPT
+// ---------------------------------------------------------
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwsD7II1g9yJ_ooInF9nUhTXpCFwEwquaMnshynZrpeTNGasXtYpc6F_f89jjwnBSUM/exec";
 
+
+// ---------------------------------------------------------
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -246,6 +234,7 @@ const condominio = {
   }
 };
 
+// ---------------------------------------------------------
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -298,6 +287,7 @@ Object.keys(condominio).forEach(scala => {
   container.appendChild(box);
 });
 
+// ---------------------------------------------------------
 let elementoSelezionato = null;
 let nominativo = "";
 
@@ -321,6 +311,7 @@ function confermaInvio(){
   document.getElementById("modalConferma").style.display="flex";
 }
 
+// ---------------------------------------------------------
 function inviaSegnalazioneFinale(){
 
   const tipo = document.getElementById("tipoInput").value;
