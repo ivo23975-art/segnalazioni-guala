@@ -287,11 +287,11 @@ Object.keys(condominio).forEach(scala => {
         <div class="pianoBox">
           <div class="pianoTop">${piano}° piano</div>
           <div class="cards">
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <div class="card" data-lato="DX" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
               <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
             </div>
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <div class="card" data-lato="SX" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
               <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
             </div>
@@ -307,7 +307,7 @@ Object.keys(condominio).forEach(scala => {
 
     piani.portico.forEach(nome => {
       html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card" data-lato="NEGOZIO" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
           <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
         </div>`;
@@ -350,12 +350,29 @@ function inviaSegnalazioneFinale(){
   const temp = document.getElementById("tempInput").value;
   const desc = document.getElementById("descrizioneInput").value;
 
+  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
+
+  let colore = "alert-green";
+  if(["118","112","115"].includes(tipo)) colore="alert-red";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) colore="alert-orange";
+  else if(["serramenti","antincendio"].includes(tipo)) colore="alert-yellow";
+
+  elementoSelezionato.classList.add(colore);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const label = elementoSelezionato.querySelector(".tempBox");
+
+  if(temp){
+    if(temp >= 28) dot.className="tempDot t-red";
+    else if(temp >= 24) dot.className="tempDot t-yellow";
+    else dot.className="tempDot t-blue";
+
+    label.innerHTML = `<span class="tempDot ${dot.classList[1]}"></span>${temp}°C`;
+  }
+
   const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
   const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
-  let lato = "CIVILE";
-  if(nominativo.includes("(")) lato = "NEGOZIO";
-  else if(elementoSelezionato.outerHTML.includes("DX")) lato = "DX";
-  else if(elementoSelezionato.outerHTML.includes("SX")) lato = "SX";
+  const lato = elementoSelezionato.dataset.lato;
 
   salvaSegnalazione({
     scala,
