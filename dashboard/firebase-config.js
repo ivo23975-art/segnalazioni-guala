@@ -1,4 +1,4 @@
-// Firebase configuration for segnalazioni-guala
+// Firebase Config (identico al tuo index)
 const firebaseConfig = {
     apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
     authDomain: "segnalazioni-guala.firebaseapp.com",
