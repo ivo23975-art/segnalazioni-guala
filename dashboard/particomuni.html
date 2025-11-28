@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
     <title>Parti Comuni – Segnalazioni attive</title>
+
     <link rel="stylesheet" href="dashboard.css">
 
     <!-- FIREBASE -->
@@ -11,7 +13,7 @@
     <!-- CONFIG -->
     <script src="firebase-config.js"></script>
 
-    <!-- LOGIC DASHBOARD -->
+    <!-- DASHBOARD LOGIC -->
     <script src="dashboard.js"></script>
 </head>
 
@@ -43,21 +45,21 @@
 
 <script>
 
-/* ============================================
-   FILTRO PARTICOMUNI (NUOVA LOGICA)
-============================================ */
+/* ==========================================================
+   FILTRO PARTI COMUNI (NUOVA LOGICA tipo + sottotipo)
+========================================================== */
 loadSegnalazioni(r =>
 
     r.stato === "attiva" && (
 
-        /* Caso 1 → nuova struttura
+        /* Caso 1 → Segnalazioni recenti (nuova logica)
            tipo = "Parti comuni"
-           sottotipo = dettaglio (es: "Luci cortile")  
+           sottotipo = "Luci cortile", "Cancello", ecc.
         */
         r.tipo === "Parti comuni" ||
 
-        /* Caso 2 → fallback per retrocompatibilità  
-           sottotipo contiene parole chiave standard  
+        /* Caso 2 → Retrocompatibilità vecchi dati
+           sottotipo contiene parole chiave (segnalazioni vecchie)
         */
         (
             r.sottotipo &&
