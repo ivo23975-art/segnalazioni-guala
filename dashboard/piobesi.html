@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Dashboard Piobesi</title>
+    <meta charset="UTF-8">
+    <title>Piobesi – Segnalazioni attive</title>
+
     <link rel="stylesheet" href="dashboard.css">
 
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+    <!-- CONFIG -->
     <script src="firebase-config.js"></script>
+
+    <!-- DASHBOARD LOGIC -->
     <script src="dashboard.js"></script>
 </head>
+
 <body>
 
 <div class="header">Piobesi – Segnalazioni attive</div>
@@ -30,15 +37,21 @@
     <th>Risolvi</th>
 </tr>
 </thead>
+
 <tbody id="tbody"></tbody>
 </table>
 
 </div>
 
 <script>
-loadSegnalazioni(r =>
-    r.stato === "attiva" && r.complesso === "piobesi"
-);
+
+    // Mostra SOLO segnalazioni attive del complesso Piobesi
+    loadSegnalazioni(
+        r =>
+            r.stato === "attiva" &&
+            r.complesso === "piobesi"
+    );
+
 </script>
 
 </body>
