@@ -3,19 +3,22 @@
 <head>
     <title>SuperAdmin Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
     <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
 </head>
 <body>
 
-<div class="header">SuperAdmin – Tutte le segnalazioni</div>
+<div class="header">SuperAdmin – TUTTE le segnalazioni</div>
 
 <div class="content">
 <table class="table">
     <thead>
         <tr>
-            <th>Timestamp</th>
+            <th>Data</th>
             <th>Scala</th>
             <th>Piano</th>
             <th>Lato</th>
@@ -23,15 +26,15 @@
             <th>Temp</th>
             <th>Tipo</th>
             <th>Descrizione</th>
+            <th>Azioni</th>
         </tr>
     </thead>
     <tbody id="tbody"></tbody>
 </table>
 </div>
 
-<script src="dashboard.js"></script>
 <script>
-loadSegnalazioni(r => true);
+loadSegnalazioni(r => true, true); // superadmin = true
 </script>
 
 </body>
