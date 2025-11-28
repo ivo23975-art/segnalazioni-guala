@@ -171,7 +171,7 @@ textarea { height: 90px; resize: none; }
       </optgroup>
     </select>
 
-    <label>Descrizione</label>
+    <label>Descrizione del problema</label>
     <textarea id="descrizioneInput"></textarea>
 
     <button class="btn" onclick="confermaInvio()">Procedi</button>
@@ -191,9 +191,7 @@ textarea { height: 90px; resize: none; }
 
 <script>
 
-/* ============================================================
-   FIREBASE CONFIG (copiato dai tuoi file)
-============================================================ */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
     apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
     authDomain: "segnalazioni-guala.firebaseapp.com",
@@ -205,10 +203,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-
-/* ============================================================
-   CONDOMINIO (identico al tuo originale)
-============================================================ */
+/* CONDOMINIO */
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -257,9 +252,7 @@ const condominio = {
 };
 
 
-/* ============================================================
-   GENERAZIONE UI DINAMICA (identica alla tua)
-============================================================ */
+/* UI GENERATION */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -333,10 +326,7 @@ Object.keys(condominio).forEach(scala => {
 });
 
 
-/* ============================================================
-   LOGICA MODALI
-============================================================ */
-
+/* MODAL LOGIC */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
@@ -362,8 +352,7 @@ function chiudiModal(){
 
 function confermaInvio(){
   document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:
-👉 ${nominativo}?`;
+    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
 
   document.getElementById("modalConferma").style.display="flex";
 }
@@ -373,23 +362,41 @@ function chiudiConferma(){
 }
 
 
-/* ============================================================
-   INVIO A FIRESTORE (NUOVA VERSIONE CORRETTA)
-============================================================ */
+/* FIRESTORE WRITE LOGIC */
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value || "Nessuna descrizione";
 
-  let priorita = "verde";
+  let priorita = "VERDE";
 
-  if(["118","112","115"].includes(tipo)) priorita = "rosso";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "arancione";
-  else if(["serramenti","antincendio"].includes(tipo)) priorita = "giallo";
+  if(["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo)) priorita = "GIALLO";
 
-  
-  // Scrittura su Firestore (COMPATIBILE con dashboard.js)
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let classeCSS = "alert-green";
+  if (priorita === "ROSSO") classeCSS = "alert-red";
+  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
+  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
+
+  elementoSelezionato.classList.add(classeCSS);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
   db.collection("segnalazioni").add({
       scala: scalaSel,
       piano: pianoSel,
@@ -404,8 +411,6 @@ function inviaSegnalazioneFinale() {
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-
-  // reset UI + chiusura modali
   chiudiConferma();
   chiudiModal();
 
