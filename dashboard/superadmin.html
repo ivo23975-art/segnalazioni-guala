@@ -1,41 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>SuperAdmin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperAdmin – Segnalazioni Totali</title>
+
+    <!-- STILE DASHBOARD -->
     <link rel="stylesheet" href="dashboard.css">
 
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <script src="firebase-config.js"></script>
-    <script src="dashboard.js"></script>
+    <!-- CONFIG FIREBASE -->
+    <script src="firebase-config.js?v=2"></script>
+
+    <!-- LOGICA DASHBOARD -->
+    <script src="dashboard.js?v=3"></script>
 </head>
+
 <body>
 
-<div class="header">SuperAdmin – TUTTE le segnalazioni</div>
+    <div class="header">
+        SUPER ADMIN – TUTTE LE SEGNALAZIONI
+    </div>
 
-<div class="content">
-<table class="table">
-    <thead>
-        <tr>
-            <th>Data</th>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>Temp</th>
-            <th>Tipo</th>
-            <th>Descrizione</th>
-            <th>Azioni</th>
-        </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-</table>
-</div>
+    <div class="content">
 
-<script>
-loadSegnalazioni(r => true, true); // superadmin = true
-</script>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Scala</th>
+                    <th>Piano</th>
+                    <th>Lato</th>
+                    <th>Nome</th>
+                    <th>Temp</th>
+                    <th>Tipo</th>
+                    <th>Descrizione</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+
+            <tbody id="tbody"></tbody>
+        </table>
+
+    </div>
+
+    <script>
+        // SUPERADMIN VEDE TUTTO, ANCHE RISOLTE
+        loadSegnalazioni(
+            r => true,     // nessun filtro
+            true           // abilita ELIMINA
+        );
+    </script>
 
 </body>
 </html>
