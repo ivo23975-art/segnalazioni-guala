@@ -2,58 +2,54 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuperAdmin – Segnalazioni Totali</title>
+    <title>SuperAdmin – Tutte le Segnalazioni</title>
 
-    <!-- STILE DASHBOARD -->
     <link rel="stylesheet" href="dashboard.css">
 
     <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE -->
-    <script src="firebase-config.js?v=2"></script>
+    <!-- CONFIG -->
+    <script src="firebase-config.js"></script>
 
-    <!-- LOGICA DASHBOARD -->
-    <script src="dashboard.js?v=3"></script>
+    <!-- DASHBOARD LOGIC -->
+    <script src="dashboard.js"></script>
 </head>
 
 <body>
 
-    <div class="header">
-        SUPER ADMIN – TUTTE LE SEGNALAZIONI
-    </div>
+<div class="header">SUPER ADMIN – TUTTE LE SEGNALAZIONI</div>
 
-    <div class="content">
+<div class="content">
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Scala</th>
-                    <th>Piano</th>
-                    <th>Lato</th>
-                    <th>Nome</th>
-                    <th>Temp</th>
-                    <th>Tipo</th>
-                    <th>Descrizione</th>
-                    <th>Azioni</th>
-                </tr>
-            </thead>
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Azioni</th>
+</tr>
+</thead>
 
-            <tbody id="tbody"></tbody>
-        </table>
+<tbody id="tbody"></tbody>
+</table>
 
-    </div>
+</div>
 
-    <script>
-        // SUPERADMIN VEDE TUTTO, ANCHE RISOLTE
-        loadSegnalazioni(
-            r => true,     // nessun filtro
-            true           // abilita ELIMINA
-        );
-    </script>
+<script>
+    // SUPERADMIN: NESSUN FILTRO, VEDE TUTTO
+    loadSegnalazioni(
+        r => true,
+        true   // superadmin = TRUE → abilita ELIMINA
+    );
+</script>
 
 </body>
 </html>
