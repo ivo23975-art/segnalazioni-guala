@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#cc0000">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js")
+    .then(() => console.log("Service Worker registrato"))
+    .catch(err => console.error("Errore SW:", err));
+}
+</script>
+
 <!-- FIREBASE 8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -282,155 +295,5 @@ const container = document.querySelector(".container");
 Object.keys(condominio).forEach(scala => {
   const box = document.createElement("div");
   box.className = "scalaBox";
-  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
-
-  const piani = condominio[scala].piani;
-
-  Object.keys(piani)
-    .filter(p => !isNaN(p))
-    .sort((a,b)=>b-a)
-    .forEach(piano => {
-      const dati = piani[piano];
-
-      box.innerHTML += `
-        <div class="pianoBox">
-          <div class="pianoTop">${piano}° piano</div>
-          <div class="cards">
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-              ${dati.dx}
-              <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-            </div>
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-              ${dati.sx}
-              <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-            </div>
-          </div>
-        </div>`;
-    });
-
-  if (piani.portico) {
-    let html = `
-      <div class="pianoBox">
-        <div class="pianoTop">Portico</div>
-        <div class="cards">`;
-
-    piani.portico.forEach(nome => {
-      html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
-          ${nome}
-          <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
-        </div>`;
-    });
-
-    html += `</div></div>`;
-    box.innerHTML += html;
-  }
-
-  container.appendChild(box);
-});
-
-
-/* -----------------------------
-         MODAL FUNZIONALE
------------------------------- */
-let elementoSelezionato = null;
-let nominativo = "";
-
-function apri(scala, piano, lato, nome, elem){
-  elementoSelezionato = elem;
-  nominativo = nome;
-
-  document.getElementById("modalTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  document.getElementById("modalSegnalazione").style.display="flex";
-}
-
-function chiudiModal(){ document.getElementById("modalSegnalazione").style.display="none"; }
-function chiudiConferma(){ document.getElementById("modalConferma").style.display="none"; }
-
-function confermaInvio(){
-  document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
-
-  document.getElementById("modalConferma").style.display="flex";
-}
-
-
-/* -----------------------------
-      CALCOLO COMPLESSO (AUTO)
------------------------------- */
-function getComplesso(scala) {
-  if (scala.includes("131") || scala.includes("133")) return "guala";
-  if (scala.includes("6") || scala.includes("8") || scala.includes("10")) return "piobesi";
-  return "unknown";
-}
-
-
-/* -----------------------------
-       INVIO SEGNALAZIONE
------------------------------- */
-function inviaSegnalazioneFinale(){
-
-  const tipo = document.getElementById("tipoInput").value;
-  const temp = document.getElementById("tempInput").value;
-  const desc = document.getElementById("descrizioneInput").value;
-
-  const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
-  const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
-  let lato = "CIVILE";
-
-  if(nominativo.includes("(")) lato = "NEGOZIO";
-  else if(elementoSelezionato.outerHTML.includes("DX")) lato = "DX";
-  else if(elementoSelezionato.outerHTML.includes("SX")) lato = "SX";
-
-  const complesso = getComplesso(scala);
-
-  /* ---------- SALVATAGGIO IN FIRESTORE (CORRETTO) ----------- */
-  db.collection("segnalazioni").add({
-      timestamp: firebase.firestore.Timestamp.now(),  // ✔ DATA CORRETTA
-      scala: scala,
-      piano: piano.trim(),
-      lato: lato,
-      nome: nominativo,
-      temperatura: temp || "",
-      tipo: tipo,
-      descrizione: desc || "",
-      complesso: complesso,
-      stato: "attiva"
-  })
-  .then(() => console.log("Salvato in Firestore"))
-  .catch(err => console.error("Errore Firestore:", err));
-
-  /* ---------- UI COLORI ----------- */
-  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
-
-  let colore = "alert-green";
-  if(["118","112","115"].includes(tipo)) colore="alert-red";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) colore="alert-orange";
-  else if(["serramenti","antincendio"].includes(tipo)) colore="alert-yellow";
-
-  elementoSelezionato.classList.add(colore);
-
-  const dot = elementoSelezionato.querySelector(".tempDot");
-  const label = elementoSelezionato.querySelector(".tempBox");
-
-  if(temp){
-    if(temp >= 28) dot.className="tempDot t-red";
-    else if(temp >= 24) dot.className="tempDot t-yellow";
-    else dot.className="tempDot t-blue";
-
-    label.innerHTML = `<span class="tempDot ${dot.classList[1]}"></span>${temp}°C`;
-  }
-
-  /* ---------- CHIUSURA MODAL ----------- */
-  document.getElementById("modalConferma").style.display="none";
-  document.getElementById("modalSegnalazione").style.display="none";
-  document.getElementById("tempInput").value="";
-  document.getElementById("descrizioneInput").value="";
-}
-
-</script>
-
-</body>
-</html>
+  box.innerHTML = `<div
+    
