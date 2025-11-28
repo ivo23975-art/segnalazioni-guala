@@ -1,3 +1,25 @@
+/* ------------------------------
+   FORMATTAZIONE DATA
+--------------------------------*/
+function formatDate(ts) {
+    if (!ts) return "-";
+    try {
+        const date = ts.toDate(); // Firestore Timestamp → oggetto Date()
+        return date.toLocaleString("it-IT", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    } catch (e) {
+        return "-";
+    }
+}
+
+/* ------------------------------
+   BADGE COLORE TIPO SEGNALAZIONE
+--------------------------------*/
 function badgeTipo(tipo) {
     if (!tipo) return `<span class="badge badge-green">N/D</span>`;
 
@@ -10,6 +32,7 @@ function badgeTipo(tipo) {
     if (["serramenti","antincendio"].includes(tipo))
         return `<span class="badge badge-yellow">Media</span>`;
 
+    // Parti comuni automatiche
     if (
         tipo.startsWith("Luci") ||
         tipo.startsWith("Cancello") ||
@@ -27,44 +50,59 @@ function badgeTipo(tipo) {
     return `<span class="badge badge-green">Basso</span>`;
 }
 
+/* ------------------------------
+   AZIONE: RISOLVERTI SEGNALAZIONE
+--------------------------------*/
 function risolviSegnalazione(id) {
     db.collection("segnalazioni").doc(id).update({
         stato: "risolta"
     });
 }
 
+/* ------------------------------
+   AZIONE: ELIMINARE SEGNALAZIONE (solo SuperAdmin)
+--------------------------------*/
 function eliminaSegnalazione(id) {
+    if (!confirm("Vuoi ELIMINARE definitivamente questa segnalazione?"))
+        return;
+
     db.collection("segnalazioni").doc(id).delete();
 }
 
+/* ------------------------------
+   CARICAMENTO DINAMICO
+--------------------------------*/
 function loadSegnalazioni(filterFn, superadmin = false) {
-    db.collection("segnalazioni").onSnapshot(snapshot => {
+
+    db.collection("segnalazioni").orderBy("timestamp", "desc").onSnapshot(snapshot => {
 
         let html = "";
 
         snapshot.forEach(doc => {
+
             const r = doc.data();
             r.id = doc.id;
 
             if (!r.stato) r.stato = "attiva";
-            if (!r.complesso) r.complesso = "unknown";
+            if (!r.complesso) r.complesso = "sconosciuto";
 
+            // filtro dashboard (Guala, Piobesi, Parti Comuni, SuperAdmin)
             if (!filterFn(r)) return;
 
             html += `
             <tr>
-                <td>${r.timestamp || "-"}</td>
-                <td>${r.scala || "-"}</td>
-                <td>${r.piano || "-"}</td>
-                <td>${r.lato || "-"}</td>
-                <td>${r.nome || "-"}</td>
-                <td>${r.temperatura || "-"}</td>
-                <td>${badgeTipo(r.tipo)}</td>
-                <td>${r.descrizione || "-"}</td>
-                <td>
+                <td data-label="Data">${formatDate(r.timestamp)}</td>
+                <td data-label="Scala">${r.scala || "-"}</td>
+                <td data-label="Piano">${r.piano || "-"}</td>
+                <td data-label="Lato">${r.lato || "-"}</td>
+                <td data-label="Nome">${r.nome || "-"}</td>
+                <td data-label="Temp">${r.temperatura || "-"}</td>
+                <td data-label="Tipo">${badgeTipo(r.tipo)}</td>
+                <td data-label="Descrizione">${r.descrizione || "-"}</td>
+                <td data-label="Azioni">
                     <div style="display:flex;">
                         <div class="action-btn btn-green" onclick="risolviSegnalazione('${r.id}')">✔</div>
-                        ${superadmin ? `<div class="action-btn btn-red" onclick="eliminaSegnalazione('${r.id}')">✖</div>` : ""}
+                        ${ superadmin ? `<div class="action-btn btn-red" onclick="eliminaSegnalazione('${r.id}')">✖</div>` : "" }
                     </div>
                 </td>
             </tr>`;
