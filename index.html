@@ -5,40 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#cc0000">
-<link rel="apple-touch-icon" href="icon-192.png">
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("Service Worker registrato"))
-    .catch(err => console.error("Errore SW:", err));
-}
-</script>
-
-<!-- FIREBASE 8 -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script>
-// CONFIGURAZIONE FIREBASE (LA TUA)
-const firebaseConfig = {
-  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
-  authDomain: "segnalazioni-guala.firebaseapp.com",
-  projectId: "segnalazioni-guala",
-  storageBucket: "segnalazioni-guala.firebasestorage.app",
-  messagingSenderId: "118462666966",
-  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
+<base target="_top">
 
 <style>
-/* --- TUTTO IL TUO STILE ORIGINALE --- */
 :root {
   --primary: #cc0000;
   --bg: #f3f4f6;
@@ -46,25 +15,33 @@ const db = firebase.firestore();
   --border: #cc0000;
   --shadow: 0 4px 14px rgba(0,0,0,0.12);
   --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
+
   --t-blue: #0077ff;
   --t-yellow: #ffcc00;
   --t-red: #d50000;
 }
+
 body {
   background: var(--bg);
   margin: 0;
   padding: 1rem;
   font-family: system-ui, sans-serif;
 }
-h1, h2 { text-align: center; }
+
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
 h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
 h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+
 .container {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
 .scalaBox {
   background: white;
   padding: 1rem;
@@ -73,85 +50,79 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   max-height: 87vh;
   overflow-y: auto;
 }
-.scalaTitle {
-  font-size: 1.4rem;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
+.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
+
 .pianoBox {
-  background: white;
+  background: #ffffff;
   border: 1px solid #e3e3e3;
   padding: 1rem;
   border-radius: .9rem;
   margin-bottom: 1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
-.pianoTop {
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: .8rem;
-}
+.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: .8rem;
 }
+
 .card {
   background: var(--card-bg);
   border: 2px solid var(--border);
-  padding: .7rem;
   border-radius: 1rem;
-  font-weight: bold;
+  padding: .7rem;
   text-align: center;
+  font-weight: bold;
   cursor: pointer;
-  transition: .15s ease-in-out;
   box-shadow: var(--shadow);
+  transition: .15s ease-in-out;
 }
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-strong);
-}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-strong); }
+
 .tempBox {
-  display:flex; gap:4px; justify-content:center; margin-top:4px;
-  font-size:.85rem;
+  font-size: .85rem;
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
 }
-.tempDot { width:12px; height:12px; border-radius:50%; }
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
 .t-blue { background: var(--t-blue); }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
-.alert-red { background:#ff0000!important;color:white;animation:redBlink 1s infinite; }
-.alert-orange { background:#ff8800!important;color:white;animation:orangeBlink 1.4s infinite; }
-.alert-yellow { background:#fff06a!important;animation:yellowBlink 1.8s infinite; }
-.alert-green { background:#00b454!important;color:white; }
-@keyframes redBlink {0%,100%{background:#b00000;}50%{background:#ff4444;}}
-@keyframes orangeBlink {0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
-@keyframes yellowBlink {0%,100%{background:#d4bf00;}50%{background:#fff455;}}
+
+/* Stati segnalazione */
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white; }
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white; }
+.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important; }
+.alert-green { background:#00b454!important; color:white; }
+
+@keyframes redBlink { 0%,100%{background:#b00000;} 50%{background:#ff4444;} }
+@keyframes orangeBlink { 0%,100%{background:#cc6a00;} 50%{background:#ff9c22;} }
+@keyframes yellowBlink { 0%,100%{background:#d4bf00;} 50%{background:#fff455;} }
 
 .modal {
-  position:fixed; inset:0; display:none;
-  background:rgba(0,0,0,.45);
-  justify-content:center;
-  align-align:center;
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: none; justify-content: center; align-items: center;
 }
 .modal-content {
-  background:white; padding:1rem;
-  width:92%; max-width:420px; border-radius:1rem;
+  background: white; padding: 1rem; width: 92%; max-width: 420px; border-radius: 1rem;
 }
-input,select,textarea {
-  width:100%; padding:.6rem; margin-top:.5rem;
-  border:1px solid #ccc; border-radius:.6rem;
+input, select, textarea {
+  width: 100%; padding: .6rem; margin-top: .5rem;
+  border: 1px solid #ccc; border-radius: .6rem;
 }
-textarea{ height:90px; resize:none; }
+textarea { height: 90px; resize: none; }
+
 .btn {
-  width:100%; padding:.8rem; margin-top:.7rem;
-  background:var(--primary);
-  border:none; border-radius:.6rem;
-  color:white; font-weight:bold;
+  margin-top: .7rem; padding: .8rem; border: none; width: 100%;
+  background: var(--primary); color: white; font-weight: bold; border-radius: .6rem; cursor: pointer;
 }
 .btnClose {
-  width:100%; padding:.8rem; margin-top:.7rem;
-  background:#ddd; border-radius:.6rem;
+  margin-top: .7rem; padding: .8rem; width: 100%; background: #ddd; border-radius: .6rem; cursor: pointer;
 }
 </style>
 </head>
@@ -163,24 +134,22 @@ textarea{ height:90px; resize:none; }
 
 <div class="container"></div>
 
-<!-- MODAL SEGNALAZIONE -->
+<!-- MODALE PRINCIPALE -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
+
     <h3 id="modalTitle"></h3>
 
     <label>Temperatura (facoltativa)</label>
     <input type="number" id="tempInput" placeholder="es: 23">
 
     <label>Tipo di intervento</label>
-
     <select id="tipoInput">
-
       <optgroup label="🔴 EMERGENZA">
         <option value="118">118 – Emergenza sanitaria</option>
         <option value="112">112 – Forze dell’ordine</option>
         <option value="115">115 – Vigili del fuoco</option>
       </optgroup>
-
       <optgroup label="🟠 ALTA URGENZA">
         <option value="ascensore">Ascensore</option>
         <option value="elettricista">Elettricista</option>
@@ -188,44 +157,26 @@ textarea{ height:90px; resize:none; }
         <option value="centrale">Centrale termica</option>
         <option value="autoclave">Autoclave</option>
       </optgroup>
-
       <optgroup label="🟡 MEDIA URGENZA">
         <option value="serramenti">Serramentista</option>
-        <option value="antincendio">Antincendio</option>
+        <option value="antincendio">Manutenzione Antincendio</option>
       </optgroup>
-
       <optgroup label="🟢 PUÒ ATTENDERE">
         <option value="pulizie">Pulizie</option>
         <option value="altro">Altro</option>
       </optgroup>
-
-      <optgroup label="🟡 PARTI COMUNI">
-        <option value="Luci scale">Luci scale</option>
-        <option value="Luci cortile">Luci cortile</option>
-        <option value="Cancello automatico">Cancello automatico</option>
-        <option value="Portone ingresso">Portone ingresso</option>
-        <option value="Cortile">Cortile</option>
-        <option value="Aree verdi / giardinaggio">Aree verdi / giardinaggio</option>
-        <option value="Box interrati">Box interrati</option>
-        <option value="Serrande garage">Serrande garage</option>
-        <option value="Cancello garage">Cancello garage</option>
-        <option value="Vano scale">Vano scale</option>
-        <option value="Locale contatori">Locale contatori</option>
-        <option value="Tettoia">Tettoia</option>
-        <option value="Pensiline">Pensiline</option>
-      </optgroup>
-
     </select>
 
     <label>Descrizione del problema</label>
-    <textarea id="descrizioneInput"></textarea>
+    <textarea id="descrizioneInput" placeholder="Inserisci una descrizione dettagliata"></textarea>
 
     <button class="btn" onclick="confermaInvio()">Procedi</button>
     <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
+
   </div>
 </div>
 
-<!-- MODAL CONFERMA -->
+<!-- MODALE CONFERMA -->
 <div class="modal" id="modalConferma">
   <div class="modal-content">
     <h3 id="confermaTesto"></h3>
@@ -235,10 +186,9 @@ textarea{ height:90px; resize:none; }
 </div>
 
 <script>
-
-/* -----------------------------
-     COSTRUZIONE CONDOMINIO
------------------------------- */
+/* ============================================================
+   DATABASE NOMI INTERNI
+============================================================ */
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -251,7 +201,10 @@ const condominio = {
       3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
       2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
       1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
-      portico:["SARA ASSICURAZIONI (131/A)","VIA DELLE FIRME OUTLET (131/C)"]
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
     }
   },
 
@@ -266,12 +219,15 @@ const condominio = {
       3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
       2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
       1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
-      portico:["MODERN MAX STYLE (131BIS/A)","IL REGNO DEL CAFFÈ (131BIS/C)"]
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
     }
   },
 
   "SCALA 133": {
-    piani: {
+    piani:{
       9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
       8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
       7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
@@ -281,19 +237,198 @@ const condominio = {
       3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
       2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
       1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
-      portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
     }
   }
 };
 
-
-/* -----------------------------
-        COSTRUZIONE UI
------------------------------- */
+/* ============================================================
+   COSTRUZIONE CARD APPARTAMENTI
+============================================================ */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
+
   const box = document.createElement("div");
   box.className = "scalaBox";
-  box.innerHTML = `<div
-    
+  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
+
+  const piani = condominio[scala].piani;
+
+  Object.keys(piani)
+    .filter(p => !isNaN(p))
+    .sort((a,b)=>b-a)
+    .forEach(piano => {
+
+      const dati = piani[piano];
+
+      let html = `
+        <div class="pianoBox">
+          <div class="pianoTop">${piano}° piano</div>
+          <div class="cards">
+
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              ${dati.dx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              ${dati.sx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+
+      box.innerHTML += html;
+
+    });
+
+  if (piani.portico){
+    let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">Livello Strada / Porticato</div>
+        <div class="cards">
+    `;
+
+    piani.portico.forEach(nome => {
+
+      html += `
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+          ${nome}
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
+  container.appendChild(box);
+});
+
+/* ============================================================
+   LOGICA MODALI
+============================================================ */
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
+
+function apri(scala, piano, lato, nome, elem){
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display="flex";
+}
+
+function chiudiModal(){
+  document.getElementById("modalSegnalazione").style.display="none";
+}
+
+function confermaInvio(){
+  document.getElementById("confermaTesto").innerText =
+    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
+
+  document.getElementById("modalConferma").style.display="flex";
+}
+
+function chiudiConferma(){
+  document.getElementById("modalConferma").style.display="none";
+}
+
+/* ============================================================
+   INVIO DATI A GOOGLE SHEETS
+============================================================ */
+function inviaSegnalazioneFinale() {
+
+  const tipo = document.getElementById("tipoInput").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value || "Nessuna descrizione";
+
+  let priorita = "VERDE";
+
+  if (tipo === "118" || tipo === "112" || tipo === "115") priorita = "ROSSO";
+  else if (
+    tipo === "ascensore" || tipo === "elettricista" ||
+    tipo === "idraulico" || tipo === "centrale" ||
+    tipo === "autoclave"
+  ) priorita = "ARANCIONE";
+  else if (tipo === "serramenti" || tipo === "antincendio")
+    priorita = "GIALLO";
+
+  // Rimuove colori vecchi
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  // Colore nuovo
+  let classeCSS = "alert-green";
+
+  if (priorita === "ROSSO") classeCSS = "alert-red";
+  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
+  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
+
+  elementoSelezionato.classList.add(classeCSS);
+
+  // Cambia colore pallino
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+  /* ================================
+      INVIO A GOOGLE SHEETS
+  =============================== */
+  fetch("https://script.google.com/macros/s/AKfycbzzlPAg6tE23_on5frpVyoCAwhXTH9QN7JkreAGjA3gZ8dIgt78WHPrK9N9WRaQFEVeXw/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      tipo: tipo,
+      priorita: priorita,
+      note: desc
+    })
+  });
+
+  chiudiConferma();
+  chiudiModal();
+
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+}
+</script>
+
+</body>
+</html>
