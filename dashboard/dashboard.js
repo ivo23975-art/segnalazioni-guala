@@ -4,7 +4,7 @@
 function formatDate(ts) {
     if (!ts) return "-";
     try {
-        const date = ts.toDate(); // Firestore Timestamp → oggetto Date()
+        const date = ts.toDate(); // Firestore Timestamp → Date()
         return date.toLocaleString("it-IT", {
             day: "2-digit",
             month: "2-digit",
@@ -18,40 +18,61 @@ function formatDate(ts) {
 }
 
 /* ------------------------------
-   BADGE COLORE TIPO SEGNALAZIONE
+   BADGE COLORE PER PRIORITÀ
 --------------------------------*/
 function badgeTipo(tipo) {
-    if (!tipo) return `<span class="badge badge-green">N/D</span>`;
 
-    if (["118", "112", "115"].includes(tipo))
+    if (!tipo)
+        return `<span class="badge badge-green">N/D</span>`;
+
+    // PARTI COMUNI
+    if (tipo === "Parti comuni")
+        return `<span class="badge badge-yellow">Parti comuni</span>`;
+
+    // EMERGENZA
+    if (["118","112","115"].includes(tipo))
         return `<span class="badge badge-red">Emergenza</span>`;
 
+    // ALTA URGENZA
     if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
         return `<span class="badge badge-orange">Alta</span>`;
 
+    // MEDIA URGENZA
     if (["serramenti","antincendio"].includes(tipo))
         return `<span class="badge badge-yellow">Media</span>`;
 
-    // Parti comuni automatiche
-    if (
-        tipo.startsWith("Luci") ||
-        tipo.startsWith("Cancello") ||
-        tipo.startsWith("Cortile") ||
-        tipo.startsWith("Aree") ||
-        tipo.startsWith("Box") ||
-        tipo.startsWith("Serrande") ||
-        tipo.startsWith("Vano") ||
-        tipo.startsWith("Locale") ||
-        tipo.startsWith("Tettoia") ||
-        tipo.startsWith("Pensiline")
-    )
-        return `<span class="badge badge-yellow">Parti comuni</span>`;
-
-    return `<span class="badge badge-green">Basso</span>`;
+    // Altre (basso)
+    return `<span class="badge badge-green">${tipo}</span>`;
 }
 
 /* ------------------------------
-   AZIONE: RISOLVERTI SEGNALAZIONE
+   RIGA TIPO + SOTTOTIPO (MODE 2)
+--------------------------------*/
+function tipoConSottotipo(tipo, sottotipo) {
+
+    let html = `${badgeTipo(tipo)}`;
+
+    // aggiungiamo il sottotipo come seconda riga
+    if (sottotipo && sottotipo.trim() !== "") {
+        html += `
+            <div style="
+                margin-top:4px;
+                padding:3px 6px;
+                background:#333;
+                color:#fff;
+                font-size:0.85rem;
+                border-radius:4px;
+                display:inline-block;">
+                ${sottotipo}
+            </div>
+        `;
+    }
+
+    return html;
+}
+
+/* ------------------------------
+   AZIONE: RISOLVERE SEGNALAZIONE
 --------------------------------*/
 function risolviSegnalazione(id) {
     db.collection("segnalazioni").doc(id).update({
@@ -60,12 +81,11 @@ function risolviSegnalazione(id) {
 }
 
 /* ------------------------------
-   AZIONE: ELIMINARE SEGNALAZIONE (solo SuperAdmin)
+   AZIONE: ELIMINARE SEGNALAZIONE
+   (solo SuperAdmin)
 --------------------------------*/
 function eliminaSegnalazione(id) {
-    if (!confirm("Vuoi ELIMINARE definitivamente questa segnalazione?"))
-        return;
-
+    if (!confirm("Vuoi eliminare definitivamente questa segnalazione?")) return;
     db.collection("segnalazioni").doc(id).delete();
 }
 
@@ -74,7 +94,9 @@ function eliminaSegnalazione(id) {
 --------------------------------*/
 function loadSegnalazioni(filterFn, superadmin = false) {
 
-    db.collection("segnalazioni").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    db.collection("segnalazioni")
+      .orderBy("timestamp", "desc")
+      .onSnapshot(snapshot => {
 
         let html = "";
 
@@ -84,9 +106,10 @@ function loadSegnalazioni(filterFn, superadmin = false) {
             r.id = doc.id;
 
             if (!r.stato) r.stato = "attiva";
+            if (!r.tipo) r.tipo = "N/D";
             if (!r.complesso) r.complesso = "sconosciuto";
 
-            // filtro dashboard (Guala, Piobesi, Parti Comuni, SuperAdmin)
+            // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
             if (!filterFn(r)) return;
 
             html += `
@@ -97,12 +120,23 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                 <td data-label="Lato">${r.lato || "-"}</td>
                 <td data-label="Nome">${r.nome || "-"}</td>
                 <td data-label="Temp">${r.temperatura || "-"}</td>
-                <td data-label="Tipo">${badgeTipo(r.tipo)}</td>
+
+                <td data-label="Tipo">
+                    ${ tipoConSottotipo(r.tipo, r.sottotipo) }
+                </td>
+
                 <td data-label="Descrizione">${r.descrizione || "-"}</td>
+
                 <td data-label="Azioni">
                     <div style="display:flex;">
-                        <div class="action-btn btn-green" onclick="risolviSegnalazione('${r.id}')">✔</div>
-                        ${ superadmin ? `<div class="action-btn btn-red" onclick="eliminaSegnalazione('${r.id}')">✖</div>` : "" }
+                        <div class="action-btn btn-green"
+                             onclick="risolviSegnalazione('${r.id}')">✔</div>
+
+                        ${ superadmin
+                            ? `<div class="action-btn btn-red"
+                                   onclick="eliminaSegnalazione('${r.id}')">✖</div>`
+                            : ""
+                        }
                     </div>
                 </td>
             </tr>`;
