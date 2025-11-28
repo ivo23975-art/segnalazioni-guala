@@ -5,7 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
+<!-- FIREBASE 8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+// CONFIGURAZIONE FIREBASE (LA TUA)
+const firebaseConfig = {
+  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
+  authDomain: "segnalazioni-guala.firebaseapp.com",
+  projectId: "segnalazioni-guala",
+  storageBucket: "segnalazioni-guala.firebasestorage.app",
+  messagingSenderId: "118462666966",
+  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
 <style>
+/* --- TUTTO IL TUO STILE ORIGINALE --- */
 :root {
   --primary: #cc0000;
   --bg: #f3f4f6;
@@ -99,7 +119,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   position:fixed; inset:0; display:none;
   background:rgba(0,0,0,.45);
   justify-content:center;
-  align-items:center;
+  align-align:center;
 }
 .modal-content {
   background:white; padding:1rem;
@@ -140,11 +160,13 @@ textarea{ height:90px; resize:none; }
 
     <label>Tipo di intervento</label>
     <select id="tipoInput">
+
       <optgroup label="🔴 EMERGENZA">
         <option value="118">118 – Emergenza sanitaria</option>
         <option value="112">112 – Forze dell’ordine</option>
         <option value="115">115 – Vigili del fuoco</option>
       </optgroup>
+
       <optgroup label="🟠 ALTA URGENZA">
         <option value="ascensore">Ascensore</option>
         <option value="elettricista">Elettricista</option>
@@ -152,14 +174,33 @@ textarea{ height:90px; resize:none; }
         <option value="centrale">Centrale termica</option>
         <option value="autoclave">Autoclave</option>
       </optgroup>
+
       <optgroup label="🟡 MEDIA URGENZA">
         <option value="serramenti">Serramentista</option>
         <option value="antincendio">Antincendio</option>
       </optgroup>
+
       <optgroup label="🟢 PUÒ ATTENDERE">
         <option value="pulizie">Pulizie</option>
         <option value="altro">Altro</option>
       </optgroup>
+
+      <optgroup label="🟡 PARTI COMUNI">
+        <option value="Luci scale">Luci scale</option>
+        <option value="Luci cortile">Luci cortile</option>
+        <option value="Cancello automatico">Cancello automatico</option>
+        <option value="Portone ingresso">Portone ingresso</option>
+        <option value="Cortile">Cortile</option>
+        <option value="Aree verdi / giardinaggio">Aree verdi / giardinaggio</option>
+        <option value="Box interrati">Box interrati</option>
+        <option value="Serrande garage">Serrande garage</option>
+        <option value="Cancello garage">Cancello garage</option>
+        <option value="Vano scale">Vano scale</option>
+        <option value="Locale contatori">Locale contatori</option>
+        <option value="Tettoia">Tettoia</option>
+        <option value="Pensiline">Pensiline</option>
+      </optgroup>
+
     </select>
 
     <label>Descrizione del problema</label>
@@ -179,48 +220,11 @@ textarea{ height:90px; resize:none; }
   </div>
 </div>
 
-<!-- FIREBASE -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
-    authDomain: "segnalazioni-guala.firebaseapp.com",
-    projectId: "segnalazioni-guala",
-    storageBucket: "segnalazioni-guala.firebasestorage.app",
-    messagingSenderId: "118462666966",
-    appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  async function salvaSegnalazione(dati) {
-    try {
-      await addDoc(collection(db, "segnalazioni"), {
-        timestamp: new Date(),
-        scala: dati.scala,
-        piano: dati.piano,
-        lato: dati.lato,
-        nome: dati.nome,
-        temperatura: dati.temperatura,
-        tipo: dati.tipo,
-        descrizione: dati.descrizione
-      });
-
-      alert("Segnalazione inviata correttamente.");
-    } catch (err) {
-      console.error("Errore Firestore:", err);
-      alert("Errore durante l'invio.");
-    }
-  }
-
-  window.salvaSegnalazione = salvaSegnalazione;
-</script>
-
 <script>
-// ---------------------------------------------------------
+
+/* -----------------------------
+     COSTRUZIONE CONDOMINIO
+------------------------------ */
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -268,6 +272,10 @@ const condominio = {
   }
 };
 
+
+/* -----------------------------
+        COSTRUZIONE UI
+------------------------------ */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -287,11 +295,11 @@ Object.keys(condominio).forEach(scala => {
         <div class="pianoBox">
           <div class="pianoTop">${piano}° piano</div>
           <div class="cards">
-            <div class="card" data-lato="DX" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
               <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
             </div>
-            <div class="card" data-lato="SX" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
               <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
             </div>
@@ -307,7 +315,7 @@ Object.keys(condominio).forEach(scala => {
 
     piani.portico.forEach(nome => {
       html += `
-        <div class="card" data-lato="NEGOZIO" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
           <div class="tempBox"><span class="tempDot t-blue"></span>—°C</div>
         </div>`;
@@ -320,7 +328,10 @@ Object.keys(condominio).forEach(scala => {
   container.appendChild(box);
 });
 
-// ---------------------------------------------------------
+
+/* -----------------------------
+         MODAL FUNZIONALE
+------------------------------ */
 let elementoSelezionato = null;
 let nominativo = "";
 
@@ -340,16 +351,57 @@ function chiudiConferma(){ document.getElementById("modalConferma").style.displa
 function confermaInvio(){
   document.getElementById("confermaTesto").innerText =
     `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
+
   document.getElementById("modalConferma").style.display="flex";
 }
 
-// ---------------------------------------------------------
+
+/* -----------------------------
+      CALCOLO COMPLESSO (AUTO)
+------------------------------ */
+function getComplesso(scala) {
+  if (scala.includes("131") || scala.includes("133")) return "guala";
+  if (scala.includes("6") || scala.includes("8") || scala.includes("10")) return "piobesi";
+  return "unknown";
+}
+
+
+/* -----------------------------
+       INVIO SEGNALAZIONE
+------------------------------ */
 function inviaSegnalazioneFinale(){
 
   const tipo = document.getElementById("tipoInput").value;
   const temp = document.getElementById("tempInput").value;
   const desc = document.getElementById("descrizioneInput").value;
 
+  const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
+  const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
+  let lato = "CIVILE";
+
+  if(nominativo.includes("(")) lato = "NEGOZIO";
+  else if(elementoSelezionato.outerHTML.includes("DX")) lato = "DX";
+  else if(elementoSelezionato.outerHTML.includes("SX")) lato = "SX";
+
+  const complesso = getComplesso(scala);
+
+  /* ---------- SALVATAGGIO IN FIRESTORE ----------- */
+  db.collection("segnalazioni").add({
+      timestamp: new Date().toLocaleString(),
+      scala: scala,
+      piano: piano.trim(),
+      lato: lato,
+      nome: nominativo,
+      temperatura: temp || "",
+      tipo: tipo,
+      descrizione: desc || "",
+      complesso: complesso,
+      stato: "attiva"
+  })
+  .then(() => console.log("Salvato in Firestore"))
+  .catch(err => console.error("Errore Firestore:", err));
+
+  /* ---------- UI COLORI ----------- */
   elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
 
   let colore = "alert-green";
@@ -370,20 +422,7 @@ function inviaSegnalazioneFinale(){
     label.innerHTML = `<span class="tempDot ${dot.classList[1]}"></span>${temp}°C`;
   }
 
-  const scala = elementoSelezionato.closest(".scalaBox").querySelector(".scalaTitle").textContent;
-  const piano = elementoSelezionato.closest(".pianoBox").querySelector(".pianoTop").textContent.replace("° piano","");
-  const lato = elementoSelezionato.dataset.lato;
-
-  salvaSegnalazione({
-    scala,
-    piano: piano.trim(),
-    lato,
-    nome: nominativo,
-    temperatura: temp || "",
-    tipo,
-    descrizione: desc
-  });
-
+  /* ---------- CHIUSURA MODAL ----------- */
   document.getElementById("modalConferma").style.display="none";
   document.getElementById("modalSegnalazione").style.display="none";
   document.getElementById("tempInput").value="";
