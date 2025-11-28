@@ -1,13 +1,13 @@
 function badgeTipo(tipo) {
     if (!tipo) return `<span class="badge badge-green">N/D</span>`;
 
-    if (["118", "112", "115"].includes(tipo)) 
+    if (["118", "112", "115"].includes(tipo))
         return `<span class="badge badge-red">Emergenza</span>`;
 
-    if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) 
+    if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
         return `<span class="badge badge-orange">Alta</span>`;
 
-    if (["serramenti","antincendio"].includes(tipo)) 
+    if (["serramenti","antincendio"].includes(tipo))
         return `<span class="badge badge-yellow">Media</span>`;
 
     if (
@@ -46,11 +46,9 @@ function loadSegnalazioni(filterFn, superadmin = false) {
             const r = doc.data();
             r.id = doc.id;
 
-            // PREVIENE ERRORI se mancano campi vecchi
             if (!r.stato) r.stato = "attiva";
             if (!r.complesso) r.complesso = "unknown";
 
-            // FILTRO DASHBOARD SPECIFICHE
             if (!filterFn(r)) return;
 
             html += `
