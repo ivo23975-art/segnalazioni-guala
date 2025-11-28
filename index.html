@@ -159,6 +159,7 @@ textarea{ height:90px; resize:none; }
     <input type="number" id="tempInput" placeholder="es: 23">
 
     <label>Tipo di intervento</label>
+
     <select id="tipoInput">
 
       <optgroup label="🔴 EMERGENZA">
@@ -385,9 +386,9 @@ function inviaSegnalazioneFinale(){
 
   const complesso = getComplesso(scala);
 
-  /* ---------- SALVATAGGIO IN FIRESTORE ----------- */
+  /* ---------- SALVATAGGIO IN FIRESTORE (CORRETTO) ----------- */
   db.collection("segnalazioni").add({
-      timestamp: new Date().toLocaleString(),
+      timestamp: firebase.firestore.Timestamp.now(),  // ✔ DATA CORRETTA
       scala: scala,
       piano: piano.trim(),
       lato: lato,
@@ -428,6 +429,7 @@ function inviaSegnalazioneFinale(){
   document.getElementById("tempInput").value="";
   document.getElementById("descrizioneInput").value="";
 }
+
 </script>
 
 </body>
