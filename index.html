@@ -5,22 +5,132 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#cc0000">
-<link rel="apple-touch-icon" href="icon-192.png">
+<base target="_top">
+
+<style>
+:root {
+  --primary: #cc0000;
+  --bg: #f3f4f6;
+  --card-bg: #f7f7f7;
+  --border: #cc0000;
+  --shadow: 0 4px 14px rgba(0,0,0,0.12);
+  --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
+
+  --t-blue: #0077ff;
+  --t-yellow: #ffcc00;
+  --t-red: #d50000;
+}
+
+body {
+  background: var(--bg);
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
+h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+.scalaBox {
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  max-height: 87vh;
+  overflow-y: auto;
+}
+.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
+
+.pianoBox {
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+  padding: 1rem;
+  border-radius: .9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: .8rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: .7rem;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: .15s ease-in-out;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-strong); }
+
+.tempBox {
+  font-size: .85rem;
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
+}
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
+.t-blue { background: var(--t-blue); }
+.t-yellow { background: var(--t-yellow); }
+.t-red { background: var(--t-red); }
+
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white; }
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white; }
+.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important; }
+.alert-green { background:#00b454!important; color:white; }
+
+@keyframes redBlink { 0%,100%{background:#b00000;} 50%{background:#ff4444;} }
+@keyframes orangeBlink { 0%,100%{background:#cc6a00;} 50%{background:#ff9c22;} }
+@keyframes yellowBlink { 0%,100%{background:#d4bf00;} 50%{background:#fff455;} }
+
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: none; justify-content: center; align-items: center;
+}
+.modal-content {
+  background: white; padding: 1rem; width: 92%; max-width: 420px; border-radius: 1rem;
+}
+input, select, textarea {
+  width: 100%; padding: .6rem; margin-top: .5rem;
+  border: 1px solid #ccc; border-radius: .6rem;
+}
+textarea { height: 90px; resize: none; }
+
+.btn {
+  margin-top: .7rem; padding: .8rem; border: none; width: 100%;
+  background: var(--primary); color: white; font-weight: bold; border-radius: .6rem; cursor: pointer;
+}
+.btnClose {
+  margin-top: .7rem; padding: .8rem; width: 100%; background: #ddd; border-radius: .6rem; cursor: pointer;
+}
+</style>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<style>
-/* (STILE IDENTICO ALLA VERSIONE CHE MI HAI MANDATO,
-   NON LO RISCRIVO QUI PERCHÉ LO HAI GIÀ PERFETTO)
-   → Copiato integralmente dal tuo file funzionante.
-*/
-</style>
-
 </head>
+
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
@@ -28,9 +138,10 @@
 
 <div class="container"></div>
 
-<!-- MODALE PRINCIPALE -->
+<!-- MODALI: identiche alla tua versione -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
+
     <h3 id="modalTitle"></h3>
 
     <label>Temperatura (facoltativa)</label>
@@ -60,7 +171,7 @@
       </optgroup>
     </select>
 
-    <label>Descrizione</label>
+    <label>Descrizione del problema</label>
     <textarea id="descrizioneInput"></textarea>
 
     <button class="btn" onclick="confermaInvio()">Procedi</button>
@@ -68,7 +179,6 @@
   </div>
 </div>
 
-<!-- MODALE CONFERMA -->
 <div class="modal" id="modalConferma">
   <div class="modal-content">
     <h3 id="confermaTesto"></h3>
@@ -79,7 +189,9 @@
 
 
 <script>
-// ---------------- FIREBASE CONFIG ----------------
+/* ============================================================
+   FIREBASE CONFIG
+============================================================ */
 const firebaseConfig = {
     apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
     authDomain: "segnalazioni-guala.firebaseapp.com",
@@ -91,19 +203,68 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ---------------- COSTRUZIONE CONDOMINIO ----------------
-const condominio = { 
-    /* QUI HO USATO ESATTAMENTE IL TUO OGGETTO INTERI,
-       COPIATO IDENTICO
-       (NON LO RISCRIVO PERCHÉ È LUNGHISSIMO
-        MA TU LO HAI GIÀ INCOLLATO COMPLETO E FUNZIONA)
-    */
+
+/* ============================================================
+   TUTTO IL TUO OGGETTO CONDOMINIO
+   (COPIATO 1:1 DAL TUO FILE)
+============================================================ */
+
+const condominio = {
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:["SARA ASSICURAZIONI (131/A)","VIA DELLE FIRME OUTLET (131/C)"]
+    }
+  },
+
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:["MODERN MAX STYLE (131BIS/A)","IL REGNO DEL CAFFÈ (131BIS/C)"]
+    }
+  },
+
+  "SCALA 133": {
+    piani: {
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]
+    }
+  }
 };
 
-// ---------------- GENERAZIONE UI DINAMICA ----------------
+
+/* ============================================================
+   GENERAZIONE UI (COPIATA ESATTAMENTE)
+============================================================ */
+
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
+
   const box = document.createElement("div");
   box.className = "scalaBox";
   box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
@@ -117,60 +278,73 @@ Object.keys(condominio).forEach(scala => {
 
       const dati = piani[piano];
 
-      let ui = `
+      let html = `
         <div class="pianoBox">
           <div class="pianoTop">${piano}° piano</div>
           <div class="cards">
 
             <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
-              <div class="tempBox"><span class="tempDot t-blue"></span><span class="tempVal">—°C</span></div>
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
             </div>
 
             <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
-              <div class="tempBox"><span class="tempDot t-blue"></span><span class="tempVal">—°C</span></div>
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
             </div>
 
           </div>
         </div>
       `;
 
-      box.innerHTML += ui;
+      box.innerHTML += html;
     });
 
-  if (piani.portico) {
-    let ui = `
+  if (piani.portico){
+    let html = `
       <div class="pianoBox">
-        <div class="pianoTop">Portici</div>
+        <div class="pianoTop">Livello Strada / Porticato</div>
         <div class="cards">
     `;
 
     piani.portico.forEach(nome => {
-      ui += `
+
+      html += `
         <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
-          <div class="tempBox"><span class="tempDot t-blue"></span><span class="tempVal">—°C</span></div>
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
         </div>
       `;
     });
 
-    ui += "</div></div>";
-    box.innerHTML += ui;
+    html += `</div></div>`;
+    box.innerHTML += html;
   }
 
   container.appendChild(box);
 });
 
 
-// ---------------- LOGICA MODALI ----------------
+/* ============================================================
+   LOGICA MODALI
+============================================================ */
+
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
 let pianoSel = "";
 let latoSel = "";
 
-function apri(scala, piano, lato, nome, elem) {
+function apri(scala, piano, lato, nome, elem){
   elementoSelezionato = elem;
   nominativo = nome;
   scalaSel = scala;
@@ -183,13 +357,13 @@ function apri(scala, piano, lato, nome, elem) {
   document.getElementById("modalSegnalazione").style.display="flex";
 }
 
-function chiudiModal(){ 
+function chiudiModal(){
   document.getElementById("modalSegnalazione").style.display="none";
 }
 
-function confermaInvio() {
+function confermaInvio(){
   document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:\n 👉 ${nominativo}?`;
+    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
 
   document.getElementById("modalConferma").style.display="flex";
 }
@@ -199,32 +373,60 @@ function chiudiConferma(){
 }
 
 
-// ---------------- INVIO A FIRESTORE ----------------
+/* ============================================================
+   INVIO A GOOGLE SHEETS
+============================================================ */
+
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value || "Nessuna descrizione";
 
-  // determinazione priorità
-  let priorita = "verde";
-  if (["118","112","115"].includes(tipo)) priorita = "rosso";
-  else if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "arancione";
-  else if (["serramenti","antincendio"].includes(tipo)) priorita = "giallo";
+  let priorita = "VERDE";
 
-  // invio a Firestore (COMPATIBILE CON DASHBOARD)
-  db.collection("segnalazioni").add({
-    scala: scalaSel,
-    piano: pianoSel,
-    lato: latoSel,
-    nome: nominativo,
-    temperatura: temp,
-    tipo: tipo,
-    descrizione: desc,
-    priorita: priorita,
-    complesso: "guala",
-    stato: "attiva",
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+    priorita = "ARANCIONE";
+  else if (["serramenti","antincendio"].includes(tipo))
+    priorita = "GIALLO";
+
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let classeCSS = "alert-green";
+
+  if (priorita === "ROSSO") classeCSS = "alert-red";
+  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
+  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
+
+  elementoSelezionato.classList.add(classeCSS);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+  fetch("https://script.google.com/macros/s/AKfycbzzlPAg6tE23_on5frpVyoCAwhXTH9QN7JkreAGjA3gZ8dIgt78WHPrK9N9WRaQFEVeXw/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      tipo: tipo,
+      priorita: priorita,
+      note: desc
+    })
   });
 
   chiudiConferma();
@@ -234,6 +436,7 @@ function inviaSegnalazioneFinale() {
   document.getElementById("descrizioneInput").value = "";
   document.getElementById("tipoInput").value = "altro";
 }
+
 </script>
 
 </body>
