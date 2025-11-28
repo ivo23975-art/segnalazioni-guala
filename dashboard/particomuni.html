@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard Parti Comuni</title>
+    <title>Parti Comuni – Segnalazioni attive</title>
     <link rel="stylesheet" href="dashboard.css">
 
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+    <!-- CONFIG -->
     <script src="firebase-config.js"></script>
+
+    <!-- LOGIC DASHBOARD -->
     <script src="dashboard.js"></script>
 </head>
+
 <body>
 
 <div class="header">Parti Comuni – Segnalazioni attive</div>
@@ -30,27 +35,51 @@
     <th>Risolvi</th>
 </tr>
 </thead>
+
 <tbody id="tbody"></tbody>
 </table>
 
 </div>
 
 <script>
+
+/* ============================================
+   FILTRO PARTICOMUNI (NUOVA LOGICA)
+============================================ */
 loadSegnalazioni(r =>
-    r.stato === "attiva" &&
-    (
-      r.tipo.startsWith("Luci") ||
-      r.tipo.startsWith("Cancello") ||
-      r.tipo.startsWith("Cortile") ||
-      r.tipo.startsWith("Aree") ||
-      r.tipo.startsWith("Box") ||
-      r.tipo.startsWith("Serrande") ||
-      r.tipo.startsWith("Vano") ||
-      r.tipo.startsWith("Locale") ||
-      r.tipo.startsWith("Tettoia") ||
-      r.tipo.startsWith("Pensiline")
+
+    r.stato === "attiva" && (
+
+        /* Caso 1 → nuova struttura
+           tipo = "Parti comuni"
+           sottotipo = dettaglio (es: "Luci cortile")  
+        */
+        r.tipo === "Parti comuni" ||
+
+        /* Caso 2 → fallback per retrocompatibilità  
+           sottotipo contiene parole chiave standard  
+        */
+        (
+            r.sottotipo &&
+            (
+                r.sottotipo.includes("Luci") ||
+                r.sottotipo.includes("Cancello") ||
+                r.sottotipo.includes("Cortile") ||
+                r.sottotipo.includes("Aree") ||
+                r.sottotipo.includes("Box") ||
+                r.sottotipo.includes("Serrande") ||
+                r.sottotipo.includes("Vano") ||
+                r.sottotipo.includes("Locale") ||
+                r.sottotipo.includes("Tetto") ||
+                r.sottotipo.includes("Pensil") ||
+                r.sottotipo.includes("Pavimentazione") ||
+                r.sottotipo.includes("Rivestimenti")
+            )
+        )
     )
+
 );
+
 </script>
 
 </body>
