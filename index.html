@@ -138,7 +138,7 @@ textarea { height: 90px; resize: none; }
 
 <div class="container"></div>
 
-<!-- MODALI: identiche alla tua versione -->
+<!-- MODALI -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
 
@@ -171,11 +171,12 @@ textarea { height: 90px; resize: none; }
       </optgroup>
     </select>
 
-    <label>Descrizione del problema</label>
+    <label>Descrizione</label>
     <textarea id="descrizioneInput"></textarea>
 
     <button class="btn" onclick="confermaInvio()">Procedi</button>
     <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
+
   </div>
 </div>
 
@@ -189,8 +190,9 @@ textarea { height: 90px; resize: none; }
 
 
 <script>
+
 /* ============================================================
-   FIREBASE CONFIG
+   FIREBASE CONFIG (copiato dai tuoi file)
 ============================================================ */
 const firebaseConfig = {
     apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
@@ -205,10 +207,8 @@ const db = firebase.firestore();
 
 
 /* ============================================================
-   TUTTO IL TUO OGGETTO CONDOMINIO
-   (COPIATO 1:1 DAL TUO FILE)
+   CONDOMINIO (identico al tuo originale)
 ============================================================ */
-
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -258,9 +258,8 @@ const condominio = {
 
 
 /* ============================================================
-   GENERAZIONE UI (COPIATA ESATTAMENTE)
+   GENERAZIONE UI DINAMICA (identica alla tua)
 ============================================================ */
-
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -363,7 +362,8 @@ function chiudiModal(){
 
 function confermaInvio(){
   document.getElementById("confermaTesto").innerText =
-    `Sei sicuro di essere:\n\n👉 ${nominativo}?`;
+    `Sei sicuro di essere:
+👉 ${nominativo}?`;
 
   document.getElementById("modalConferma").style.display="flex";
 }
@@ -374,61 +374,38 @@ function chiudiConferma(){
 
 
 /* ============================================================
-   INVIO A GOOGLE SHEETS
+   INVIO A FIRESTORE (NUOVA VERSIONE CORRETTA)
 ============================================================ */
-
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value || "Nessuna descrizione";
 
-  let priorita = "VERDE";
+  let priorita = "verde";
 
-  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
-    priorita = "ARANCIONE";
-  else if (["serramenti","antincendio"].includes(tipo))
-    priorita = "GIALLO";
+  if(["118","112","115"].includes(tipo)) priorita = "rosso";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "arancione";
+  else if(["serramenti","antincendio"].includes(tipo)) priorita = "giallo";
 
-  elementoSelezionato.classList.remove(
-    "alert-red","alert-orange","alert-yellow","alert-green"
-  );
-
-  let classeCSS = "alert-green";
-
-  if (priorita === "ROSSO") classeCSS = "alert-red";
-  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
-  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
-
-  elementoSelezionato.classList.add(classeCSS);
-
-  const dot = elementoSelezionato.querySelector(".tempDot");
-  const val = elementoSelezionato.querySelector(".tempVal");
-
-  if (temp !== "ND") {
-    if (temp >= 28) dot.className = "tempDot t-red";
-    else if (temp >= 24) dot.className = "tempDot t-yellow";
-    else dot.className = "tempDot t-blue";
-
-    val.innerText = temp + "°C";
-  }
-
-  fetch("https://script.google.com/macros/s/AKfycbzzlPAg6tE23_on5frpVyoCAwhXTH9QN7JkreAGjA3gZ8dIgt78WHPrK9N9WRaQFEVeXw/exec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  
+  // Scrittura su Firestore (COMPATIBILE con dashboard.js)
+  db.collection("segnalazioni").add({
       scala: scalaSel,
       piano: pianoSel,
       lato: latoSel,
       nome: nominativo,
       temperatura: temp,
       tipo: tipo,
+      descrizione: desc,
       priorita: priorita,
-      note: desc
-    })
+      complesso: "guala",
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
+
+  // reset UI + chiusura modali
   chiudiConferma();
   chiudiModal();
 
