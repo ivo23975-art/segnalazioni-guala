@@ -3,35 +3,54 @@
 <head>
     <title>Dashboard Parti Comuni</title>
     <link rel="stylesheet" href="dashboard.css">
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
     <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
 </head>
 <body>
 
-<div class="header">Parti Comuni – Tutti i Complessi</div>
+<div class="header">Parti Comuni – Segnalazioni attive</div>
 
 <div class="content">
+
 <table class="table">
-    <thead>
-        <tr>
-            <th>Timestamp</th>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>Temp</th>
-            <th>Tipo</th>
-            <th>Descrizione</th>
-        </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
 </table>
+
 </div>
 
-<script src="dashboard.js"></script>
 <script>
-loadSegnalazioni(r => r.tipo.startsWith("parti-"));
+loadSegnalazioni(r =>
+    r.stato === "attiva" &&
+    (
+      r.tipo.startsWith("Luci") ||
+      r.tipo.startsWith("Cancello") ||
+      r.tipo.startsWith("Cortile") ||
+      r.tipo.startsWith("Aree") ||
+      r.tipo.startsWith("Box") ||
+      r.tipo.startsWith("Serrande") ||
+      r.tipo.startsWith("Vano") ||
+      r.tipo.startsWith("Locale") ||
+      r.tipo.startsWith("Tettoia") ||
+      r.tipo.startsWith("Pensiline")
+    )
+);
 </script>
 
 </body>
