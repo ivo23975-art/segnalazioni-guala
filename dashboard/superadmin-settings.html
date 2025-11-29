@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>SuperAdmin – Gestione Credenziali</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+
+    <style>
+        body {
+            background:#111;
+            color:#eee;
+            font-family:system-ui, sans-serif;
+            margin:0;
+            padding:20px;
+        }
+        h1 {
+            text-align:center;
+            margin-bottom:20px;
+        }
+        .box {
+            background:#1c1c1c;
+            padding:20px;
+            border-radius:10px;
+            max-width:600px;
+            margin:0 auto 25px auto;
+        }
+        label { 
+            margin-top:10px; 
+            display:block; 
+            font-weight:bold; 
+        }
+        input, select {
+            width:100%;
+            padding:10px;
+            border-radius:6px;
+            border:none;
+            background:#2c2c2c;
+            color:#fff;
+            margin-top:5px;
+        }
+        button {
+            width:100%;
+            padding:12px;
+            background:#cc0000;
+            margin-top:20px;
+            border:none;
+            border-radius:6px;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+        }
+        .role-title {
+            font-size:1.3rem;
+            margin:20px 0 10px 0;
+            color:#cc0000;
+            font-weight:bold;
+        }
+        .logout-btn {
+            background:#444;
+            margin-top:30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>SuperAdmin – Gestione Accessi Amministratori</h1>
+
+<div class="box">
+
+    <p>Qui puoi modificare:</p>
+    <ul>
+        <li>Password di ogni amministratore</li>
+        <li>Username (se attivi username+password)</li>
+        <li>Modalità di login (Password ↔ Username+Password)</li>
+    </ul>
+
+    <hr style="margin:20px 0; border-color:#333">
+
+    <!-- FORM DINAMICO GENERATO DA JS -->
+    <div id="adminSettingsContainer"></div>
+
+    <button onclick="saveAll()">💾 Salva Modifiche</button>
+
+    <button class="logout-btn" onclick="adminLogout()">Esci dal pannello</button>
+
+</div>
+
+<script src="admin-auth.js"></script>
+
+<script>
+
+/* =====================================================
+   CONSENTI ACCESSO SOLO A SUPERADMIN
+===================================================== */
+if (localStorage.getItem("ADMIN_ROLE") !== "superadmin") {
+    window.location.href = "login.html";
+}
+
+/* =====================================================
+   GENERA FORM DI CONTROLLO PER OGNI ADMIN
+===================================================== */
+function renderSettings() {
+
+    const container = document.getElementById("adminSettingsContainer");
+    container.innerHTML = "";
+
+    for (const key in ADMIN_DATA) {
+
+        const admin = ADMIN_DATA[key];
+
+        container.innerHTML += `
+            <div class="role-title">🔒 ${admin.role.toUpperCase()}</div>
+
+            <label>Modalità di login</label>
+            <select id="mode_${key}">
+                <option value="password" ${admin.loginMode === "password" ? "selected" : ""}>
+                    Solo password
+                </option>
+                <option value="userpass" ${admin.loginMode === "userpass" ? "selected" : ""}>
+                    Username + Password
+                </option>
+            </select>
+
+            <div id="userbox_${key}" style="margin-top:10px; display:${admin.loginMode === "userpass" ? "block" : "none"};">
+                <label>Username</label>
+                <input type="text" id="user_${key}" value="${admin.username}">
+            </div>
+
+            <label>Password</label>
+            <input type="text" id="pass_${key}" value="${admin.password}">
+            
+            <hr style="margin:20px 0; border-color:#333">
+        `;
+    }
+
+    // collega eventi per mostra/nascondi username
+    for (const key in ADMIN_DATA) {
+        document.getElementById(`mode_${key}`).addEventListener("change", e => {
+            const mode = e.target.value;
+            document.getElementById(`userbox_${key}`).style.display =
+                mode === "userpass" ? "block" : "none";
+        });
+    }
+}
+
+/* =====================================================
+   SALVA TUTTE LE MODIFICHE
+===================================================== */
+function saveAll() {
+
+    let newData = {};
+
+    for (const key in ADMIN_DATA) {
+
+        newData[key] = {
+            role: ADMIN_DATA[key].role,
+            loginMode: document.getElementById(`mode_${key}`).value,
+            username: document.getElementById(`user_${key}`)?.value || ADMIN_DATA[key].username,
+            password: document.getElementById(`pass_${key}`).value
+        };
+    }
+
+    saveAdminConfig(newData);
+
+    alert("Modifiche salvate correttamente!");
+}
+
+renderSettings();
+
+</script>
+
+</body>
+</html>
