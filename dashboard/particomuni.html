@@ -15,6 +15,9 @@
 
     <!-- DASHBOARD LOGIC -->
     <script src="dashboard.js"></script>
+
+    <!-- SISTEMA LOGIN -->
+    <script src="admin-auth.js"></script>
 </head>
 
 <body>
@@ -45,42 +48,46 @@
 
 <script>
 
-/* ==========================================================
-   FILTRO PARTI COMUNI (NUOVA LOGICA tipo + sottotipo)
-========================================================== */
-loadSegnalazioni(r =>
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO ADMIN PARTI COMUNI
+    ---------------------------------------------------------- */
+    requireRole("particomuni");
 
-    r.stato === "attiva" && (
+    /* ==========================================================
+       FILTRO PARTI COMUNI (NUOVA LOGICA tipo + sottotipo)
+    =========================================================== */
+    loadSegnalazioni(r =>
 
-        /* Caso 1 → Segnalazioni recenti (nuova logica)
-           tipo = "Parti comuni"
-           sottotipo = "Luci cortile", "Cancello", ecc.
-        */
-        r.tipo === "Parti comuni" ||
+        r.stato === "attiva" && (
 
-        /* Caso 2 → Retrocompatibilità vecchi dati
-           sottotipo contiene parole chiave (segnalazioni vecchie)
-        */
-        (
-            r.sottotipo &&
+            /* Caso 1 → Segnalazioni nuove (logica aggiornata)
+               tipo = "Parti comuni" + sottotipo specifico
+            */
+            r.tipo === "Parti comuni" ||
+
+            /* Caso 2 → Compatibilità vecchi dati
+               sottotipo contiene parole chiave
+            */
             (
-                r.sottotipo.includes("Luci") ||
-                r.sottotipo.includes("Cancello") ||
-                r.sottotipo.includes("Cortile") ||
-                r.sottotipo.includes("Aree") ||
-                r.sottotipo.includes("Box") ||
-                r.sottotipo.includes("Serrande") ||
-                r.sottotipo.includes("Vano") ||
-                r.sottotipo.includes("Locale") ||
-                r.sottotipo.includes("Tetto") ||
-                r.sottotipo.includes("Pensil") ||
-                r.sottotipo.includes("Pavimentazione") ||
-                r.sottotipo.includes("Rivestimenti")
+                r.sottotipo &&
+                (
+                    r.sottotipo.includes("Luci") ||
+                    r.sottotipo.includes("Cancello") ||
+                    r.sottotipo.includes("Cortile") ||
+                    r.sottotipo.includes("Aree") ||
+                    r.sottotipo.includes("Box") ||
+                    r.sottotipo.includes("Serrande") ||
+                    r.sottotipo.includes("Vano") ||
+                    r.sottotipo.includes("Locale") ||
+                    r.sottotipo.includes("Tetto") ||
+                    r.sottotipo.includes("Pensil") ||
+                    r.sottotipo.includes("Pavimentazione") ||
+                    r.sottotipo.includes("Rivestimenti")
+                )
             )
         )
-    )
 
-);
+    );
 
 </script>
 
