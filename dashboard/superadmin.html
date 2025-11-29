@@ -15,6 +15,9 @@
 
     <!-- DASHBOARD LOGIC -->
     <script src="dashboard.js"></script>
+
+    <!-- SISTEMA LOGIN -->
+    <script src="admin-auth.js"></script>
 </head>
 
 <body>
@@ -44,11 +47,21 @@
 </div>
 
 <script>
-    // SUPERADMIN: NESSUN FILTRO, VEDE TUTTO
+
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO SUPERADMIN
+    ---------------------------------------------------------- */
+    requireRole("superadmin");
+
+    /* -------------------------------------------------------
+       SUPERADMIN: NESSUN FILTRO, VEDE TUTTO
+       (E può eliminare)
+    ---------------------------------------------------------- */
     loadSegnalazioni(
         r => true,
-        true   // superadmin = TRUE → abilita ELIMINA
+        true   // attiva il pulsante elimina
     );
+
 </script>
 
 </body>
