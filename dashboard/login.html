@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Accesso Amministratori</title>
 
-    <!-- STILE GENERALE -->
     <style>
+        /* SFONDO FUTURISTICO */
         body {
             margin: 0;
             height: 100vh;
@@ -13,45 +13,48 @@
             justify-content: center;
             align-items: center;
             font-family: system-ui, sans-serif;
-            background: url('https://images.unsplash.com/photo-1682686581312-e64e04dd20c1?auto=format&fit=crop&w=1920&q=80') 
+
+            /* 🔥 FONDO STABILE CON FILE RAW DA GITHUB */
+            background: url("https://raw.githubusercontent.com/ivo23975-art/segnalazioni-guala/main/dashboard/login-bg.jpg")
                         no-repeat center center fixed;
             background-size: cover;
+
             position: relative;
             overflow: hidden;
         }
 
-        /* OVERLAY SCURO PER LEGGERE IL CONTENUTO */
+        /* OVERLAY SCURO */
         body::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.60);
+            backdrop-filter: blur(3px);
         }
 
-        /* LOGIN BOX */
+        /* LOGIN BOX CYBER */
         .login-box {
             position: relative;
             z-index: 2;
             width: 360px;
             padding: 35px;
             border-radius: 15px;
-            background: rgba(0,0,20,0.85);
-            box-shadow: 0 0 25px #00aaff99;
-            border: 1px solid #00aaff55;
-            animation: loginFade 1.5s ease;
+            background: rgba(0,0,0,0.70);
+            box-shadow: 0 0 25px #00aaffcc;
+            border: 1px solid #00aaff88;
+            animation: fadeUp 1.3s ease;
         }
 
-        @keyframes loginFade {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(25px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
         h2 {
             text-align: center;
             margin-bottom: 25px;
-            color: #e6faff;
-            text-shadow: 0 0 6px #00aaff;
+            color: #dff6ff;
+            text-shadow: 0 0 8px #00aaff;
         }
 
         select, input {
@@ -60,9 +63,9 @@
             margin-top: 12px;
             border-radius: 8px;
             border: none;
-            background: #0d0f14;
+            background: #0c0f14;
             color: #fff;
-            border: 1px solid #00aaff66;
+            border: 1px solid #00aaff77;
             box-shadow: 0 0 6px #00aaff44 inset;
         }
 
@@ -77,13 +80,13 @@
             font-size: 1rem;
             color: white;
             cursor: pointer;
-            box-shadow: 0 0 8px #ff3f3f;
             transition: 0.2s;
+            box-shadow: 0 0 10px #ff5555;
         }
 
         button:hover {
             background: #ff0000;
-            box-shadow: 0 0 12px #ff5a5a;
+            box-shadow: 0 0 14px #ff7777;
         }
 
         #errorMsg {
@@ -94,34 +97,34 @@
             text-shadow: 0 0 6px #ff0000aa;
         }
 
-        /* TUTOR ROBOT */
+        /* ROBOT TUTOR ANIMATO */
         .tutor {
             position: absolute;
             bottom: 40px;
             right: 40px;
-            width: 140px;
+            width: 150px;
             z-index: 3;
             animation: floatBot 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px #009dff);
+            filter: drop-shadow(0 0 12px #00aaff);
         }
 
         @keyframes floatBot {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-12px); }
             100% { transform: translateY(0px); }
         }
 
         .tutor img {
             width: 100%;
-            animation: waveHand 1.3s infinite ease-in-out;
-            transform-origin: 75% 25%;
+            animation: wave 1.4s ease-in-out infinite;
+            transform-origin: 75% 20%;
         }
 
-        @keyframes waveHand {
+        @keyframes wave {
             0% { transform: rotate(0deg); }
-            25% { transform: rotate(8deg); }
+            25% { transform: rotate(9deg); }
             50% { transform: rotate(-6deg); }
-            75% { transform: rotate(8deg); }
+            75% { transform: rotate(9deg); }
             100% { transform: rotate(0deg); }
         }
     </style>
@@ -129,12 +132,12 @@
 
 <body>
 
-<!-- ROBOT ANIMATO -->
+<!-- TUTOR ANIMATO -->
 <div class="tutor">
-    <img src="https://i.postimg.cc/jd9dH4hm/robot-blue.png">
+    <img src="https://raw.githubusercontent.com/ivo23975-art/segnalazioni-guala/main/dashboard/robot-blue.png">
 </div>
 
-<!-- BOX LOGIN -->
+<!-- LOGIN BOX -->
 <div class="login-box">
     <h2>Accesso Amministratori</h2>
 
@@ -159,14 +162,14 @@
     <p id="errorMsg"></p>
 </div>
 
-<!-- SCRIPT LOGIN -->
+<!-- SISTEMA AUTH -->
 <script src="admin-auth.js"></script>
 
 <script>
 function updateLoginMode() {
     const role = document.getElementById("roleSelect").value;
     const mode = ADMIN_DATA[role].loginMode;
-    document.getElementById("usernameWrapper").style.display = 
+    document.getElementById("usernameWrapper").style.display =
         (mode === "userpass" ? "block" : "none");
 }
 
