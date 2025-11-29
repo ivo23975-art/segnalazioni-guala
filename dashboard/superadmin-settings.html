@@ -87,87 +87,86 @@
 
 </div>
 
+<!-- SISTEMA DI AUTENTICAZIONE -->
 <script src="admin-auth.js"></script>
 
 <script>
 
-/* =====================================================
-   CONSENTI ACCESSO SOLO A SUPERADMIN
-===================================================== */
-if (localStorage.getItem("ADMIN_ROLE") !== "superadmin") {
-    window.location.href = "login.html";
-}
+    /* =====================================================
+       🔒 PROTEZIONE ACCESSO SUPERADMIN
+    ===================================================== */
+    requireRole("superadmin");
 
-/* =====================================================
-   GENERA FORM DI CONTROLLO PER OGNI ADMIN
-===================================================== */
-function renderSettings() {
+    /* =====================================================
+       GENERA FORM DI CONTROLLO PER OGNI ADMIN
+    ===================================================== */
+    function renderSettings() {
 
-    const container = document.getElementById("adminSettingsContainer");
-    container.innerHTML = "";
+        const container = document.getElementById("adminSettingsContainer");
+        container.innerHTML = "";
 
-    for (const key in ADMIN_DATA) {
+        for (const key in ADMIN_DATA) {
 
-        const admin = ADMIN_DATA[key];
+            const admin = ADMIN_DATA[key];
 
-        container.innerHTML += `
-            <div class="role-title">🔒 ${admin.role.toUpperCase()}</div>
+            container.innerHTML += `
+                <div class="role-title">🔒 ${admin.role.toUpperCase()}</div>
 
-            <label>Modalità di login</label>
-            <select id="mode_${key}">
-                <option value="password" ${admin.loginMode === "password" ? "selected" : ""}>
-                    Solo password
-                </option>
-                <option value="userpass" ${admin.loginMode === "userpass" ? "selected" : ""}>
-                    Username + Password
-                </option>
-            </select>
+                <label>Modalità di login</label>
+                <select id="mode_${key}">
+                    <option value="password" ${admin.loginMode === "password" ? "selected" : ""}>
+                        Solo password
+                    </option>
+                    <option value="userpass" ${admin.loginMode === "userpass" ? "selected" : ""}>
+                        Username + Password
+                    </option>
+                </select>
 
-            <div id="userbox_${key}" style="margin-top:10px; display:${admin.loginMode === "userpass" ? "block" : "none"};">
-                <label>Username</label>
-                <input type="text" id="user_${key}" value="${admin.username}">
-            </div>
+                <div id="userbox_${key}" style="margin-top:10px; display:${admin.loginMode === "userpass" ? "block" : "none"};">
+                    <label>Username</label>
+                    <input type="text" id="user_${key}" value="${admin.username}">
+                </div>
 
-            <label>Password</label>
-            <input type="text" id="pass_${key}" value="${admin.password}">
-            
-            <hr style="margin:20px 0; border-color:#333">
-        `;
+                <label>Password</label>
+                <input type="text" id="pass_${key}" value="${admin.password}">
+                
+                <hr style="margin:20px 0; border-color:#333">
+            `;
+        }
+
+        // eventi modalità login
+        for (const key in ADMIN_DATA) {
+            document.getElementById(`mode_${key}`).addEventListener("change", e => {
+                const mode = e.target.value;
+                document.getElementById(`userbox_${key}`).style.display =
+                    mode === "userpass" ? "block" : "none";
+            });
+        }
     }
 
-    // collega eventi per mostra/nascondi username
-    for (const key in ADMIN_DATA) {
-        document.getElementById(`mode_${key}`).addEventListener("change", e => {
-            const mode = e.target.value;
-            document.getElementById(`userbox_${key}`).style.display =
-                mode === "userpass" ? "block" : "none";
-        });
-    }
-}
+    /* =====================================================
+       SALVA TUTTE LE MODIFICHE
+    ===================================================== */
+    function saveAll() {
 
-/* =====================================================
-   SALVA TUTTE LE MODIFICHE
-===================================================== */
-function saveAll() {
+        let newData = {};
 
-    let newData = {};
+        for (const key in ADMIN_DATA) {
 
-    for (const key in ADMIN_DATA) {
+            newData[key] = {
+                role: ADMIN_DATA[key].role,
+                loginMode: document.getElementById(`mode_${key}`).value,
+                username: document.getElementById(`user_${key}`)?.value || ADMIN_DATA[key].username,
+                password: document.getElementById(`pass_${key}`).value
+            };
+        }
 
-        newData[key] = {
-            role: ADMIN_DATA[key].role,
-            loginMode: document.getElementById(`mode_${key}`).value,
-            username: document.getElementById(`user_${key}`)?.value || ADMIN_DATA[key].username,
-            password: document.getElementById(`pass_${key}`).value
-        };
+        saveAdminConfig(newData);
+
+        alert("Modifiche salvate correttamente!");
     }
 
-    saveAdminConfig(newData);
-
-    alert("Modifiche salvate correttamente!");
-}
-
-renderSettings();
+    renderSettings();
 
 </script>
 
