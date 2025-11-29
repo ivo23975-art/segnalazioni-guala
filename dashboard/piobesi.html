@@ -15,6 +15,9 @@
 
     <!-- DASHBOARD LOGIC -->
     <script src="dashboard.js"></script>
+
+    <!-- SISTEMA LOGIN -->
+    <script src="admin-auth.js"></script>
 </head>
 
 <body>
@@ -45,7 +48,14 @@
 
 <script>
 
-    // Mostra SOLO segnalazioni attive del complesso Piobesi
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO ADMIN PIOBESI
+    ---------------------------------------------------------- */
+    requireRole("piobesi");
+
+    /* -------------------------------------------------------
+       Carica SOLO segnalazioni attive del complesso Piobesi
+    ---------------------------------------------------------- */
     loadSegnalazioni(
         r =>
             r.stato === "attiva" &&
