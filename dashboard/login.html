@@ -2,57 +2,139 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Login Amministratori</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <title>Accesso Amministratori</title>
 
+    <!-- STILE GENERALE -->
     <style>
         body {
-            background:#111;
-            color:#eee;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-family: system-ui, sans-serif;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            margin:0;
+            background: url('https://images.unsplash.com/photo-1682686581312-e64e04dd20c1?auto=format&fit=crop&w=1920&q=80') 
+                        no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
         }
+
+        /* OVERLAY SCURO PER LEGGERE IL CONTENUTO */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(2px);
+        }
+
+        /* LOGIN BOX */
         .login-box {
-            background:#1c1c1c;
-            padding:30px;
-            border-radius:10px;
-            width:90%;
-            max-width:360px;
-            box-shadow:0 0 20px rgba(0,0,0,.4);
+            position: relative;
+            z-index: 2;
+            width: 360px;
+            padding: 35px;
+            border-radius: 15px;
+            background: rgba(0,0,20,0.85);
+            box-shadow: 0 0 25px #00aaff99;
+            border: 1px solid #00aaff55;
+            animation: loginFade 1.5s ease;
         }
+
+        @keyframes loginFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         h2 {
-            text-align:center;
-            margin-bottom:20px;
+            text-align: center;
+            margin-bottom: 25px;
+            color: #e6faff;
+            text-shadow: 0 0 6px #00aaff;
         }
+
         select, input {
-            width:100%;
-            padding:10px;
-            margin-top:10px;
-            border-radius:6px;
-            border:none;
-            background:#2c2c2c;
-            color:#fff;
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #0d0f14;
+            color: #fff;
+            border: 1px solid #00aaff66;
+            box-shadow: 0 0 6px #00aaff44 inset;
         }
+
         button {
-            margin-top:20px;
-            width:100%;
-            padding:12px;
-            background:#cc0000;
-            border:none;
-            border-radius:6px;
-            color:#fff;
-            font-weight:bold;
-            cursor:pointer;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #cc0000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 0 8px #ff3f3f;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #ff0000;
+            box-shadow: 0 0 12px #ff5a5a;
+        }
+
+        #errorMsg {
+            color: #ff6666;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            text-shadow: 0 0 6px #ff0000aa;
+        }
+
+        /* TUTOR ROBOT */
+        .tutor {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 140px;
+            z-index: 3;
+            animation: floatBot 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px #009dff);
+        }
+
+        @keyframes floatBot {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .tutor img {
+            width: 100%;
+            animation: waveHand 1.3s infinite ease-in-out;
+            transform-origin: 75% 25%;
+        }
+
+        @keyframes waveHand {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(8deg); }
+            50% { transform: rotate(-6deg); }
+            75% { transform: rotate(8deg); }
+            100% { transform: rotate(0deg); }
         }
     </style>
 </head>
 
 <body>
 
+<!-- ROBOT ANIMATO -->
+<div class="tutor">
+    <img src="https://i.postimg.cc/jd9dH4hm/robot-blue.png">
+</div>
+
+<!-- BOX LOGIN -->
 <div class="login-box">
     <h2>Accesso Amministratori</h2>
 
@@ -66,62 +148,47 @@
 
     <div id="usernameWrapper" style="display:none;">
         <label>Username</label>
-        <input type="text" id="usernameInput" placeholder="Inserisci username">
+        <input type="text" id="usernameInput">
     </div>
 
     <label>Password</label>
-    <input type="password" id="passwordInput" placeholder="Inserisci password">
+    <input type="password" id="passwordInput">
 
     <button onclick="doLogin()">Entra</button>
 
-    <p id="errorMsg" style="color:#ff4444; margin-top:10px; text-align:center;"></p>
+    <p id="errorMsg"></p>
 </div>
 
-<!-- AUTH SYSTEM -->
+<!-- SCRIPT LOGIN -->
 <script src="admin-auth.js"></script>
 
 <script>
-
-/* =====================================================
-   MOSTRA O NASCONDE USERNAME IN BASE AL RUOLO
-===================================================== */
 function updateLoginMode() {
     const role = document.getElementById("roleSelect").value;
-    const loginMode = ADMIN_DATA[role].loginMode;
-
-    if (loginMode === "userpass") {
-        document.getElementById("usernameWrapper").style.display = "block";
-    } else {
-        document.getElementById("usernameWrapper").style.display = "none";
-    }
+    const mode = ADMIN_DATA[role].loginMode;
+    document.getElementById("usernameWrapper").style.display = 
+        (mode === "userpass" ? "block" : "none");
 }
 
-/* =====================================================
-   ESECUZIONE LOGIN
-===================================================== */
 function doLogin() {
-
     const role = document.getElementById("roleSelect").value;
-    const username = document.getElementById("usernameInput").value;
-    const password = document.getElementById("passwordInput").value;
+    const user = document.getElementById("usernameInput").value;
+    const pass = document.getElementById("passwordInput").value;
 
-    const success = adminLogin(role, username, password);
+    const ok = adminLogin(role, user, pass);
 
-    if (!success) {
+    if (!ok) {
         document.getElementById("errorMsg").innerText = "Credenziali non valide.";
         return;
     }
 
-    // Login OK → reindirizza in base al ruolo
-    if (role === "superadmin") window.location.href = "superadmin.html";
-    if (role === "guala") window.location.href = "guala.html";
-    if (role === "piobesi") window.location.href = "piobesi.html";
-    if (role === "particomuni") window.location.href = "particomuni.html";
+    if (role === "superadmin") location.href = "superadmin.html";
+    if (role === "guala") location.href = "guala.html";
+    if (role === "piobesi") location.href = "piobesi.html";
+    if (role === "particomuni") location.href = "particomuni.html";
 }
 
-// Inizializza UI in base al ruolo predefinito
 updateLoginMode();
-
 </script>
 
 </body>
