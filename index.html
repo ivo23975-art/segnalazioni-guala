@@ -153,7 +153,6 @@ textarea { height: 90px; resize: none; }
   cursor: pointer;
 }
 
-/* Select Parti Comuni nascosto di default */
 #selectPartiComuniWrapper {
   display: none;
   margin-top: .6rem;
@@ -176,7 +175,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
-
 </head>
 <body>
 
@@ -185,106 +183,16 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- ===============================
-     MODALE PRINCIPALE SEGNALAZIONE
-================================= -->
-<div class="modal" id="modalSegnalazione">
-  <div class="modal-content">
-
-    <h3 id="modalTitle"></h3>
-
-    <label>Temperatura (facoltativa)</label>
-    <input type="number" id="tempInput" placeholder="es: 23">
-
-    <!-- SELECT PRINCIPALE -->
-    <label style="margin-top:10px;">Tipo di intervento</label>
-    <select id="tipoInput" onchange="gestisciPartiComuni()">
-
-      <optgroup label="🔴 EMERGENZA">
-        <option value="118">118 – Emergenza sanitaria</option>
-        <option value="112">112 – Forze dell’ordine</option>
-        <option value="115">115 – Vigili del fuoco</option>
-      </optgroup>
-
-      <optgroup label="🟠 ALTA URGENZA">
-        <option value="ascensore">Ascensore</option>
-        <option value="elettricista">Elettricista</option>
-        <option value="idraulico">Idraulico</option>
-        <option value="centrale">Centrale termica</option>
-        <option value="autoclave">Autoclave</option>
-      </optgroup>
-
-      <optgroup label="🟡 MEDIA URGENZA">
-        <option value="serramenti">Serramentista</option>
-        <option value="antincendio">Manutenzione antincendio</option>
-      </optgroup>
-
-      <optgroup label="🟢 PUÒ ATTENDERE">
-        <option value="pulizie">Pulizie</option>
-        <option value="altro">Altro</option>
-      </optgroup>
-
-      <!-- ===============================
-           NUOVO BLOCCO PARTI COMUNI
-      ================================== -->
-      <optgroup label="🟡 PARTI COMUNI">
-        <option value="particomuni">Segnala PARTI COMUNI</option>
-      </optgroup>
-
-    </select>
-
-    <!-- SECONDO SELECT: PARTI COMUNI DETTAGLIO -->
-    <div id="selectPartiComuniWrapper">
-      <label>Seleziona la parte comune</label>
-      <select id="selectPartiComuni">
-
-        <option value="">— Seleziona —</option>
-
-        <option value="Luci cortile">Luci cortile</option>
-        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
-        <option value="2° Cancello automatico (area di decompressione)">2° Cancello automatico (area di decompressione)</option>
-        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera Via Piobesi 10</option>
-        <option value="Cancello Pedonale (cortile di Piazza Guala uscita laterale)">Cancello Pedonale (cortile di Piazza Guala uscita laterale)</option>
-        <option value="Cortile">Cortile</option>
-        <option value="Aree verdi / giardinaggio">Aree verdi / giardinaggio</option>
-        <option value="Box interrati">Box interrati</option>
-        <option value="Serrande garage">Serrande garage</option>
-        <option value="Vano scale">Vano scale</option>
-        <option value="Locale contatori">Locale contatori</option>
-        <option value="Tettoie">Tettoie</option>
-        <option value="Pensiline">Pensiline</option>
-        <option value="Pavimentazione Cortile">Pavimentazione Cortile</option>
-        <option value="Rivestimenti Facciate lato Cortile">Rivestimenti Facciate lato Cortile</option>
-
-      </select>
-    </div>
-
-    <label style="margin-top:12px;">Descrizione del problema</label>
-    <textarea id="descrizioneInput" placeholder="Inserisci una descrizione dettagliata"></textarea>
-
-    <button class="btn" onclick="confermaInvio()">Procedi</button>
-    <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
-
-  </div>
-</div>
-
-<!-- ===============================
-     MODALE CONFERMA
-================================= -->
-<div class="modal" id="modalConferma">
-  <div class="modal-content">
-    <h3 id="confermaTesto"></h3>
-    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
-    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
-  </div>
-</div>
 <script>
-/* ============================================
-   DEFINIZIONE CONDOMINIO (GUALA + PIOBESI)
-============================================ */
+/* ==========================================================
+   STRUTTURA COMPLETA DEL CONDOMINIO (GUALA + PIOBESI)
+========================================================== */
 const condominio = {
 
-  /* -------- PIAZZA GUALA -------- */
+  /* ==========================================================
+        P   I   A   Z   Z   A     G   U   A   L   A
+  ========================================================== */
+
   "SCALA 131": {
     piani: {
       9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
@@ -338,44 +246,68 @@ const condominio = {
     }
   },
 
-  /* -------- VIA PIOBESI -------- */
+  /* ==========================================================
+        V   I   A     P   I   O   B   E   S   I
+  ========================================================== */
+
+  /* =========================
+       S C A L A   6
+  ========================= */
   "SCALA 6": {
     piani: {
-      4:{dx:"UNITÀ A", sx:"UNITÀ B"},
-      3:{dx:"UNITÀ C", sx:"UNITÀ D"},
-      2:{dx:"UNITÀ E", sx:"UNITÀ F"},
-      1:{dx:"UNITÀ G", sx:"UNITÀ H"},
+      9:{dx:"MERULLA I", sx:"MERULLA / ARDU"},
+      8:{dx:"MASSOLA / OSELLA", sx:"CIVERA / CASTROTA"},
+      7:{dx:"BORCA / GERMANO G", sx:"ONIDA M.A."},
+      6:{dx:"BREGA F. TITA / ARESE", sx:"BREGA-PENNINI / VALENTINI"},
+      5:{dx:"MENDOGNI / BOTTA", sx:"GATTONI / CAPPELLARO"},
+      4:{dx:"GERVASI / RACCO", sx:"PLATANIA"},
+      3:{dx:"DR. ING. E. PERRETTI / DELL'ALBA C.", sx:"MAMELI / CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   },
 
+  /* =========================
+       S C A L A   8
+  ========================= */
   "SCALA 8": {
     piani: {
-      4:{dx:"UNITÀ A", sx:"UNITÀ B"},
-      3:{dx:"UNITÀ C", sx:"UNITÀ D"},
-      2:{dx:"UNITÀ E", sx:"UNITÀ F"},
-      1:{dx:"UNITÀ G", sx:"UNITÀ H"},
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI / PATANE'", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   },
 
+  /* =========================
+       S C A L A   1 0
+  ========================= */
   "SCALA 10": {
     piani: {
-      4:{dx:"UNITÀ A", sx:"UNITÀ B"},
-      3:{dx:"UNITÀ C", sx:"UNITÀ D"},
-      2:{dx:"UNITÀ E", sx:"UNITÀ F"},
-      1:{dx:"UNITÀ G", sx:"UNITÀ H"},
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   }
 
 };
-
-
-
-/* ============================================
-   GENERAZIONE UI CARDS SCALE + PIANI
-============================================ */
+/* ==========================================================
+   GENERAZIONE INTERFACCIA (CARDS + PIANI)
+========================================================== */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -393,9 +325,10 @@ Object.keys(condominio).forEach(scala => {
 
       const dati = piani[piano];
 
-      let html = `
+      box.innerHTML += `
         <div class="pianoBox">
           <div class="pianoTop">${piano}° piano</div>
+
           <div class="cards">
 
             <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
@@ -417,12 +350,10 @@ Object.keys(condominio).forEach(scala => {
           </div>
         </div>
       `;
-
-      box.innerHTML += html;
     });
 
 
-  /* ----- PORTICO ----- */
+  /* ====== LIVELLO STRADA (PORTICO) ====== */
   if (piani.portico && piani.portico.length > 0){
     let html = `
       <div class="pianoBox">
@@ -448,10 +379,9 @@ Object.keys(condominio).forEach(scala => {
 });
 
 
-
-/* ============================================
-   LOGICA MODALI
-============================================ */
+/* ==========================================================
+   LOGICA DELLA MODALE PRINCIPALE
+========================================================== */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
@@ -478,26 +408,26 @@ function chiudiModal(){
 function chiudiConferma(){
   document.getElementById("modalConferma").style.display = "none";
 }
-/* ============================================
-   GESTIONE PARTI COMUNI (DOPPIO SELECT)
-============================================ */
+
+
+/* ==========================================================
+   GESTIONE PARTI COMUNI
+========================================================== */
 function gestisciPartiComuni() {
   const tipo = document.getElementById("tipoInput").value;
-  const wrapper = document.getElementById("selectPartiComuniWrapper");
 
   if (tipo === "particomuni") {
-    wrapper.style.display = "block";
+    document.getElementById("selectPartiComuniWrapper").style.display = "block";
   } else {
-    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuniWrapper").style.display = "none";
     document.getElementById("selectPartiComuni").value = "";
   }
 }
 
 
-
-/* ============================================
-   CONFERMA PRIMA DELL'INVIO
-============================================ */
+/* ==========================================================
+   PRIMA CONFERMA
+========================================================== */
 function confermaInvio(){
 
   const tipo = document.getElementById("tipoInput").value;
@@ -510,22 +440,21 @@ function confermaInvio(){
     }
 
     if (document.getElementById("descrizioneInput").value.trim() === "") {
-      alert("La descrizione è obbligatoria per le Parti Comuni.");
+      alert("Descrizione obbligatoria per Parti Comuni.");
       return;
     }
   }
 
   document.getElementById("confermaTesto").innerText =
-    `Confermi la segnalazione per:\n\n${nominativo}`;
+    `Confermi la segnalazione per:\n${nominativo}`;
 
   document.getElementById("modalConferma").style.display = "flex";
 }
 
 
-
-/* ============================================
+/* ==========================================================
    INVIO FINALE A FIRESTORE
-============================================ */
+========================================================== */
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
@@ -533,32 +462,33 @@ function inviaSegnalazioneFinale() {
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
 
-  /* ----- PRIORITÀ COLORI ----- */
+
+  /* ===== PRIORITÀ COLORI ===== */
   let priorita = "VERDE";
 
   if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
   else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
-      priorita = "ARANCIONE";
+    priorita = "ARANCIONE";
   else if(["serramenti","antincendio"].includes(tipo))
-      priorita = "GIALLO";
+    priorita = "GIALLO";
   else if(tipo === "particomuni")
-      priorita = "GIALLO"; // Parti comuni = media urgenza
+    priorita = "GIALLO";
 
 
-  /* ----- COLORA CARD ----- */
+  /* ===== COLORAZIONE CARD ===== */
   elementoSelezionato.classList.remove(
     "alert-red","alert-orange","alert-yellow","alert-green"
   );
 
-  let classeCSS = "alert-green";
-  if (priorita === "ROSSO") classeCSS = "alert-red";
-  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
-  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
 
-  elementoSelezionato.classList.add(classeCSS);
+  elementoSelezionato.classList.add(css);
 
 
-  /* ----- COLORA TEMPERATURA ----- */
+  /* ===== TEMPERATURA ===== */
   const dot = elementoSelezionato.querySelector(".tempDot");
   const val = elementoSelezionato.querySelector(".tempVal");
 
@@ -571,51 +501,39 @@ function inviaSegnalazioneFinale() {
   }
 
 
-  /* ============================================
-     SALVATAGGIO SU FIRESTORE
-  ============================================= */
-
-  let tipoFinale = tipo;
-  let sottoFinale = "";
-
-  if (tipo === "particomuni") {
-    tipoFinale = "Parti comuni"; 
-    sottoFinale = sotto;         
-  }
-
+  /* ===== SALVATAGGIO SU FIRESTORE ===== */
   db.collection("segnalazioni").add({
-      scala: scalaSel,
-      piano: pianoSel,
-      lato: latoSel,
-      nome: nominativo,
-      temperatura: temp,
-      descrizione: desc,
-      tipo: tipoFinale,
-      sottotipo: sottoFinale,
-      complesso: isPiobesi(scalaSel) ? "piobesi" : "guala",
-      priorita: priorita,
-      stato: "attiva",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    scala: scalaSel,
+    piano: pianoSel,
+    lato: latoSel,
+    nome: nominativo,
+    temperatura: temp,
+    descrizione: desc,
+    tipo: (tipo === "particomuni" ? "Parti comuni" : tipo),
+    sottotipo: (tipo === "particomuni" ? sotto : ""),
+    complesso: isPiobesi(scalaSel) ? "piobesi" : "guala",
+    priorita: priorita,
+    stato: "attiva",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
 
-  /* ----- RESET E CHIUSURA ----- */
+  /* ===== RESET ===== */
   chiudiConferma();
   chiudiModal();
 
   document.getElementById("tempInput").value = "";
   document.getElementById("descrizioneInput").value = "";
   document.getElementById("tipoInput").value = "altro";
+
   document.getElementById("selectPartiComuni").value = "";
   document.getElementById("selectPartiComuniWrapper").style.display = "none";
-
 }
 
 
-
-/* ============================================
-   FUNZIONE PER IDENTIFICARE PIOBESI
-============================================ */
+/* ==========================================================
+   FUNZIONE IDENTIFICAZIONE PIOBESI
+========================================================== */
 function isPiobesi(scala) {
   return ["SCALA 6","SCALA 8","SCALA 10"].includes(scala);
 }
