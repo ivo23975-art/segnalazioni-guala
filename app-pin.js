@@ -6,7 +6,7 @@
 // Inizializza storage utenti se non esiste
 if (!localStorage.getItem("APP_PIN_USERS")) {
     const defaultUsers = {
-        "chiara": { pin: "482915", active: true }
+        "superadmin": { pin: "482915", active: true }
     };
     localStorage.setItem("APP_PIN_USERS", JSON.stringify(defaultUsers));
 }
