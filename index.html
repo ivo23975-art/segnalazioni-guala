@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
-<!-- 🔐 LOGIN APP SEGNALAZIONI -->
 <script src="app-pin.js"></script>
 <script>checkAppLogin();</script>
 
@@ -200,6 +199,7 @@ const db = firebase.firestore();
     <label>Temperatura (facoltativa)</label>
     <input type="number" id="tempInput" placeholder="es: 23">
 
+    <!-- SELECT PRINCIPALE -->
     <label style="margin-top:10px;">Tipo di intervento</label>
     <select id="tipoInput" onchange="gestisciPartiComuni()">
 
@@ -227,16 +227,22 @@ const db = firebase.firestore();
         <option value="altro">Altro</option>
       </optgroup>
 
+      <!-- ===============================
+           NUOVO BLOCCO PARTI COMUNI
+      ================================== -->
       <optgroup label="🟡 PARTI COMUNI">
         <option value="particomuni">Segnala PARTI COMUNI</option>
       </optgroup>
 
     </select>
 
+    <!-- SECONDO SELECT: PARTI COMUNI DETTAGLIO -->
     <div id="selectPartiComuniWrapper">
       <label>Seleziona la parte comune</label>
       <select id="selectPartiComuni">
+
         <option value="">— Seleziona —</option>
+
         <option value="Luci cortile">Luci cortile</option>
         <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
         <option value="2° Cancello automatico (area di decompressione)">2° Cancello automatico (area di decompressione)</option>
@@ -252,6 +258,7 @@ const db = firebase.firestore();
         <option value="Pensiline">Pensiline</option>
         <option value="Pavimentazione Cortile">Pavimentazione Cortile</option>
         <option value="Rivestimenti Facciate lato Cortile">Rivestimenti Facciate lato Cortile</option>
+
       </select>
     </div>
 
@@ -274,42 +281,357 @@ const db = firebase.firestore();
     <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
   </div>
 </div>
-
 <script>
 /* ============================================
    DEFINIZIONE CONDOMINIO (GUALA + PIOBESI)
 ============================================ */
-const condominio = { ... }; // 🔥 QUI RIMANE TUTTO COME TU L’HAI SCRITTO
+const condominio = {
+
+  /* -------- PIAZZA GUALA -------- */
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
+    }
+  },
+
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
+    }
+  },
+
+  "SCALA 133": {
+    piani:{
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
+    }
+  },
+
+ /* -------- VIA PIOBESI -------- */
+
+"SCALA 6": {
+  piani: {
+    9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+    8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+    7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+    6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+    5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+    4:{dx:"GERVASI/RACCO", sx:"PLATANIA"},
+    3:{dx:"DR ING E PERRETTI/DELL ALBA C", sx:"MAMELI/CANTINO"},
+    2:{dx:"ACI B.F.", sx:"ACI B.F."},
+    1:{dx:"ACI B.F.", sx:"ACI B.F."},
+    portico:[]
+  }
+},
+
+"SCALA 8": {
+  piani: {
+    9:{dx:"URBINATI", sx:"GASTONE"},
+    8:{dx:"FILIPPI", sx:"BLANDA"},
+    7:{dx:"ROCCUZZO", sx:"TENORE"},
+    6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+    5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+    4:{dx:"CROVELLA", sx:"GATTONI"},
+    3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+    2:{dx:"ACI B.F.", sx:"ACI B.F."},
+    1:{dx:"ACI B.F.", sx:"ACI B.F."},
+    portico:[]
+  }
+},
+
+"SCALA 10": {
+  piani: {
+    9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+    8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+    7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+    6:{dx:"SPADA / VISCA", sx:"RESTO"},
+    5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+    4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+    3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+    2:{dx:"ACI B.F.", sx:"ACI B.F."},
+    1:{dx:"ACI B.F.", sx:"ACI B.F."},
+    portico:[]
+  }
+}
+
+
+};
+
+
 
 /* ============================================
    GENERAZIONE UI CARDS SCALE + PIANI
 ============================================ */
-// 🔥 Nulla modificato — identico al tuo
-...
+const container = document.querySelector(".container");
+
+Object.keys(condominio).forEach(scala => {
+
+  const box = document.createElement("div");
+  box.className = "scalaBox";
+  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
+
+  const piani = condominio[scala].piani;
+
+  Object.keys(piani)
+    .filter(p => !isNaN(p))
+    .sort((a,b)=>b-a)
+    .forEach(piano => {
+
+      const dati = piani[piano];
+
+      let html = `
+        <div class="pianoBox">
+          <div class="pianoTop">${piano}° piano</div>
+          <div class="cards">
+
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              ${dati.dx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              ${dati.sx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+
+      box.innerHTML += html;
+    });
+
+
+  /* ----- PORTICO ----- */
+  if (piani.portico && piani.portico.length > 0){
+    let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">Livello strada</div>
+        <div class="cards">
+    `;
+    piani.portico.forEach(nome => {
+      html += `
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+          ${nome}
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
+  container.appendChild(box);
+});
+
+
 
 /* ============================================
    LOGICA MODALI
 ============================================ */
-// 🔥 Nulla modificato
-...
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
 
+function apri(scala, piano, lato, nome, elem){
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display = "flex";
+}
+
+function chiudiModal(){
+  document.getElementById("modalSegnalazione").style.display = "none";
+}
+
+function chiudiConferma(){
+  document.getElementById("modalConferma").style.display = "none";
+}
 /* ============================================
-   GESTIONE PARTI COMUNI
+   GESTIONE PARTI COMUNI (DOPPIO SELECT)
 ============================================ */
-// 🔥 Nulla modificato
-...
+function gestisciPartiComuni() {
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
+  }
+}
+
+
 
 /* ============================================
    CONFERMA PRIMA DELL'INVIO
 ============================================ */
-// 🔥 Nulla modificato
-...
+function confermaInvio(){
+
+  const tipo = document.getElementById("tipoInput").value;
+
+  if (tipo === "particomuni") {
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if (sotto === "") {
+      alert("Seleziona la parte comune prima di procedere.");
+      return;
+    }
+
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
+      alert("La descrizione è obbligatoria per le Parti Comuni.");
+      return;
+    }
+  }
+
+  document.getElementById("confermaTesto").innerText =
+    `Confermi la segnalazione per:\n\n${nominativo}`;
+
+  document.getElementById("modalConferma").style.display = "flex";
+}
+
+
 
 /* ============================================
    INVIO FINALE A FIRESTORE
 ============================================ */
-// 🔥 Nulla modificato
-...
+function inviaSegnalazioneFinale() {
+
+  const tipo = document.getElementById("tipoInput").value;
+  const sotto = document.getElementById("selectPartiComuni").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
+
+  /* ----- PRIORITÀ COLORI ----- */
+  let priorita = "VERDE";
+
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+      priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo))
+      priorita = "GIALLO";
+  else if(tipo === "particomuni")
+      priorita = "GIALLO"; // Parti comuni = media urgenza
+
+
+  /* ----- COLORA CARD ----- */
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let classeCSS = "alert-green";
+  if (priorita === "ROSSO") classeCSS = "alert-red";
+  else if (priorita === "ARANCIONE") classeCSS = "alert-orange";
+  else if (priorita === "GIALLO") classeCSS = "alert-yellow";
+
+  elementoSelezionato.classList.add(classeCSS);
+
+
+  /* ----- COLORA TEMPERATURA ----- */
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+
+  /* ============================================
+     SALVATAGGIO SU FIRESTORE
+  ============================================= */
+
+  let tipoFinale = tipo;
+  let sottoFinale = "";
+
+  if (tipo === "particomuni") {
+    tipoFinale = "Parti comuni"; 
+    sottoFinale = sotto;         
+  }
+
+  db.collection("segnalazioni").add({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      descrizione: desc,
+      tipo: tipoFinale,
+      sottotipo: sottoFinale,
+      complesso: isPiobesi(scalaSel) ? "piobesi" : "guala",
+      priorita: priorita,
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+
+  /* ----- RESET E CHIUSURA ----- */
+  chiudiConferma();
+  chiudiModal();
+
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+  document.getElementById("selectPartiComuni").value = "";
+  document.getElementById("selectPartiComuniWrapper").style.display = "none";
+
+}
+
+
 
 /* ============================================
    FUNZIONE PER IDENTIFICARE PIOBESI
@@ -317,6 +639,7 @@ const condominio = { ... }; // 🔥 QUI RIMANE TUTTO COME TU L’HAI SCRITTO
 function isPiobesi(scala) {
   return ["SCALA 6","SCALA 8","SCALA 10"].includes(scala);
 }
+
 </script>
 
 </body>
