@@ -1,19 +1,14 @@
-/* ==========================================
-   MASTER LOGIN SYSTEM
-========================================== */
-
-const MASTER_DATA = {
+// UTENTE MASTER CORRETTO
+const MASTER_LOGIN = {
     username: "master",
-    pin: "999999"
+    pin: "482915" // puoi cambiarlo
 };
 
-/* ==========================================
-   LOGIN
-========================================== */
-function masterLogin() {
-    const user = document.getElementById("masterUser").value.trim();
-    const pin = document.getElementById("masterPin").value.trim();
-    const err = document.getElementById("errorBox");
+// LOGIN
+function loginMaster() {
+    const user = document.getElementById("username").value.trim();
+    const pin = document.getElementById("pin").value.trim();
+    const err = document.getElementById("error");
 
     err.textContent = "";
 
@@ -22,28 +17,11 @@ function masterLogin() {
         return;
     }
 
-    if (user === MASTER_DATA.username && pin === MASTER_DATA.pin) {
+    if (user === MASTER_LOGIN.username && pin === MASTER_LOGIN.pin) {
         localStorage.setItem("MASTER_LOGGED", "YES");
         window.location.href = "master.html";
         return;
     }
 
-    err.textContent = "Credenziali errate";
-}
-
-/* ==========================================
-   PROTEZIONE PAGINE
-========================================== */
-function checkMasterLogin() {
-    if (!localStorage.getItem("MASTER_LOGGED")) {
-        window.location.href = "master-login.html";
-    }
-}
-
-/* ==========================================
-   LOGOUT
-========================================== */
-function logoutMaster() {
-    localStorage.removeItem("MASTER_LOGGED");
-    window.location.href = "master-login.html";
+    err.textContent = "Utente inesistente o PIN errato";
 }
