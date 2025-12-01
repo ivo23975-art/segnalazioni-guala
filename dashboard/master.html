@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
 
-<!-- FILE MASTER CORRETTI -->
+<!-- CSS -->
 <link rel="stylesheet" href="master.css?v=10000">
 
-<!-- JS DEL MASTER (ORDINE GIUSTO) -->
-<script src="master-auth.js" defer></script>
-<script src="master.js" defer></script>
+<!-- JS (ordine corretto + anti-cache) -->
+<script src="master-auth.js?v=10000" defer></script>
+<script src="master.js?v=10000" defer></script>
 
 </head>
 
@@ -25,13 +25,11 @@
 <!-- PANEL -->
 <div class="panel glass">
 
-    <!-- LINK APP -->
     <section>
         <h2>Link App & Dashboard</h2>
         <ul id="linkList" class="link-list"></ul>
     </section>
 
-    <!-- CREAZIONE UTENTE -->
     <section>
         <h2>Crea nuovo utente App</h2>
 
@@ -45,7 +43,6 @@
         <button class="btn-secondary" onclick="generatePin()">Genera PIN Automatico</button>
     </section>
 
-    <!-- LISTA UTENTI -->
     <section>
         <h2>Utenti App Registrati</h2>
         <table class="table" id="usersTable">
@@ -61,7 +58,6 @@
         </table>
     </section>
 
-    <!-- LOG -->
     <section>
         <h2>Registro attività MASTER</h2>
 
