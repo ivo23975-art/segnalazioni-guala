@@ -1,74 +1,102 @@
 body {
+    background: url("../login-bg.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: "Segoe UI", Arial, sans-serif;
     margin: 0;
-    font-family: Arial, sans-serif;
-    color: white;
+    padding: 0;
+    color: #fff;
 }
 
+/* Overlay scuro per aumentare contrasto */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65); 
+    backdrop-filter: blur(3px);
+    z-index: -1;
+}
+
+/* TITOLO */
 .title {
     text-align: center;
     font-size: 28px;
-    margin-top: 20px;
-}
-
-.panel {
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
-}
-
-section {
-    background: rgba(0,0,0,0.4);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-}
-
-h2 {
-    margin-top: 0;
+    font-weight: bold;
+    padding: 20px 0;
     color: #ffcc00;
+    text-shadow: 0 0 12px black;
 }
 
+/* PANNELLI */
+.panel {
+    width: 80%;
+    margin: 20px auto;
+    background: rgba(20,20,20,0.75);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(0,0,0,0.5);
+}
+
+/* TITOLI SEZIONI */
+.panel h3 {
+    margin: 0 0 15px 0;
+    color: #ffcc00;
+    font-size: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 6px;
+}
+
+/* INPUT */
 input {
     width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    padding: 12px;
+    margin: 8px 0 15px 0;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    font-size: 15px;
 }
 
+/* BOTTONI */
 button {
-    padding: 8px 15px;
-    margin-right: 10px;
+    background: #cc0000;
+    border: none;
+    padding: 12px 18px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 6px;
     cursor: pointer;
+    margin-right: 10px;
 }
 
-.logout {
-    width: 100%;
-    background: red;
+button:hover {
+    background: #e60000;
 }
 
-.table {
+/* TABELLE */
+table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
 
-.table th, .table td {
-    border: 1px solid white;
-    padding: 6px;
-    text-align: center;
+th {
+    background: #444;
+    padding: 12px;
+    text-align: left;
+    color: #ffcc00;
 }
 
-.login-box {
-    width: 320px;
-    margin: 120px auto;
-    background: rgba(0,0,0,0.65);
-    padding: 25px;
-    border-radius: 12px;
-    text-align: center;
-    color: white;
+td {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-bottom: 1px solid #555;
 }
 
-.error {
-    color: red;
-    margin-top: 10px;
+/* Testo leggimi */
+.leggimi {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #eee;
 }
