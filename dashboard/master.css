@@ -1,3 +1,5 @@
+/* --- MASTER.CSS COMPLETO (VERSIONE WOW NEON 3D) --- */
+
 /* SFONDO */
 body {
     background: url("../login-bg.jpg") no-repeat center center fixed;
@@ -7,62 +9,219 @@ body {
     padding: 0;
 }
 
-/* HEADER PERFETTO, CENTRATO, CON LOGOUT A DESTRA */
+/* HEADER CENTRATO CON LOGOUT PERFETTO */
 .header {
     width: 100%;
     display: flex;
-    justify-content: center;    /* TITOLO CENTRATO */
+    justify-content: center;       /* TITOLO SEMPRE CENTRATO */
     align-items: center;
-    position: relative;         /* PER POSIZIONARE LOGOUT */
-    padding: 20px 0;
-    margin-bottom: 25px;
+    position: relative;            /* NECESSARIO PER LOGOUT ASSOLUTO */
+    padding: 25px 0;
+    margin-bottom: 30px;
 }
 
 .header-title {
-    font-size: 2rem;
-    font-weight: 800;
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: 1px;
     color: #ffe680;
-    text-shadow: 0 0 6px #000, 0 0 12px rgba(255, 230, 128, 0.7);
+    text-shadow: 0 0 6px #000, 0 0 12px rgba(255,230,128,0.8), 0 0 22px rgba(255,230,128,0.55);
+    filter: drop-shadow(0 0 6px #000);
 }
 
-/* LOGOUT BUTTON IN POSIZIONE PERFETTA, A DESTRA, MA DENTRO IL CONTAINER */
+/* LOGOUT NEON RED 3D */
 .logout {
     position: absolute;
-    right: 40px;                /* DISTANZA DAL BORDO */
+    right: 40px;
     top: 50%;
     transform: translateY(-50%);
-    padding: 10px 22px;
+    padding: 12px 26px;
 
-    background: linear-gradient(to bottom, #ff2b2b, #c00000);
+    background: linear-gradient(145deg, #ff3d3d, #b30000);
     border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    box-shadow: 0 0 15px rgba(255,0,0,0.6), 0 0 30px rgba(255,0,0,0.4);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.logout:hover {
+    transform: translateY(-50%) scale(1.07);
+    box-shadow: 0 0 18px rgba(255,50,50,0.75), 0 0 40px rgba(255,0,0,0.8);
+}
+
+/* PANNELLO GLASS NEON */
+.panel {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background: rgba(0, 0, 40, 0.55);
+    border-radius: 20px;
+
+    backdrop-filter: blur(10px);
+
+    border: 2px solid rgba(0,153,255,0.35);
+    box-shadow: 0 0 25px rgba(0,153,255,0.55), 0 0 45px rgba(0,153,255,0.35);
+}
+
+/* TITOLI SEZIONI */
+section h2 {
+    color: #ffe680;
+    margin-bottom: 12px;
+    font-size: 1.6rem;
+    text-shadow: 0 0 6px #000, 0 0 14px rgba(255,230,128,0.9), 0 0 25px rgba(255,230,128,0.7);
+}
+
+/* INPUT E BUTTON NEON STANDARD */
+input, button, select {
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    outline: none;
+    box-shadow: inset 0 0 8px rgba(0,153,255,0.35);
+}
+
+button.primary {
+    background: linear-gradient(145deg, #009dff, #006bb3);
+    border: none;
+    padding: 10px 22px;
     border-radius: 8px;
     color: white;
     font-weight: bold;
     cursor: pointer;
-
-    box-shadow: 0 0 15px rgba(255,0,0,0.5);
-    transition: 0.2s;
+    box-shadow: 0 0 12px rgba(0,153,255,0.6);
+    transition: 0.2s ease;
 }
 
-.logout:hover {
-    background: linear-gradient(to bottom, #ff3d3d, #e00000);
-    box-shadow: 0 0 18px rgba(255,0,0,0.7);
+button.primary:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 20px rgba(0,153,255,0.9);
 }
 
-/* PANNELLO GLASS */
-.panel {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 25px;
-    background: rgba(0, 0, 30, 0.55);
+/* ---------------------------- */
+/*        POTENZIAMENTI WOW     */
+/* ---------------------------- */
+
+/* CARD UTENTI NEON 3D */
+.user-card {
+    background: rgba(0, 0, 25, 0.6);
+    border: 2px solid rgba(0, 153, 255, 0.4);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 15px;
+
+    box-shadow: 
+        0 0 15px rgba(0,153,255,0.45),
+        inset 0 0 12px rgba(0,153,255,0.25);
+
+    transition: 0.25s ease;
+    transform-style: preserve-3d;
+}
+
+.user-card:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow:
+        0 0 25px rgba(0,153,255,0.75),
+        inset 0 0 20px rgba(0,153,255,0.35);
+    border-color: rgba(0,153,255,0.7);
+}
+
+/* TABELLE HOLOGRAM */
+.table-neon {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-neon th, .table-neon td {
+    padding: 12px;
+    color: #fff;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,153,255,0.3);
+    backdrop-filter: blur(3px);
+}
+
+.table-neon th {
+    background: rgba(0, 80, 150, 0.45);
+    text-shadow: 0 0 6px #009dff;
+    font-size: 1.05rem;
+}
+
+.table-neon tr:hover {
+    background: rgba(0, 120, 255, 0.15);
+    box-shadow: inset 0 0 12px rgba(0,153,255,0.35);
+}
+
+/* BOTTONI SECONDARI HOLOGRAM EDGE */
+button.secondary {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(0,153,255,0.6);
+    padding: 8px 20px;
+    border-radius: 8px;
+    color: #6fc8ff;
+    font-weight: 600;
+    cursor: pointer;
+    text-shadow: 0 0 6px #009dff;
+
+    transition: 0.25s ease;
+    box-shadow: 0 0 10px rgba(0,153,255,0.4);
+}
+
+button.secondary:hover {
+    background: rgba(0,153,255,0.2);
+    color: white;
+    box-shadow: 0 0 18px rgba(0,153,255,0.8);
+    transform: scale(1.07);
+}
+
+/* SEPARATORI HUD */
+.divider {
+    width: 100%;
+    height: 2px;
+    margin: 25px 0;
+    background: linear-gradient(
+        90deg,
+        rgba(0,153,255,0) 0%,
+        rgba(0,153,255,0.8) 50%,
+        rgba(0,153,255,0) 100%
+    );
+    filter: drop-shadow(0 0 6px #009dff);
+}
+
+/* ANIMAZIONE BLINK NEON */
+.neon-blink {
+    animation: neonBlink 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes neonBlink {
+    0% { opacity: 0.65; filter: drop-shadow(0 0 8px #009dff); }
+    100% { opacity: 1; filter: drop-shadow(0 0 14px #33cfff); }
+}
+
+/* COLONNE FUTURISTICHE */
+.columns {
+    display: flex;
+    gap: 20px;
+}
+
+.column {
+    flex: 1;
+    background: rgba(0, 0, 40, 0.45);
+    padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 0 25px rgba(0,153,255,0.45);
-    backdrop-filter: blur(6px);
-}
-
-/* TITOLI */
-section h2 {
-    color: #ffe680;
-    margin-bottom: 10px;
-    text-shadow: 0 0 6px #000, 0 0 12px rgba(255,230,128,0.8);
+    border: 1px solid rgba(0,153,255,0.3);
+    box-shadow: inset 0 0 12px rgba(0,153,255,0.25);
 }
