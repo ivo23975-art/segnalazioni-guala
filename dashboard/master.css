@@ -1,0 +1,74 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.title {
+    text-align: center;
+    font-size: 28px;
+    margin-top: 20px;
+}
+
+.panel {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+}
+
+section {
+    background: rgba(0,0,0,0.4);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #ffcc00;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 8px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.logout {
+    width: 100%;
+    background: red;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table th, .table td {
+    border: 1px solid white;
+    padding: 6px;
+    text-align: center;
+}
+
+.login-box {
+    width: 320px;
+    margin: 120px auto;
+    background: rgba(0,0,0,0.65);
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
