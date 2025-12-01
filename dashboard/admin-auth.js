@@ -1,111 +1,69 @@
-/* =====================================================
-   SISTEMA LOGIN ADMIN
-   Modalità: 
-   - "password"  = solo password
-   - "userpass"  = username + password
-   (SuperAdmin può cambiare tutto dal pannello settings)
-===================================================== */
+/******************************************************
+ * SISTEMA LOGIN AMMINISTRATORI
+ * Modalità unica: USERNAME + PIN (6 cifre)
+ ******************************************************/
 
-// Password e username INIZIALI (modificabili da superadmin-settings.html)
+// Configurazione iniziale (se MASTER non ha cambiato nulla)
 let ADMIN_DATA = {
-    superadmin: {
-        role: "superadmin",
-        loginMode: "password",
-        username: "superadmin",
-        password: "Super2024!"
-    },
-    guala: {
-        role: "guala",
-        loginMode: "password",
-        username: "guala",
-        password: "Guala2024!"
-    },
-    piobesi: {
-        role: "piobesi",
-        loginMode: "password",
-        username: "piobesi",
-        password: "Piobesi2024!"
-    },
-    particomuni: {
-        role: "particomuni",
-        loginMode: "password",
-        username: "particomuni",
-        password: "Parti2024!"
-    }
+    superadmin: { role: "superadmin", username: "superadmin", pin: "111111" },
+    guala:      { role: "guala",      username: "guala",      pin: "222222" },
+    piobesi:    { role: "piobesi",    username: "piobesi",    pin: "333333" },
+    particomuni:{ role: "particomuni",username: "particomuni",pin: "444444" }
 };
 
-/* =====================================================
-   CARICA MODIFICHE LOCALE (SUPERADMIN OVERRIDE)
-===================================================== */
+/******************************************************
+ * CARICA OVERRIDE SALVATO DAL MASTER
+ ******************************************************/
 if (localStorage.getItem("ADMIN_OVERRIDE")) {
     try {
-        const override = JSON.parse(localStorage.getItem("ADMIN_OVERRIDE"));
-        ADMIN_DATA = override;  // sostituisce i valori iniziali
+        ADMIN_DATA = JSON.parse(localStorage.getItem("ADMIN_OVERRIDE"));
     } catch (e) {
-        console.error("Errore override admin:", e);
+        console.error("Errore caricamento override admin:", e);
     }
 }
 
-/* =====================================================
-   LOGIN
-===================================================== */
-function adminLogin(role, username, password) {
+/******************************************************
+ * LOGIN AMMINISTRATORI
+ ******************************************************/
+function adminLogin(role, username, pin) {
 
     const admin = ADMIN_DATA[role];
     if (!admin) return false;
 
-    // Modalità 1 → SOLO PASSWORD
-    if (admin.loginMode === "password") {
-        if (password === admin.password) {
-            localStorage.setItem("ADMIN_ROLE", role);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Modalità 2 → USER + PASSWORD
-    if (admin.loginMode === "userpass") {
-        if (username === admin.username && password === admin.password) {
-            localStorage.setItem("ADMIN_ROLE", role);
-            return true;
-        } else {
-            return false;
-        }
+    if (username === admin.username && pin === admin.pin) {
+        localStorage.setItem("ADMIN_ROLE", role);
+        return true;
     }
 
     return false;
 }
 
-/* =====================================================
-   LOGOUT
-===================================================== */
+/******************************************************
+ * LOGOUT
+ ******************************************************/
 function adminLogout() {
     localStorage.removeItem("ADMIN_ROLE");
     window.location.href = "login.html";
 }
 
-/* =====================================================
-   CONTROLLO ACCESSO PAGINE
-===================================================== */
+/******************************************************
+ * CONTROLLO ACCESSO PAGINE
+ ******************************************************/
 function requireRole(requiredRole) {
+
     const role = localStorage.getItem("ADMIN_ROLE");
 
-    // Superadmin può entrare ovunque
-    if (role === "superadmin") return true;
-
-    // Altri accessi normali
+    if (role === "superadmin") return true;  // Superadmin vede tutto
     if (role === requiredRole) return true;
 
-    // Se non autorizzato → rimanda al login
     window.location.href = "login.html";
     return false;
 }
 
-/* =====================================================
-   FUNZIONE PER SUPERADMIN (SALVATAGGIO MODIFICHE)
-===================================================== */
+/******************************************************
+ * SALVATAGGIO CONFIGURAZIONE DA SUPERADMIN
+ ******************************************************/
 function saveAdminConfig(newData) {
-    localStorage.setItem("ADMIN_OVERRIDE", JSON.stringify(newData));
     ADMIN_DATA = newData;
+    localStorage.setItem("ADMIN_OVERRIDE", JSON.stringify(newData));
 }
