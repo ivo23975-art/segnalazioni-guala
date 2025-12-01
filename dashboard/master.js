@@ -1,168 +1,171 @@
-*****************************************************
+/******************************************************
  * ACCESSO MASTER
- **********************************************************/
+ ******************************************************/
 const MASTER_USER = "master";
-const MASTER_PIN = "280113";
+const MASTER_PIN   = "280113";
 
-funzione loginMaster() {
-    const u = document.getElementById("utente").value.trim().toLowerCase();
+function loginMaster() {
+    const u = document.getElementById("user").value.trim().toLowerCase();
     const p = document.getElementById("pin").value.trim();
     const err = document.getElementById("err");
 
-    se (u === MASTER_USER && p === MASTER_PIN) {
-        localStorage.setItem("MASTER_LOGGED", "SÌ");
+    if (u === MASTER_USER && p === MASTER_PIN) {
+        localStorage.setItem("MASTER_LOGGED", "YES");
         window.location.href = "master.html";
-    } altro {
+    } else {
         err.textContent = "Credenziali errate.";
     }
 }
 
-funzione checkMasterLogin() {
-    se (localStorage.getItem("MASTER_LOGGED") !== "SÌ") {
+function checkMasterLogin() {
+    if (localStorage.getItem("MASTER_LOGGED") !== "YES") {
         window.location.href = "master-login.html";
+        return;
     }
 
-    caricaUtenti();
-    caricaLink();
-    caricaLog();
+    loadUsers();
+    loadLinks();
+    loadLog();
 }
 
-funzione logoutMaster() {
+function logoutMaster() {
     localStorage.removeItem("MASTER_LOGGED");
     window.location.href = "master-login.html";
 }
 
-/********************************************************
+/******************************************************
  * GESTIONE UTENTI
- **********************************************************/
-funzione getUsers() {
-    restituisci JSON.parse(localStorage.getItem("APP_PIN_USERS")) || {};
+ ******************************************************/
+function getUsers() {
+    return JSON.parse(localStorage.getItem("APP_PIN_USERS")) || {};
 }
 
-funzione saveUsers(u) {
-    localStorage.setItem("UTENTI_PIN_APP", JSON.stringify(u));
+function saveUsers(u) {
+    localStorage.setItem("APP_PIN_USERS", JSON.stringify(u));
 }
 
-funzione createUser() {
-    const utente = document.getElementById("newUser").value.trim().toLowerCase();
-    const pin = document.getElementById("newPin").value.trim();
+function createUser() {
+    const user = document.getElementById("newUser").value.trim().toLowerCase();
+    const pin  = document.getElementById("newPin").value.trim();
 
-    se (utente === "" || lunghezza pin !== 6) {
+    if (user === "" || pin.length !== 6) {
         alert("Compila correttamente i campi.");
-        ritorno;
+        return;
     }
 
-    lascia che gli utenti = getUsers();
-    utenti[utente] = { pin: pin, attivo: vero };
-    saveUsers(utenti);
+    let users = getUsers();
+    users[user] = { pin: pin, active: true };
+    saveUsers(users);
 
-    log(`Creato utente: ${utente}`);
-    caricaUtenti();
+    log("Creato utente: " + user);
+    loadUsers();
 }
 
-funzione generatePin() {
+function generatePin() {
     const p = Math.floor(100000 + Math.random() * 900000);
     document.getElementById("newPin").value = p;
 }
 
-funzione toggleUser(nome utente) {
-    lascia che gli utenti = getUsers();
-    utenti[nomeutente].attivo = !utenti[nomeutente].attivo;
-    saveUsers(utenti);
+function toggleUser(username) {
+    let users = getUsers();
+    users[username].active = !users[username].active;
+    saveUsers(users);
 
-    log(`Modificato stato utente: ${username}`);
-    caricaUtenti();
+    log("Modificato stato utente: " + username);
+    loadUsers();
 }
 
-funzione deleteUser(nomeutente) {
+function deleteUser(username) {
     if (!confirm("Eliminare utente?")) return;
 
-    lascia che gli utenti = getUsers();
-    elimina utenti[nome utente];
-    saveUsers(utenti);
+    let users = getUsers();
+    delete users[username];
+    saveUsers(users);
 
-    log(`Rimosso utente: ${nomeutente}`);
-    caricaUtenti();
+    log("Rimosso utente: " + username);
+    loadUsers();
 }
 
-funzione loadUsers() {
+function loadUsers() {
     const tbody = document.querySelector("#usersTable tbody");
     tbody.innerHTML = "";
 
-    const utenti = getUsers();
+    const users = getUsers();
 
-    per (lascia entrare gli utenti) {
+    for (let u in users) {
         const row = document.createElement("tr");
 
-        riga.HTML interno = `
+        row.innerHTML = `
             <td>${u}</td>
-            <td>${utenti[u].pin}</td>
-            <td>${utenti[u].attivo ? "ATTIVO" : "BLOCCATO"}</td>
+            <td>${users[u].pin}</td>
+            <td>${users[u].active ? "ATTIVO" : "BLOCCATO"}</td>
             <td>
                 <button onclick="toggleUser('${u}')">Attiva/Blocca</button>
                 <button onclick="deleteUser('${u}')">Elimina</button>
             </td>
         `;
 
-        tbody.appendChild(riga);
+        tbody.appendChild(row);
     }
 }
 
-/********************************************************
+/******************************************************
  * LINK AUTOAGGIORNATI
- **********************************************************/
-funzione loadLinks() {
+ ******************************************************/
+function loadLinks() {
+
     const base = "https://ivo23975-art.github.io/segnalazioni-guala/";
 
-    collegamenti costanti = [
-        { name: "APP Principale", url: base + "index.html" },
-        { name: "Login PIN Utenti", url: base + "login-pin.html" },
-        { name: "Pannello SuperAdmin", url: base + "dashboard/superadmin.html" },
-        { name: "Pannello MASTER", url: base + "dashboard/master.html" }
+    const links = [
+        { name: "APP Principale",       url: base + "index.html" },
+        { name: "Login PIN Utenti",     url: base + "login-pin.html" },
+        { name: "Pannello SuperAdmin",  url: base + "dashboard/superadmin.html" },
+        { name: "Pannello MASTER",      url: base + "dashboard/master.html" }
     ];
 
     const ul = document.getElementById("linkList");
     ul.innerHTML = "";
 
-    link.forEach(l => {
+    links.forEach(l => {
         const li = document.createElement("li");
         li.innerHTML = `<a href="${l.url}" target="_blank">${l.name}</a>`;
         ul.appendChild(li);
     });
 }
 
-/********************************************************
+/******************************************************
  * LOG SISTEMA
- **********************************************************/
-funzione log(msg) {
-    registri costanti = JSON.parse(localStorage.getItem("MASTER_LOG")) || [];
-    registri.push({
-        ora: nuova data().toLocaleString(),
-        messaggio: messaggio
+ ******************************************************/
+function log(msg) {
+    const logs = JSON.parse(localStorage.getItem("MASTER_LOG")) || [];
+
+    logs.push({
+        time: new Date().toLocaleString(),
+        msg: msg
     });
 
-    localStorage.setItem("MASTER_LOG", JSON.stringify(log));
-    caricaLog();
+    localStorage.setItem("MASTER_LOG", JSON.stringify(logs));
+    loadLog();
 }
 
-funzione loadLog() {
+function loadLog() {
     const tbody = document.querySelector("#logTable tbody");
     tbody.innerHTML = "";
 
-    registri costanti = JSON.parse(localStorage.getItem("MASTER_LOG")) || [];
+    const logs = JSON.parse(localStorage.getItem("MASTER_LOG")) || [];
 
     logs.slice().reverse().forEach(l => {
         const row = document.createElement("tr");
-        riga.HTML interno = `
+        row.innerHTML = `
             <td>${l.time}</td>
             <td>${l.msg}</td>
         `;
-        tbody.appendChild(riga);
+        tbody.appendChild(row);
     });
 }
 
-funzione exportLog() {
-    registri costanti = localStorage.getItem("MASTER_LOG");
+function exportLog() {
+    const logs = localStorage.getItem("MASTER_LOG");
     const blob = new Blob([logs], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
