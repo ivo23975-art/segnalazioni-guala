@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
 
-<link rel="stylesheet" href="master.css?v=9999">
+<link rel="stylesheet" href="master.css?v=1">
 <script src="master.js" defer></script>
 </head>
 
 <body onload="checkMasterLogin()">
 
+<!-- HEADER: titolo centrato + logout a destra -->
 <div class="header">
-    <div class="header-title">MASTER – Gestione Utenti & Struttura</div>
+    <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
     <button class="logout" onclick="logoutMaster()">Logout</button>
 </div>
 
+<!-- PANNELLO GLASS 3D -->
 <div class="panel glass">
 
     <!-- LINK GENERALI -->
@@ -54,7 +56,7 @@
         </table>
     </section>
 
-    <!-- LOG ATTIVITÀ -->
+    <!-- LOG -->
     <section>
         <h2>Registro attività MASTER</h2>
         <button class="btn-secondary" onclick="exportLog()">Scarica LOG</button>
@@ -70,12 +72,12 @@
         </table>
     </section>
 
-    <!-- INFO -->
+    <!-- NOTE -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
-            Il pannello MASTER controlla l'accesso degli utenti dell'app (login PIN).
-            Qui puoi creare utenti, generarli automaticamente, attivarli, bloccarli o eliminarli.
+            Questo pannello controlla gli utenti dell'app.  
+            Tutte le operazioni vengono registrate nel LOG.
         </p>
     </section>
 
