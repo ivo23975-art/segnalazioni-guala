@@ -1,69 +1,77 @@
-/******************************************************
- * SISTEMA LOGIN AMMINISTRATORI
- * Modalità unica: USERNAME + PIN (6 cifre)
- ******************************************************/
+/* =====================================================
+   GESTIONE LOGIN AMMINISTRATORI (USERNAME + PIN)
+   Compatibile con MASTER PANEL (APP_PIN_USERS)
+===================================================== */
 
-// Configurazione iniziale (se MASTER non ha cambiato nulla)
-let ADMIN_DATA = {
-    superadmin: { role: "superadmin", username: "superadmin", pin: "111111" },
-    guala:      { role: "guala",      username: "guala",      pin: "222222" },
-    piobesi:    { role: "piobesi",    username: "piobesi",    pin: "333333" },
-    particomuni:{ role: "particomuni",username: "particomuni",pin: "444444" }
-};
+/*  
+   MASTER PANEL salva gli utenti così:
 
-/******************************************************
- * CARICA OVERRIDE SALVATO DAL MASTER
- ******************************************************/
-if (localStorage.getItem("ADMIN_OVERRIDE")) {
-    try {
-        ADMIN_DATA = JSON.parse(localStorage.getItem("ADMIN_OVERRIDE"));
-    } catch (e) {
-        console.error("Errore caricamento override admin:", e);
-    }
+   localStorage.APP_PIN_USERS = {
+       "guala": { pin: "123456", active: true },
+       "piobesi": { pin: "654321", active: true },
+       "superadmin": { pin: "280113", active: true },
+       ...
+   }
+*/
+
+function getAdminUsers() {
+    return JSON.parse(localStorage.getItem("APP_PIN_USERS")) || {};
 }
 
-/******************************************************
- * LOGIN AMMINISTRATORI
- ******************************************************/
+/* =====================================================
+   LOGIN LOGICA
+===================================================== */
 function adminLogin(role, username, pin) {
 
-    const admin = ADMIN_DATA[role];
-    if (!admin) return false;
+    const users = getAdminUsers();
 
-    if (username === admin.username && pin === admin.pin) {
-        localStorage.setItem("ADMIN_ROLE", role);
-        return true;
-    }
+    // Normalizziamo username
+    username = username.trim().toLowerCase();
 
-    return false;
+    // Controllo esistenza utente
+    if (!users[username]) return false;
+
+    const u = users[username];
+
+    // Controllo ruolo (username deve coincidere con ruolo)
+    if (username !== role) return false;
+
+    // Controllo attivazione
+    if (!u.active) return false;
+
+    // PIN corretto
+    if (u.pin !== pin.trim()) return false;
+
+    // Salvo sessione
+    localStorage.setItem("ADMIN_ROLE", role);
+    localStorage.setItem("ADMIN_USER", username);
+
+    return true;
 }
 
-/******************************************************
- * LOGOUT
- ******************************************************/
+/* =====================================================
+   LOGOUT
+===================================================== */
 function adminLogout() {
     localStorage.removeItem("ADMIN_ROLE");
-    window.location.href = "login.html";
+    localStorage.removeItem("ADMIN_USER");
+    location.href = "login.html";
 }
 
-/******************************************************
- * CONTROLLO ACCESSO PAGINE
- ******************************************************/
-function requireRole(requiredRole) {
+/* =====================================================
+   PROTEZIONE ACCESSO
+===================================================== */
+function requireRole(role) {
 
-    const role = localStorage.getItem("ADMIN_ROLE");
+    const logged = localStorage.getItem("ADMIN_ROLE");
 
-    if (role === "superadmin") return true;  // Superadmin vede tutto
-    if (role === requiredRole) return true;
+    // SuperAdmin può entrare ovunque
+    if (logged === "superadmin") return true;
 
-    window.location.href = "login.html";
+    // Accesso coincidente col ruolo richiesto
+    if (logged === role) return true;
+
+    // Accesso negato → logout
+    location.href = "login.html";
     return false;
-}
-
-/******************************************************
- * SALVATAGGIO CONFIGURAZIONE DA SUPERADMIN
- ******************************************************/
-function saveAdminConfig(newData) {
-    ADMIN_DATA = newData;
-    localStorage.setItem("ADMIN_OVERRIDE", JSON.stringify(newData));
 }
