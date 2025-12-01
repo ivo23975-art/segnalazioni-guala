@@ -4,13 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
+
 <link rel="stylesheet" href="master.css">
 <script src="master.js" defer></script>
 </head>
 
 <body onload="checkMasterLogin()">
 
-<h1 class="title">MASTER – Gestione Utenti & Struttura</h1>
+<div class="header">
+    <div class="header-title">MASTER – Gestione Utenti & Struttura</div>
+    <button class="logout" onclick="logoutMaster()">Logout</button>
+</div>
 
 <div class="panel">
 
@@ -30,8 +34,8 @@
         <label>PIN (6 cifre)</label>
         <input type="text" id="newPin" maxlength="6">
 
-        <button onclick="createUser()">Crea Utente</button>
-        <button onclick="generatePin()">Genera PIN Automatico</button>
+        <button class="btn" onclick="createUser()">Crea Utente</button>
+        <button class="btn-secondary" onclick="generatePin()">Genera PIN Automatico</button>
     </section>
 
     <!-- LISTA UTENTI -->
@@ -53,7 +57,7 @@
     <!-- LOG ATTIVITÀ -->
     <section>
         <h2>Registro attività MASTER</h2>
-        <button onclick="exportLog()">Scarica LOG</button>
+        <button class="btn-secondary" onclick="exportLog()">Scarica LOG</button>
 
         <table class="table" id="logTable">
             <thead>
@@ -74,8 +78,6 @@
             Qui puoi creare utenti, generarli automaticamente, attivarli, bloccarli o eliminarli.
         </p>
     </section>
-
-    <button class="logout" onclick="logoutMaster()">Logout</button>
 
 </div>
 
