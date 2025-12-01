@@ -1,41 +1,43 @@
-/* =====================================================
-   LOGIN DEDICATO PER MASTER
-===================================================== */
+/* =======================================================
+   MASTER LOGIN SYSTEM (NUOVA VERSIONE CORRETTA)
+======================================================= */
 
-const MASTER_CREDENTIALS = {
+const MASTER_ACCOUNT = {
     username: "master",
-    pin: "999999"
+    pin: "999999"   // Cambialo se vuoi
 };
 
+/* LOGIN */
 function loginMaster() {
+    const u = document.getElementById("username").value.trim();
+    const p = document.getElementById("pin").value.trim();
+    const err = document.getElementById("error");
 
-    const user = document.getElementById("username").value.trim();
-    const pin = document.getElementById("pin").value.trim();
-    const error = document.getElementById("error");
+    err.textContent = "";
 
-    error.textContent = "";
-
-    if (!user || !pin) {
-        error.textContent = "Inserisci username e PIN";
+    if (!u || !p) {
+        err.textContent = "Inserisci username e PIN";
         return;
     }
 
-    if (user === MASTER_CREDENTIALS.username && pin === MASTER_CREDENTIALS.pin) {
-        localStorage.setItem("MASTER_LOGGED", "1");
-        window.location.href = "dashboard/master.html";
+    if (u === MASTER_ACCOUNT.username && p === MASTER_ACCOUNT.pin) {
+        localStorage.setItem("MASTER_LOGGED", "yes");
+        window.location.href = "master.html";
         return;
     }
 
-    error.textContent = "Utente inesistente";
+    err.textContent = "Utente inesistente";
 }
 
-function checkMasterLogin() {
-    if (localStorage.getItem("MASTER_LOGGED") !== "1") {
-        window.location.href = "../master-login.html";
-    }
-}
-
+/* LOGOUT */
 function logoutMaster() {
     localStorage.removeItem("MASTER_LOGGED");
-    window.location.href = "../master-login.html";
+    window.location.href = "master-login.html";
+}
+
+/* PROTEZIONE */
+function checkMasterLogin() {
+    if (!localStorage.getItem("MASTER_LOGGED")) {
+        window.location.href = "master-login.html";
+    }
 }
