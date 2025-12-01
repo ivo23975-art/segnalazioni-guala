@@ -1,102 +1,162 @@
+/* ===========================================================
+   MASTER PANEL – STYLE
+   Grafica scura, leggibile e adattiva
+   Compatibile con master.html
+=========================================================== */
+
 body {
     background: url("../login-bg.jpg") no-repeat center center fixed;
     background-size: cover;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: system-ui, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 30px;
     color: #fff;
 }
 
-/* Overlay scuro per aumentare contrasto */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.65); 
-    backdrop-filter: blur(3px);
-    z-index: -1;
+/* Sfondo pannello */
+.panel {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
 
-/* TITOLO */
+/* Titolo */
 .title {
     text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    padding: 20px 0;
-    color: #ffcc00;
-    text-shadow: 0 0 12px black;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    text-shadow: 0 0 6px #000;
 }
 
-/* PANNELLI */
-.panel {
-    width: 80%;
-    margin: 20px auto;
-    background: rgba(20,20,20,0.75);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 14px rgba(0,0,0,0.5);
-}
-
-/* TITOLI SEZIONI */
-.panel h3 {
-    margin: 0 0 15px 0;
-    color: #ffcc00;
-    font-size: 20px;
+/* Sezioni */
+section {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
     border-bottom: 1px solid #444;
-    padding-bottom: 6px;
 }
 
-/* INPUT */
+section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #ff3333;
+    text-shadow: 0 0 4px #000;
+}
+
+/* Input */
 input {
     width: 100%;
     padding: 12px;
-    margin: 8px 0 15px 0;
     border-radius: 6px;
     border: none;
-    background: rgba(255,255,255,0.9);
-    font-size: 15px;
+    background: #222;
+    margin-top: 5px;
+    color: #fff;
+    font-size: 1rem;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
 }
 
-/* BOTTONI */
-button {
-    background: #cc0000;
-    border: none;
-    padding: 12px 18px;
-    color: white;
-    font-size: 15px;
+input::placeholder {
+    color: #999;
+}
+
+/* Tabelle */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.table th {
+    background: #333;
+    color: #fff;
     font-weight: bold;
+    padding: 10px;
+    border-bottom: 2px solid #ff0000;
+}
+
+.table td {
+    padding: 10px;
+    background: rgba(255,255,255,0.08);
+    border-bottom: 1px solid #333;
+}
+
+.table tr:hover td {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Bottoni */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
     border-radius: 6px;
     cursor: pointer;
-    margin-right: 10px;
+    background: #cc0000;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.2s;
 }
 
 button:hover {
-    background: #e60000;
+    background: #ff0000;
 }
 
-/* TABELLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+/* Pulsanti nelle tabelle */
+.table button {
+    width: auto;
+    padding: 6px 12px;
+    margin: 2px;
+    font-size: 0.85rem;
 }
 
-th {
+/* Logout */
+.logout {
     background: #444;
-    padding: 12px;
-    text-align: left;
-    color: #ffcc00;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 30px;
 }
 
-td {
-    background: rgba(255,255,255,0.1);
-    padding: 10px;
-    border-bottom: 1px solid #555;
+.logout:hover {
+    background: #666;
 }
 
-/* Testo leggimi */
-.leggimi {
-    font-size: 15px;
-    line-height: 1.5;
-    color: #eee;
+/* Link */
+ul#linkList {
+    padding-left: 20px;
+}
+
+ul#linkList li {
+    margin-bottom: 6px;
+}
+
+ul#linkList a {
+    color: #66aaff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+ul#linkList a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    body {
+        padding: 15px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+    .title {
+        font-size: 1.6rem;
+    }
 }
