@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTER – Gestione Completa</title>
+<link rel="stylesheet" href="master.css">
+<script src="master.js" defer></script>
+</head>
+
+<body onload="checkMasterLogin()">
+
+<h1 class="title">MASTER – Gestione Accessi & Struttura</h1>
+
+<div class="panel">
+
+    <!-- LINK GENERALI AUTOAGGIORNANTI -->
+    <section>
+        <h2>Link App & Dashboard</h2>
+        <ul id="linkList"></ul>
+    </section>
+
+    <!-- CREAZIONE UTENTE -->
+    <section>
+        <h2>Crea nuovo utente</h2>
+
+        <label>Username</label>
+        <input type="text" id="newUser">
+
+        <label>PIN (6 cifre)</label>
+        <input type="text" id="newPin" maxlength="6">
+
+        <button onclick="createUser()">Crea Utente</button>
+        <button onclick="generatePin()">Genera PIN Automatico</button>
+    </section>
+
+    <!-- LISTA UTENTI -->
+    <section>
+        <h2>Utenti Registrati</h2>
+        <table class="table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>PIN</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <!-- LOG ATTIVITÀ -->
+    <section>
+        <h2>Registro attività</h2>
+        <button onclick="exportLog()">Esporta LOG</button>
+        <table class="table" id="logTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Azione</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <!-- LEGGIMI -->
+    <section>
+        <h2>LEGGIMI</h2>
+        <p>
+            Questo pannello MASTER permette la gestione totale degli utenti amministratori,
+            compresi: creazione utenti, generazione PIN, attivazione/disattivazione, rimozione,
+            visualizzazione link dinamici e registro completo delle attività.
+        </p>
+    </section>
+
+    <button class="logout" onclick="logoutMaster()">Logout</button>
+
+</div>
+
+</body>
+</html>
