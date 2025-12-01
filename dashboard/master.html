@@ -3,119 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MASTER – Gestione Completa</title>
-
+<title>MASTER – Pannello di Controllo</title>
 <link rel="stylesheet" href="master.css">
 <script src="master.js" defer></script>
-
-<style>
-    body {
-        background: url("../login-bg.jpg") no-repeat center center fixed;
-        background-size: cover;
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, sans-serif;
-        color: #fff;
-    }
-
-    .title {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 2rem;
-        text-shadow: 0 0 8px #000;
-    }
-
-    .panel {
-        background: rgba(0,0,0,0.75);
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 12px rgba(0,0,0,0.6);
-    }
-
-    h2 {
-        margin-top: 25px;
-        color: #ff4444;
-    }
-
-    label {
-        font-weight: bold;
-        margin-top: 10px;
-        display: block;
-    }
-
-    input {
-        width: 100%;
-        padding: 10px;
-        background: #222;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        margin-top: 5px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        background: #cc0000;
-        border: none;
-        margin-top: 10px;
-        color: #fff;
-        font-weight: bold;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #aa0000;
-    }
-
-    .table {
-        width: 100%;
-        margin-top: 15px;
-        border-collapse: collapse;
-        color: #eee;
-    }
-
-    .table th, .table td {
-        padding: 10px;
-        border-bottom: 1px solid #444;
-    }
-
-    /* 🔴 Logout uniforme */
-    .logout-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ff0000;
-        color: white;
-        padding: 10px 18px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        text-decoration: none;
-        transition: 0.2s;
-        z-index: 999;
-    }
-
-    .logout-btn:hover {
-        background: #cc0000;
-    }
-</style>
-
 </head>
 
 <body onload="checkMasterLogin()">
 
-<!-- 🔴 LOGOUT BUTTON -->
-<a class="logout-btn" onclick="logoutMaster()">Logout</a>
-
-<h1 class="title">MASTER – Gestione Accessi & Struttura</h1>
+<h1 class="title">MASTER – Gestione Utenti & Struttura</h1>
 
 <div class="panel">
 
-    <!-- LINK GENERALI AUTOAGGIORNANTI -->
+    <!-- LINK GENERALI -->
     <section>
         <h2>Link App & Dashboard</h2>
         <ul id="linkList"></ul>
@@ -123,7 +22,7 @@
 
     <!-- CREAZIONE UTENTE -->
     <section>
-        <h2>Crea nuovo utente</h2>
+        <h2>Crea nuovo utente App</h2>
 
         <label>Username</label>
         <input type="text" id="newUser">
@@ -137,7 +36,7 @@
 
     <!-- LISTA UTENTI -->
     <section>
-        <h2>Utenti Registrati</h2>
+        <h2>Utenti App Registrati</h2>
         <table class="table" id="usersTable">
             <thead>
                 <tr>
@@ -153,8 +52,9 @@
 
     <!-- LOG ATTIVITÀ -->
     <section>
-        <h2>Registro attività</h2>
-        <button onclick="exportLog()">Esporta LOG</button>
+        <h2>Registro attività MASTER</h2>
+        <button onclick="exportLog()">Scarica LOG</button>
+
         <table class="table" id="logTable">
             <thead>
                 <tr>
@@ -166,15 +66,16 @@
         </table>
     </section>
 
-    <!-- LEGGIMI -->
+    <!-- INFO -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
-            Questo pannello MASTER permette la gestione totale degli utenti amministratori:
-            creazione utenti, generazione PIN, attivazione/disattivazione, rimozione, 
-            visualizzazione link dinamici e registro completo delle attività.
+            Il pannello MASTER controlla l'accesso degli utenti dell'app (login PIN).
+            Qui puoi creare utenti, generarli automaticamente, attivarli, bloccarli o eliminarli.
         </p>
     </section>
+
+    <button class="logout" onclick="logoutMaster()">Logout</button>
 
 </div>
 
