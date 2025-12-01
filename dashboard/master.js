@@ -1,8 +1,8 @@
 /******************************************************
- * ACCESSO MASTER
+ * LOGIN MASTER – Utente principale
  ******************************************************/
 const MASTER_USER = "master";
-const MASTER_PIN   = "280113";
+const MASTER_PIN = "280113";
 
 function loginMaster() {
     const u = document.getElementById("user").value.trim().toLowerCase();
@@ -34,7 +34,7 @@ function logoutMaster() {
 }
 
 /******************************************************
- * GESTIONE UTENTI
+ * GESTIONE UTENTI APP (login-pin)
  ******************************************************/
 function getUsers() {
     return JSON.parse(localStorage.getItem("APP_PIN_USERS")) || {};
@@ -44,48 +44,61 @@ function saveUsers(u) {
     localStorage.setItem("APP_PIN_USERS", JSON.stringify(u));
 }
 
+/* CREA UTENTE APP */
 function createUser() {
     const user = document.getElementById("newUser").value.trim().toLowerCase();
-    const pin  = document.getElementById("newPin").value.trim();
+    const pin = document.getElementById("newPin").value.trim();
 
     if (user === "" || pin.length !== 6) {
-        alert("Compila correttamente i campi.");
+        alert("Username e PIN (6 cifre) obbligatori.");
         return;
     }
 
     let users = getUsers();
+
+    if (users[user]) {
+        alert("Utente già esistente!");
+        return;
+    }
+
     users[user] = { pin: pin, active: true };
     saveUsers(users);
 
-    log("Creato utente: " + user);
+    log(`Creato utente: ${user}`);
     loadUsers();
 }
 
+/* GENERA PIN RANDOM */
 function generatePin() {
     const p = Math.floor(100000 + Math.random() * 900000);
     document.getElementById("newPin").value = p;
 }
 
+/* ATTIVA / DISATTIVA UTENTE */
 function toggleUser(username) {
     let users = getUsers();
     users[username].active = !users[username].active;
     saveUsers(users);
 
-    log("Modificato stato utente: " + username);
+    log(`Stato utente modificato: ${username}`);
     loadUsers();
 }
 
+/* ELIMINA UTENTE */
 function deleteUser(username) {
-    if (!confirm("Eliminare utente?")) return;
+    if (!confirm("Eliminare l'utente?")) return;
 
     let users = getUsers();
     delete users[username];
     saveUsers(users);
 
-    log("Rimosso utente: " + username);
+    log(`Utente eliminato: ${username}`);
     loadUsers();
 }
 
+/******************************************************
+ * TABELLA UTENTI
+ ******************************************************/
 function loadUsers() {
     const tbody = document.querySelector("#usersTable tbody");
     tbody.innerHTML = "";
@@ -100,7 +113,7 @@ function loadUsers() {
             <td>${users[u].pin}</td>
             <td>${users[u].active ? "ATTIVO" : "BLOCCATO"}</td>
             <td>
-                <button onclick="toggleUser('${u}')">Attiva/Blocca</button>
+                <button onclick="toggleUser('${u}')">Att./Bloc.</button>
                 <button onclick="deleteUser('${u}')">Elimina</button>
             </td>
         `;
@@ -110,17 +123,20 @@ function loadUsers() {
 }
 
 /******************************************************
- * LINK AUTOAGGIORNATI
+ * LINK AUTOMATICI
  ******************************************************/
 function loadLinks() {
-
     const base = "https://ivo23975-art.github.io/segnalazioni-guala/";
 
     const links = [
-        { name: "APP Principale",       url: base + "index.html" },
-        { name: "Login PIN Utenti",     url: base + "login-pin.html" },
-        { name: "Pannello SuperAdmin",  url: base + "dashboard/superadmin.html" },
-        { name: "Pannello MASTER",      url: base + "dashboard/master.html" }
+        { name: "APP Principale", url: base + "index.html" },
+        { name: "Login PIN Utenti", url: base + "login-pin.html" },
+        { name: "Pannello Guala", url: base + "dashboard/guala.html" },
+        { name: "Pannello Piobesi", url: base + "dashboard/piobesi.html" },
+        { name: "Parti Comuni", url: base + "dashboard/particomuni.html" },
+        { name: "SuperAdmin", url: base + "dashboard/superadmin.html" },
+        { name: "SuperAdmin Settings", url: base + "dashboard/superadmin-settings.html" },
+        { name: "MASTER Panel", url: base + "dashboard/master.html" }
     ];
 
     const ul = document.getElementById("linkList");
@@ -134,11 +150,10 @@ function loadLinks() {
 }
 
 /******************************************************
- * LOG SISTEMA
+ * LOG ATTIVITÀ
  ******************************************************/
 function log(msg) {
     const logs = JSON.parse(localStorage.getItem("MASTER_LOG")) || [];
-
     logs.push({
         time: new Date().toLocaleString(),
         msg: msg
