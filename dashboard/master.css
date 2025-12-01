@@ -10,6 +10,7 @@ body {
     background-attachment: fixed;
     font-family: system-ui, sans-serif;
     color: #fff;
+    overflow-y: auto;
 }
 
 /* HEADER */
@@ -21,8 +22,8 @@ body {
     background: rgba(0,0,0,0.75);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(0,153,255,0.4);
-
     box-shadow: 0 0 25px rgba(0,153,255,0.25);
+
     text-align: center;
 }
 
@@ -37,7 +38,7 @@ body {
 /* LOGOUT */
 .logout {
     position: absolute;
-    right: 40px;
+    right: 25px;
     top: 50%;
     transform: translateY(-50%);
 
@@ -48,9 +49,9 @@ body {
 
     color: #fff;
     font-weight: bold;
-
     box-shadow: 0 0 15px rgba(255,70,70,0.8),
                 0 0 25px rgba(255,0,0,0.4);
+
     cursor: pointer;
     transition: 0.2s;
 }
@@ -76,7 +77,7 @@ body {
         inset 0 0 25px rgba(255,255,255,0.10);
 }
 
-/* SECTION TITLES */
+/* SECTION HEADERS */
 section h2 {
     font-size: 1.6rem;
     font-weight: bold;
@@ -93,9 +94,11 @@ section {
 label {
     color: #ffe066;
     font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
 }
 
-/* INPUT */
+/* INPUTS */
 input {
     width: 100%;
     padding: 12px;
@@ -111,12 +114,14 @@ input {
 }
 
 /* BUTTONS */
-.btn-primary, .btn-secondary {
+.btn-primary,
+.btn-secondary {
     width: 100%;
     padding: 14px;
     border-radius: 8px;
     border: none;
     margin-top: 12px;
+
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
@@ -127,6 +132,7 @@ input {
 .btn-primary {
     background: linear-gradient(90deg, #00aaff, #0074c8);
     box-shadow: 0 0 15px rgba(0,153,255,0.75);
+    color: white;
 }
 
 .btn-primary:hover {
@@ -145,10 +151,11 @@ input {
     background: rgba(255,255,255,0.35);
 }
 
-/* TABLE */
+/* TABLES */
 .table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 12px;
 }
 
 .table th {
@@ -168,21 +175,33 @@ input {
     background: rgba(0,153,255,0.20);
 }
 
-/* LINKS VISIBILI */
+/* LINKS (NEON AZZURRO) */
 .panel a {
-    color: #99d6ff;
+    color: #aee2ff;
     font-weight: bold;
-    text-shadow: 0 0 6px rgba(0,153,255,0.8);
+    text-shadow: 0 0 8px rgba(0,153,255,0.8);
+    text-decoration: none;
 }
 
 .panel a:hover {
-    color: white;
-    text-shadow: 0 0 12px rgba(255,255,255,0.9);
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255,255,255,1);
+    text-decoration: underline;
 }
 
 /* RESPONSIVE */
 @media (max-width: 600px) {
-    .panel.glass { margin: 15px; padding: 20px; }
-    .header-title { font-size: 1.4rem; }
-    .logout { right: 15px; padding: 8px 14px; }
+    .panel.glass {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    .header-title {
+        font-size: 1.4rem;
+    }
+
+    .logout {
+        right: 15px;
+        padding: 8px 14px;
+    }
 }
