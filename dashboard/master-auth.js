@@ -1,42 +1,54 @@
-/* ============================================
-   SISTEMA LOGIN MASTER - DEFINITIVO
-   POSIZIONE: /dashboard/master-auth.js
-============================================ */
+/* =====================================================
+   MASTER LOGIN SYSTEM
+===================================================== */
 
-const MASTER_ACCOUNT = {
+const MASTER_DATA = {
     username: "master",
-    pin: "999999"   // Cambialo se vuoi
+    pin: "999999"
 };
 
-function loginMaster() {
+/* =====================================================
+   LOGIN
+===================================================== */
 
-    const u = document.getElementById("username").value.trim();
-    const p = document.getElementById("pin").value.trim();
-    const err = document.getElementById("error");
+function masterLogin() {
+    const user = document.getElementById("masterUser").value.trim();
+    const pin = document.getElementById("masterPin").value.trim();
+    const errorBox = document.getElementById("errorBox");
 
-    err.textContent = "";
+    errorBox.textContent = "";
 
-    if (!u || !p) {
-        err.textContent = "Inserisci username e PIN";
-        return;
+    if (!user || !pin) {
+        errorBox.textContent = "Inserisci username e PIN";
+        return false;
     }
 
-    if (u === MASTER_ACCOUNT.username && p === MASTER_ACCOUNT.pin) {
-        localStorage.setItem("MASTER_LOGGED", "yes");
+    if (user === MASTER_DATA.username && pin === MASTER_DATA.pin) {
+        localStorage.setItem("MASTER_LOGGED", "OK");
         window.location.href = "master.html";
-        return;
+        return true;
     }
 
-    err.textContent = "Utente inesistente";
+    errorBox.textContent = "Credenziali errate";
+    return false;
 }
+
+/* =====================================================
+   PROTEZIONE PAGINE
+===================================================== */
+
+function checkMasterLogin() {
+    const logged = localStorage.getItem("MASTER_LOGGED");
+    if (!logged) {
+        window.location.href = "master-login.html";
+    }
+}
+
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 function logoutMaster() {
     localStorage.removeItem("MASTER_LOGGED");
     window.location.href = "master-login.html";
-}
-
-function checkMasterLogin() {
-    if (localStorage.getItem("MASTER_LOGGED") !== "yes") {
-        window.location.href = "master-login.html";
-    }
 }
