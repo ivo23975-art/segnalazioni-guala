@@ -1,0 +1,54 @@
+body {
+    margin: 0;
+    background: url("login-bg.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+}
+
+.login-box {
+    width: 340px;
+    margin: 140px auto;
+    padding: 30px;
+    background: rgba(0,0,0,0.75);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    color: #ffe066;
+    box-shadow: 0 0 25px rgba(0,153,255,0.5);
+}
+
+h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(0,153,255,0.4);
+    border-radius: 8px;
+    color: #fff;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+
+    background: linear-gradient(180deg, #ff3333, #cc0011);
+    color: white;
+    font-weight: bold;
+
+    box-shadow: 0 0 15px rgba(255,70,70,0.8);
+    cursor: pointer;
+}
+
+.error {
+    margin-top: 12px;
+    text-align: center;
+    color: #ff4d4d;
+}
