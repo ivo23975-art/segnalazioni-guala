@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accesso MASTER</title>
 
-<link rel="stylesheet" href="master-login.css?v=2" />
-<script src="master-auth.js?v=2" defer></script>
+<!-- Stile login MASTER -->
+<link rel="stylesheet" href="master-login.css?v=1">
+
+<!-- Logica login MASTER -->
+<script src="master-auth.js" defer></script>
+
 </head>
 <body>
 
-<div class="login-container">
-    <div class="login-box neon-glass">
-        <h2 class="title">ACCESSO MASTER</h2>
+<div class="login-box">
+    <h2>ACCESSO MASTER</h2>
 
-        <input type="text" id="username" placeholder="Username" class="input-field" />
-        <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)" class="input-field" />
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)">
 
-        <button class="login-btn" onclick="loginMaster()">Entra</button>
+    <button onclick="loginMaster()">Entra</button>
 
-        <div id="error" class="error-msg"></div>
-    </div>
+    <div id="error" class="error"></div>
 </div>
 
 </body>
