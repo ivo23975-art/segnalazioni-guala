@@ -1,57 +1,56 @@
 /* ===========================================================
-   MASTER PANEL – GLASS 3D + NEON BLUE (VERSIONE COMPLETA)
+   MASTER PANEL – NEON BLU GLASS 3D (VERSIONE DEFINITIVA)
 =========================================================== */
 
 body {
     margin: 0;
     padding: 0;
 
-    background: radial-gradient(circle at top, #0b3d91, #00091a 65%);
-    background-size: cover;
+    background: radial-gradient(circle at top, #0b3d91, #000914 70%);
     background-attachment: fixed;
-
     font-family: system-ui, sans-serif;
     color: #fff;
-    overflow-y: auto;
 }
 
-/* HEADER: titolo centrato + logout a destra */
+/* HEADER */
 .header {
     width: 100%;
     position: relative;
-    padding: 18px 25px;
+    padding: 20px 30px;
 
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 153, 255, 0.3);
-    box-shadow: 0 0 20px rgba(0, 153, 255, 0.3);
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,153,255,0.4);
 
+    box-shadow: 0 0 25px rgba(0,153,255,0.25);
     text-align: center;
 }
 
 .header-title {
     margin: 0;
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 800;
     color: #ffe066;
-    text-shadow: 0 0 12px rgba(255, 230, 120, 0.8);
+    text-shadow: 0 0 14px rgba(255,230,120,0.7);
 }
 
 /* LOGOUT */
 .logout {
     position: absolute;
-    right: 20px;
+    right: 40px;
     top: 50%;
     transform: translateY(-50%);
 
-    padding: 10px 18px;
+    padding: 12px 22px;
     background: linear-gradient(180deg, #ff3344, #cc0011);
-    border: 1px solid rgba(255, 70, 70, 0.55);
+    border: 1px solid rgba(255,80,80,0.6);
     border-radius: 10px;
 
-    box-shadow: 0 0 15px rgba(255, 70, 70, 0.7);
     color: #fff;
     font-weight: bold;
+
+    box-shadow: 0 0 15px rgba(255,70,70,0.8),
+                0 0 25px rgba(255,0,0,0.4);
     cursor: pointer;
     transition: 0.2s;
 }
@@ -61,118 +60,129 @@ body {
     transform: translateY(-50%) scale(1.05);
 }
 
-/* PANEL */
+/* PANEL GLASS */
 .panel.glass {
     max-width: 900px;
-    margin: 20px auto;
-    padding: 25px;
+    margin: 35px auto;
+    padding: 30px;
 
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(14px) saturate(180%);
-    border-radius: 20px;
+    background: rgba(255,255,255,0.13);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 18px;
 
-    border: 1px solid rgba(0, 153, 255, 0.5);
+    border: 1px solid rgba(0,153,255,0.45);
     box-shadow:
-        0 0 30px rgba(0, 153, 255, 0.35),
-        inset 0 0 25px rgba(255, 255, 255, 0.06);
+        0 0 35px rgba(0,153,255,0.35),
+        inset 0 0 25px rgba(255,255,255,0.10);
 }
 
-/* SEZIONI */
-section {
-    margin-bottom: 35px;
-}
-
+/* SECTION TITLES */
 section h2 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: bold;
     color: #ffe066;
-    text-shadow: 0 0 10px rgba(255, 230, 120, 0.7);
-    margin-bottom: 12px;
+    text-shadow: 0 0 12px rgba(255,230,120,0.7);
+    margin-bottom: 15px;
 }
 
-/* INPUT */
+section {
+    margin-bottom: 40px;
+}
+
+/* LABELS */
 label {
     color: #ffe066;
     font-weight: bold;
 }
 
+/* INPUT */
 input {
     width: 100%;
     padding: 12px;
+    margin-top: 8px;
+
     border-radius: 8px;
-    border: 1px solid rgba(0, 153, 255, 0.4);
-    background: rgba(0, 0, 0, 0.45);
-    color: #d8efff;
-    margin-bottom: 12px;
+    border: 1px solid rgba(0,153,255,0.4);
+
+    background: rgba(0,0,0,0.45);
+    color: #dff4ff;
+
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
 }
 
-/* BOTTONI */
+/* BUTTONS */
 .btn-primary, .btn-secondary {
     width: 100%;
     padding: 14px;
     border-radius: 8px;
     border: none;
+    margin-top: 12px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
 }
 
+/* PRIMARY BUTTON */
 .btn-primary {
-    background: linear-gradient(90deg, #00aaff, #0088dd);
-    box-shadow: 0 0 14px rgba(0, 153, 255, 0.8);
+    background: linear-gradient(90deg, #00aaff, #0074c8);
+    box-shadow: 0 0 15px rgba(0,153,255,0.75);
 }
 
 .btn-primary:hover {
-    box-shadow: 0 0 20px rgba(0, 153, 255, 1);
+    box-shadow: 0 0 22px rgba(0,153,255,1);
     transform: translateY(-2px);
 }
 
+/* SECONDARY BUTTON */
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.22);
-    color: #d8efff;
-    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.25);
+    color: #d9f2ff;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(255,255,255,0.35);
 }
 
-/* TABELLE */
+/* TABLE */
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 12px;
 }
 
 .table th {
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0,0,0,0.55);
     color: #ffe066;
     padding: 10px;
-    border-bottom: 2px solid rgba(0,153,255,0.35);
+    border-bottom: 2px solid rgba(0,153,255,0.4);
 }
 
 .table td {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0,0,0,0.35);
     padding: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.10);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
 .table tr:hover td {
-    background: rgba(0, 153, 255, 0.18);
+    background: rgba(0,153,255,0.20);
+}
+
+/* LINKS VISIBILI */
+.panel a {
+    color: #99d6ff;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(0,153,255,0.8);
+}
+
+.panel a:hover {
+    color: white;
+    text-shadow: 0 0 12px rgba(255,255,255,0.9);
 }
 
 /* RESPONSIVE */
 @media (max-width: 600px) {
-    .panel.glass {
-        padding: 15px;
-        margin: 10px;
-    }
-
-    .header-title {
-        font-size: 1.3rem;
-    }
-
-    .logout {
-        padding: 8px 14px;
-    }
+    .panel.glass { margin: 15px; padding: 20px; }
+    .header-title { font-size: 1.4rem; }
+    .logout { right: 15px; padding: 8px 14px; }
 }
