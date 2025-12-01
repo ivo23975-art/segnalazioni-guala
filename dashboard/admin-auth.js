@@ -1,94 +1,108 @@
 /* =====================================================
-   SISTEMA LOGIN ADMIN
+   SISTEMA LOGIN ADMIN (VERSIONE DEFINITIVA)
+   - Usa PIN
+   - Usa ADMIN_CONFIG
+   - Usa ADMIN_LOGGED
+   - Controlla active: true/false
 ===================================================== */
 
+/* =====================================================
+   CONFIGURAZIONE DEFAULT (se manca ADMIN_CONFIG)
+===================================================== */
 let ADMIN_DATA = {
     superadmin: {
         role: "superadmin",
-        loginMode: "password",
         username: "superadmin",
-        password: "Super2024!"
+        pin: "482915",
+        active: true
     },
     guala: {
         role: "guala",
-        loginMode: "password",
         username: "guala",
-        password: "Guala2024!"
+        pin: "505493",
+        active: true
     },
     piobesi: {
         role: "piobesi",
-        loginMode: "password",
         username: "piobesi",
-        password: "Piobesi2024!"
+        pin: "000000",
+        active: true
     },
     particomuni: {
         role: "particomuni",
-        loginMode: "password",
         username: "particomuni",
-        password: "Parti2024!"
+        pin: "000000",
+        active: true
     }
 };
 
 /* =====================================================
-   CARICA OVERRIDE SUPERADMIN
+   CARICA OVERRIDE DA ADMIN_CONFIG
 ===================================================== */
-if (localStorage.getItem("ADMIN_OVERRIDE")) {
+const savedConfig = localStorage.getItem("ADMIN_CONFIG");
+if (savedConfig) {
     try {
-        ADMIN_DATA = JSON.parse(localStorage.getItem("ADMIN_OVERRIDE"));
-    } catch(e) {
-        console.error("Errore override admin:", e);
+        ADMIN_DATA = JSON.parse(savedConfig);
+    } catch (e) {
+        console.error("Errore caricamento ADMIN_CONFIG:", e);
     }
 }
 
 /* =====================================================
    LOGIN ADMIN
 ===================================================== */
-function adminLogin(role, username, password) {
-
+function adminLogin(role, username, pin) {
     const admin = ADMIN_DATA[role];
     if (!admin) return false;
 
-    // SOLO PASSWORD
-    if (admin.loginMode === "password") {
-        return password === admin.password ? 
-            (localStorage.setItem("ADMIN_ROLE", role), true) : false;
-    }
+    // Bloccato?
+    if (!admin.active) return false;
 
-    // USERNAME + PASSWORD
-    if (admin.loginMode === "userpass") {
-        return (username === admin.username && password === admin.password) ?
-            (localStorage.setItem("ADMIN_ROLE", role), true) : false;
-    }
+    // Username sbagliato?
+    if (admin.username !== username) return false;
 
-    return false;
+    // PIN sbagliato?
+    if (admin.pin !== pin) return false;
+
+    // LOGIN OK
+    localStorage.setItem("ADMIN_LOGGED", role);
+    return true;
 }
 
 /* =====================================================
    LOGOUT
 ===================================================== */
 function adminLogout() {
-    localStorage.removeItem("ADMIN_ROLE");
-    window.location.href = "login.html";
+    localStorage.removeItem("ADMIN_LOGGED");
+    window.location.href = "login-pin.html";
 }
 
 /* =====================================================
    PROTEZIONE PAGINE
 ===================================================== */
 function requireRole(requiredRole) {
-    const role = localStorage.getItem("ADMIN_ROLE");
+    const role = localStorage.getItem("ADMIN_LOGGED");
 
+    if (!role) {
+        window.location.href = "login-pin.html";
+        return false;
+    }
+
+    // superadmin vede tutto
     if (role === "superadmin") return true;
+
+    // ruolo richiesto corrisponde
     if (role === requiredRole) return true;
 
-    window.location.href = "login.html";
+    // blocco + redirect
+    window.location.href = "login-pin.html";
     return false;
 }
 
 /* =====================================================
-   SALVA MODIFICHE SUPERADMIN
+   SALVATAGGIO NUOVA CONFIG SUPERADMIN
 ===================================================== */
 function saveAdminConfig(newData) {
-    localStorage.setItem("ADMIN_OVERRIDE", JSON.stringify(newData));
+    localStorage.setItem("ADMIN_CONFIG", JSON.stringify(newData));
     ADMIN_DATA = newData;
 }
-
