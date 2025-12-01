@@ -1,5 +1,5 @@
 /* ===========================================================
-   MASTER PANEL – GLASS 3D + NEON BLUE EFFECT
+   MASTER PANEL – GLASS 3D + NEON BLUE EFFECT (VERSIONE DEFINITIVA)
 =========================================================== */
 
 body {
@@ -14,6 +14,8 @@ body {
 
     font-family: system-ui, sans-serif;
     color: #fff;
+
+    overflow-y: auto !important; /* FONDAMENTALE per adattività */
 }
 
 /* HEADER */
@@ -32,18 +34,18 @@ body {
 .header-title {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #d9ebff;
-    text-shadow: 0 0 12px rgba(0, 153, 255, 0.8);
+    color: #ffe066 !important; /* GIALLO NEON */
+    text-shadow: 0 0 14px rgba(255, 224, 102, 0.9) !important;
 }
 
 /* Glass Panel */
 .panel.glass {
     max-width: 900px;
-    margin: 40px auto;
-    padding: 35px;
+    margin: 20px auto !important;
+    padding: 20px !important;
 
     background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(14px) saturate(200%);
     border-radius: 20px;
 
     border: 1px solid rgba(0, 153, 255, 0.5);
@@ -54,17 +56,23 @@ body {
 
 /* Sezioni */
 section {
-    margin-bottom: 40px;
+    margin-bottom: 25px !important;
+    padding-bottom: 15px !important;
 }
 
 section h2 {
     font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: #88c7ff;
-    text-shadow: 0 0 10px rgba(0, 153, 255, 0.8);
+    margin-bottom: 10px !important;
+    color: #ffe066 !important; /* GIALLO NEON */
+    text-shadow: 0 0 10px rgba(255, 224, 102, 0.8) !important;
 }
 
 /* Input */
+label {
+    color: #ffe066 !important; /* visibile */
+    font-weight: bold !important;
+}
+
 input {
     width: 100%;
     padding: 12px;
@@ -77,8 +85,9 @@ input {
     backdrop-filter: blur(4px);
 }
 
-/* Bottoni */
-button, .btn-primary {
+/* BOTTONI */
+button,
+.btn-primary {
     width: 100%;
     padding: 14px;
     font-size: 1rem;
@@ -95,7 +104,8 @@ button, .btn-primary {
     transition: transform .15s, box-shadow .15s;
 }
 
-button:hover, .btn-primary:hover {
+button:hover,
+.btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 0 22px rgba(0, 153, 255, 0.9);
 }
@@ -111,35 +121,46 @@ button:hover, .btn-primary:hover {
     background: rgba(255, 255, 255, 0.35);
 }
 
-/* Logout */
+/* LOGOUT FUTURE RED */
 .logout {
-    padding: 12px 18px !important;
-    background: #ff3344 !important;
-    box-shadow: 0 0 12px rgba(255, 80, 80, 0.8);
+    padding: 10px 18px !important;
+    width: auto !important;
+    background: linear-gradient(180deg, #ff3344, #cc0011) !important;
+    border: 1px solid rgba(255, 80, 80, 0.6);
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(255, 60, 60, 0.8), 
+                0 0 25px rgba(255,0,0,0.4);
+    color: #fff !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: 0.2s;
 }
 
 .logout:hover {
-    background: #ff5566 !important;
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, #ff5566, #dd0022) !important;
+    box-shadow: 0 0 20px rgba(255, 80, 80, 1),
+                0 0 30px rgba(255,0,0,0.6);
 }
 
-/* Tabelle */
+/* TABELLE */
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
+    margin-top: 10px;
     backdrop-filter: blur(6px);
 }
 
 .table th {
     background: rgba(0, 0, 0, 0.5);
-    padding: 12px;
-    color: #d8efff;
+    padding: 10px !important;
+    color: #ffe066 !important; /* GIALLO NEON */
     border-bottom: 2px solid rgba(0,153,255,0.4);
 }
 
 .table td {
     background: rgba(0, 0, 0, 0.35);
-    padding: 12px;
+    padding: 8px 10px !important;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -147,14 +168,29 @@ button:hover, .btn-primary:hover {
     background: rgba(0, 153, 255, 0.15);
 }
 
-/* Responsive */
-@media (max-width: 700px) {
+/* RESPONSIVE: SCHERMI BASSI */
+@media (max-height: 750px) {
     .panel.glass {
-        padding: 20px;
-        margin: 15px;
+        margin: 10px auto !important;
+        padding: 15px !important;
+    }
+    section h2 {
+        margin-bottom: 8px !important;
+    }
+    .table {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 600px) {
+    .panel.glass {
+        margin: 10px !important;
+        padding: 15px !important;
     }
 
-    .header-title {
-        font-size: 1.4rem;
+    .table th, .table td {
+        padding: 6px !important;
+        font-size: 0.85rem !important;
     }
 }
