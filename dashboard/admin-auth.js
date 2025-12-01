@@ -1,74 +1,40 @@
-/* =====================================================
-   SISTEMA LOGIN ADMIN (VERSIONE PERFETTA)
-===================================================== */
+/* ============================
+   LOGIN MASTER – VERSIONE FINALE
+   ============================ */
 
-let ADMIN_DATA = {
-    superadmin: {
-        role: "superadmin",
-        username: "superadmin",
-        pin: "482915",
-        active: true
-    },
-    guala: {
-        role: "guala",
-        username: "guala",
-        pin: "505493",
-        active: true
-    },
-    piobesi: {
-        role: "piobesi",
-        username: "piobesi",
-        pin: "000000",
-        active: true
-    },
-    particomuni: {
-        role: "particomuni",
-        username: "particomuni",
-        pin: "000000",
-        active: true
-    }
-};
+/* Credenziali MASTER salvate internamente */
+const MASTER_USERNAME = "master";
+const MASTER_PIN = "123456";
 
-// Override da localStorage
-if (localStorage.getItem("ADMIN_CONFIG")) {
-    try {
-        ADMIN_DATA = JSON.parse(localStorage.getItem("ADMIN_CONFIG"));
-    } catch {}
-}
+/* Salva accesso */
+function loginMaster() {
+    const user = document.getElementById("username").value.trim();
+    const pin = document.getElementById("pin").value.trim();
+    const error = document.getElementById("error");
 
-function adminLogin(role, username, pin) {
-    const admin = ADMIN_DATA[role];
-    if (!admin) return false;
-
-    if (!admin.active) return false;
-    if (admin.username !== username) return false;
-    if (admin.pin !== pin) return false;
-
-    localStorage.setItem("ADMIN_LOGGED", role);
-    return true;
-}
-
-function adminLogout() {
-    localStorage.removeItem("ADMIN_LOGGED");
-    window.location.href = "../login-pin.html";
-}
-
-function requireRole(requiredRole) {
-    const role = localStorage.getItem("ADMIN_LOGGED");
-
-    if (!role) {
-        window.location.href = "../login-pin.html";
-        return false;
+    if (user === "" || pin === "") {
+        error.textContent = "Compila tutti i campi.";
+        return;
     }
 
-    if (role === "superadmin") return true;
-    if (role === requiredRole) return true;
-
-    adminLogout();
-    return false;
+    if (user === MASTER_USERNAME && pin === MASTER_PIN) {
+        localStorage.setItem("MASTER_LOGGED", "YES");
+        window.location.href = "dashboard/master.html";
+    } else {
+        error.textContent = "Utente o PIN errato.";
+    }
 }
 
-function saveAdminConfig(newData) {
-    localStorage.setItem("ADMIN_CONFIG", JSON.stringify(newData));
-    ADMIN_DATA = newData;
+/* Controllo accesso sulle pagine del pannello */
+function checkMasterLogin() {
+    const logged = localStorage.getItem("MASTER_LOGGED");
+    if (logged !== "YES") {
+        window.location.href = "../master-login.html";
+    }
+}
+
+/* Logout */
+function logoutMaster() {
+    localStorage.removeItem("MASTER_LOGGED");
+    window.location.href = "../master-login.html";
 }
