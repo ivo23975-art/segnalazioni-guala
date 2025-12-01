@@ -1,207 +1,68 @@
-/* ===========================================================
-   MASTER PANEL – NEON BLU GLASS 3D (VERSIONE DEFINITIVA)
-=========================================================== */
-
+/* SFONDO */
 body {
+    background: url("../login-bg.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: system-ui, sans-serif;
     margin: 0;
     padding: 0;
-
-    background: radial-gradient(circle at top, #0b3d91, #000914 70%);
-    background-attachment: fixed;
-    font-family: system-ui, sans-serif;
-    color: #fff;
-    overflow-y: auto;
 }
 
-/* HEADER */
+/* HEADER PERFETTO, CENTRATO, CON LOGOUT A DESTRA */
 .header {
     width: 100%;
-    position: relative;
-    padding: 20px 30px;
-
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0,153,255,0.4);
-    box-shadow: 0 0 25px rgba(0,153,255,0.25);
-
-    text-align: center;
+    display: flex;
+    justify-content: center;    /* TITOLO CENTRATO */
+    align-items: center;
+    position: relative;         /* PER POSIZIONARE LOGOUT */
+    padding: 20px 0;
+    margin-bottom: 25px;
 }
 
 .header-title {
-    margin: 0;
     font-size: 2rem;
     font-weight: 800;
-    color: #ffe066;
-    text-shadow: 0 0 14px rgba(255,230,120,0.7);
+    color: #ffe680;
+    text-shadow: 0 0 6px #000, 0 0 12px rgba(255, 230, 128, 0.7);
 }
 
-/* LOGOUT */
+/* LOGOUT BUTTON IN POSIZIONE PERFETTA, A DESTRA, MA DENTRO IL CONTAINER */
 .logout {
     position: absolute;
-    right: 25px;
+    right: 40px;                /* DISTANZA DAL BORDO */
     top: 50%;
     transform: translateY(-50%);
+    padding: 10px 22px;
 
-    padding: 12px 22px;
-    background: linear-gradient(180deg, #ff3344, #cc0011);
-    border: 1px solid rgba(255,80,80,0.6);
-    border-radius: 10px;
-
-    color: #fff;
+    background: linear-gradient(to bottom, #ff2b2b, #c00000);
+    border: none;
+    border-radius: 8px;
+    color: white;
     font-weight: bold;
-    box-shadow: 0 0 15px rgba(255,70,70,0.8),
-                0 0 25px rgba(255,0,0,0.4);
-
     cursor: pointer;
+
+    box-shadow: 0 0 15px rgba(255,0,0,0.5);
     transition: 0.2s;
 }
 
 .logout:hover {
-    background: linear-gradient(180deg, #ff5566, #dd0022);
-    transform: translateY(-50%) scale(1.05);
+    background: linear-gradient(to bottom, #ff3d3d, #e00000);
+    box-shadow: 0 0 18px rgba(255,0,0,0.7);
 }
 
-/* PANEL GLASS */
-.panel.glass {
+/* PANNELLO GLASS */
+.panel {
     max-width: 900px;
-    margin: 35px auto;
-    padding: 30px;
-
-    background: rgba(255,255,255,0.13);
-    backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 18px;
-
-    border: 1px solid rgba(0,153,255,0.45);
-    box-shadow:
-        0 0 35px rgba(0,153,255,0.35),
-        inset 0 0 25px rgba(255,255,255,0.10);
+    margin: 0 auto;
+    padding: 25px;
+    background: rgba(0, 0, 30, 0.55);
+    border-radius: 16px;
+    box-shadow: 0 0 25px rgba(0,153,255,0.45);
+    backdrop-filter: blur(6px);
 }
 
-/* SECTION HEADERS */
+/* TITOLI */
 section h2 {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #ffe066;
-    text-shadow: 0 0 12px rgba(255,230,120,0.7);
-    margin-bottom: 15px;
-}
-
-section {
-    margin-bottom: 40px;
-}
-
-/* LABELS */
-label {
-    color: #ffe066;
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-}
-
-/* INPUTS */
-input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-
-    border-radius: 8px;
-    border: 1px solid rgba(0,153,255,0.4);
-
-    background: rgba(0,0,0,0.45);
-    color: #dff4ff;
-
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
-}
-
-/* BUTTONS */
-.btn-primary,
-.btn-secondary {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    margin-top: 12px;
-
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-/* PRIMARY BUTTON */
-.btn-primary {
-    background: linear-gradient(90deg, #00aaff, #0074c8);
-    box-shadow: 0 0 15px rgba(0,153,255,0.75);
-    color: white;
-}
-
-.btn-primary:hover {
-    box-shadow: 0 0 22px rgba(0,153,255,1);
-    transform: translateY(-2px);
-}
-
-/* SECONDARY BUTTON */
-.btn-secondary {
-    background: rgba(255,255,255,0.25);
-    color: #d9f2ff;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-.btn-secondary:hover {
-    background: rgba(255,255,255,0.35);
-}
-
-/* TABLES */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-}
-
-.table th {
-    background: rgba(0,0,0,0.55);
-    color: #ffe066;
-    padding: 10px;
-    border-bottom: 2px solid rgba(0,153,255,0.4);
-}
-
-.table td {
-    background: rgba(0,0,0,0.35);
-    padding: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-}
-
-.table tr:hover td {
-    background: rgba(0,153,255,0.20);
-}
-
-/* LINKS (NEON AZZURRO) */
-.panel a {
-    color: #aee2ff;
-    font-weight: bold;
-    text-shadow: 0 0 8px rgba(0,153,255,0.8);
-    text-decoration: none;
-}
-
-.panel a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 12px rgba(255,255,255,1);
-    text-decoration: underline;
-}
-
-/* RESPONSIVE */
-@media (max-width: 600px) {
-    .panel.glass {
-        padding: 20px;
-        margin: 15px;
-    }
-
-    .header-title {
-        font-size: 1.4rem;
-    }
-
-    .logout {
-        right: 15px;
-        padding: 8px 14px;
-    }
+    color: #ffe680;
+    margin-bottom: 10px;
+    text-shadow: 0 0 6px #000, 0 0 12px rgba(255,230,128,0.8);
 }
