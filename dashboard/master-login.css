@@ -1,75 +1,71 @@
-/* Sfondo */
+/* ===============================
+   STYLE LOGIN MASTER (/dashboard)
+   =============================== */
+
+/* Sfondo: l'immagine è in /dashboard/login-bg.jpg */
 body {
-    background: url("dashboard/login-bg.jpg") no-repeat center center fixed;
+    background: url("login-bg.jpg") no-repeat center center fixed;
     background-size: cover;
-    margin: 0;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-/* Box login */
+/* Box centrale */
 .login-box {
     width: 360px;
     margin: 120px auto;
-    padding: 30px;
+    padding: 28px;
+    background: rgba(0, 0, 0, 0.78);
     border-radius: 14px;
-
-    background: rgba(0, 0, 0, 0.70);
-    backdrop-filter: blur(6px);
-
-    box-shadow:
-        0 0 20px rgba(0, 0, 0, 0.7),
-        0 0 25px rgba(0, 128, 255, 0.4);
-
+    color: #fff;
     text-align: center;
-    color: #ffe680;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
 }
 
 /* Titolo */
 .login-box h2 {
     margin-bottom: 20px;
-    font-size: 26px;
-    font-weight: bold;
-    text-shadow: 0 0 10px #ffcc00;
+    font-size: 1.8rem;
+    color: #ffde55;
+    text-shadow: 0 0 6px #000;
 }
 
-/* Input */
+/* Campi input */
 input {
     width: 100%;
     padding: 12px;
     margin-top: 14px;
-
     border-radius: 6px;
     border: 1px solid #666;
     background: #222;
     color: #fff;
+    font-size: 1rem;
 }
 
 /* Bottone */
 button {
     width: 100%;
     padding: 12px;
-    margin-top: 20px;
-    
+    margin-top: 18px;
+    background: #d40000;
     border: none;
     border-radius: 6px;
-
-    background: #d40000;
-    color: #fff;
+    color: white;
     font-weight: bold;
     cursor: pointer;
-
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    font-size: 1rem;
 }
 
 button:hover {
     background: #ff0000;
 }
 
-/* Errore */
+/* Messaggio errore */
 .error {
-    margin-top: 15px;
+    margin-top: 14px;
+    font-size: 0.95rem;
     color: #ff4444;
-    font-weight: bold;
 }
 
 /* Mobile */
