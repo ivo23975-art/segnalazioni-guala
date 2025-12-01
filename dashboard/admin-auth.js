@@ -1,14 +1,7 @@
 /* =====================================================
-   SISTEMA LOGIN ADMIN (VERSIONE DEFINITIVA)
-   - Usa PIN
-   - Usa ADMIN_CONFIG
-   - Usa ADMIN_LOGGED
-   - Controlla active: true/false
+   SISTEMA LOGIN ADMIN (VERSIONE PERFETTA)
 ===================================================== */
 
-/* =====================================================
-   CONFIGURAZIONE DEFAULT (se manca ADMIN_CONFIG)
-===================================================== */
 let ADMIN_DATA = {
     superadmin: {
         role: "superadmin",
@@ -36,21 +29,13 @@ let ADMIN_DATA = {
     }
 };
 
-/* =====================================================
-   CARICA OVERRIDE DA ADMIN_CONFIG
-===================================================== */
-const savedConfig = localStorage.getItem("ADMIN_CONFIG");
-if (savedConfig) {
+// Override da localStorage
+if (localStorage.getItem("ADMIN_CONFIG")) {
     try {
-        ADMIN_DATA = JSON.parse(savedConfig);
-    } catch (e) {
-        console.error("Errore caricamento ADMIN_CONFIG:", e);
-    }
+        ADMIN_DATA = JSON.parse(localStorage.getItem("ADMIN_CONFIG"));
+    } catch {}
 }
 
-/* =====================================================
-   LOGIN ADMIN
-===================================================== */
 function adminLogin(role, username, pin) {
     const admin = ADMIN_DATA[role];
     if (!admin) return false;
@@ -63,37 +48,26 @@ function adminLogin(role, username, pin) {
     return true;
 }
 
-/* =====================================================
-   LOGOUT (VERSIONE CORRETTA SENZA 404)
-===================================================== */
 function adminLogout() {
     localStorage.removeItem("ADMIN_LOGGED");
-
-    // Percorso ASSOLUTO per GitHub Pages
-    window.location.href = "/segnalazioni-guala/login-pin.html";
+    window.location.href = "../login-pin.html";
 }
 
-/* =====================================================
-   PROTEZIONE PAGINE
-===================================================== */
 function requireRole(requiredRole) {
     const role = localStorage.getItem("ADMIN_LOGGED");
 
     if (!role) {
-        window.location.href = "/segnalazioni-guala/login-pin.html";
+        window.location.href = "../login-pin.html";
         return false;
     }
 
     if (role === "superadmin") return true;
     if (role === requiredRole) return true;
 
-    window.location.href = "/segnalazioni-guala/login-pin.html";
+    adminLogout();
     return false;
 }
 
-/* =====================================================
-   SALVATAGGIO NUOVA CONFIG SUPERADMIN
-===================================================== */
 function saveAdminConfig(newData) {
     localStorage.setItem("ADMIN_CONFIG", JSON.stringify(newData));
     ADMIN_DATA = newData;
