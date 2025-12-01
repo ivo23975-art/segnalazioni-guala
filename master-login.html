@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accesso MASTER</title>
+
+<link rel="stylesheet" href="master-login.css">
+<script src="master-auth.js" defer></script>
+
+</head>
+
+<body>
+
+<div class="login-box">
+    <h3>Accesso MASTER</h3>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)">
+
+    <button onclick="loginMaster()">Entra</button>
+
+    <div id="error" class="error"></div>
+</div>
+
+</body>
+</html>
