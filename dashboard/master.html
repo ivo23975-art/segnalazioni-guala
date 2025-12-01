@@ -5,17 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
 
+<!-- FILE MASTER CORRETTI -->
 <link rel="stylesheet" href="master.css?v=10000">
 <script src="master.js" defer></script>
+<script src="../master-auth.js" defer></script>
+
 </head>
 
 <body onload="checkMasterLogin()">
 
 <!-- HEADER -->
-<div class="header">
+<header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
     <button class="logout" onclick="logoutMaster()">Logout</button>
-</div>
+</header>
 
 <!-- PANEL -->
 <div class="panel glass">
@@ -23,7 +26,7 @@
     <!-- LINK APP -->
     <section>
         <h2>Link App & Dashboard</h2>
-        <ul id="linkList"></ul>
+        <ul id="linkList" class="link-list"></ul>
     </section>
 
     <!-- CREAZIONE UTENTE -->
