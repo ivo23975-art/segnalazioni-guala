@@ -80,12 +80,17 @@ button:hover {
     <div id="error" class="error"></div>
 </div>
 
+<!-- FILE DELLE REGOLE -->
 <script src="dashboard/admin-auth.js"></script>
 
 <script>
+/* ===========================================
+   LOGIN ADMIN UNIVERSALE
+   Usa i dati contenuti in ADMIN_DATA
+=========================================== */
 function loginAdmin() {
 
-    const username = document.getElementById("username").value.trim();
+    const username = document.getElementById("username").value.trim().toLowerCase();
     const pin = document.getElementById("pin").value.trim();
     const err = document.getElementById("error");
 
@@ -96,18 +101,26 @@ function loginAdmin() {
         return;
     }
 
+    // Scorriamo tutti i ruoli definiti in ADMIN_DATA
     for (const role in ADMIN_DATA) {
+
         const admin = ADMIN_DATA[role];
 
-        if (admin.username === username) {
+        // Confronto username
+        if (admin.username.toLowerCase() === username) {
 
-            const ok = adminLogin(role, username, pin);
+            // Controllo PIN tramite admin-auth.js
+            if (admin.password === pin) {
 
-            if (ok) {
+                // Salva login
+                localStorage.setItem("ADMIN_ROLE", role);
+
+                // Reindirizzamento al pannello corretto
                 if (role === "superadmin") window.location.href = "dashboard/superadmin.html";
                 if (role === "guala") window.location.href = "dashboard/guala.html";
                 if (role === "piobesi") window.location.href = "dashboard/piobesi.html";
                 if (role === "particomuni") window.location.href = "dashboard/particomuni.html";
+
                 return;
             }
 
