@@ -1,6 +1,6 @@
-/* ============================================
-   MASTER PANEL - STILE COMPLETO E DEFINITIVO
-   ============================================ */
+/* ======================================================
+   MASTER PANEL - STILE CORRETTO E DEFINITIVO
+   ====================================================== */
 
 /* SFONDO GENERALE */
 body {
@@ -12,16 +12,16 @@ body {
     color: #fff;
 }
 
-/* ============================================
-   HEADER + LOGOUT (VERSIONE MIGLIORATA)
-   ============================================ */
+/* ======================================================
+   HEADER + LOGOUT
+   ====================================================== */
 
 .header {
     width: 100%;
     padding: 25px 40px;
     display: flex;
-    justify-content: center;     /* titolo centrato */
-    position: relative;           /* per posizionare il logout */
+    justify-content: center;   /* titolo centrato */
+    position: relative;         /* logout posizionato assoluto */
     margin-bottom: 25px;
 }
 
@@ -33,6 +33,7 @@ body {
     text-shadow: 0 0 10px #000, 0 0 20px rgba(255, 221, 102, 0.5);
 }
 
+/* PULSANTE LOGOUT */
 .logout {
     position: absolute;
     right: 40px;
@@ -71,9 +72,9 @@ body {
     }
 }
 
-/* ============================================
-   PANNELLO CENTRALE GLASS 3D
-   ============================================ */
+/* ======================================================
+   PANNELLO CENTRALE
+   ====================================================== */
 
 .panel {
     max-width: 980px;
@@ -93,10 +94,7 @@ section h2 {
     text-shadow: 0 0 8px #000;
 }
 
-/* ============================================
-   LINK LISTA
-   ============================================ */
-
+/* LINK */
 .link-list li a {
     color: #66aaff;
     font-weight: bold;
@@ -106,10 +104,7 @@ section h2 {
     text-decoration: underline;
 }
 
-/* ============================================
-   INPUT & BOTTONI
-   ============================================ */
-
+/* INPUT */
 input {
     background: #222;
     border: 1px solid #666;
@@ -125,7 +120,7 @@ input:focus {
     box-shadow: 0 0 8px #3399ff;
 }
 
-/* Bottoni */
+/* BOTTONI */
 .btn-primary, .btn-secondary {
     padding: 10px 16px;
     border: none;
@@ -152,9 +147,9 @@ input:focus {
     background: #999;
 }
 
-/* ============================================
-   TABELLE CHIARE 
-   ============================================ */
+/* ======================================================
+   TABELLE
+   ====================================================== */
 
 .table {
     width: 100%;
@@ -177,20 +172,15 @@ input:focus {
     border-bottom: 1px solid #333;
 }
 
-/* Alternanza righe */
 .table tr:nth-child(even) td {
     background: rgba(255,255,255,0.17);
 }
 
-/* Hover */
 .table tr:hover td {
     background: rgba(255,255,255,0.25);
 }
 
-/* ============================================
-   RESPONSIVE 
-   ============================================ */
-
+/* MOBILE */
 @media (max-width: 750px) {
     .panel {
         width: 92%;
