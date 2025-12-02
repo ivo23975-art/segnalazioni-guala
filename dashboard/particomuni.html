@@ -6,21 +6,20 @@
 
     <link rel="stylesheet" href="dashboard.css">
 
-    <!-- FIREBASE (v8 compat) -->
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE - PERCORSO CORRETTO -->
-    <script src="dashboard/firebase-config.js"></script>
+    <!-- CONFIG FIREBASE -->
+    <script src="firebase-config.js"></script>
 
-    <!-- LOGICA DASHBOARD - PERCORSO CORRETTO -->
-    <script src="dashboard/dashboard.js"></script>
+    <!-- LOGIN + RUOLI -->
+    <script src="admin-auth.js"></script>
 
-    <!-- SISTEMA LOGIN - PERCORSO CORRETTO -->
-    <script src="dashboard/admin-auth.js"></script>
+    <!-- LOGICA DASHBOARD -->
+    <script src="dashboard.js"></script>
 
     <style>
-        /* Pulsante Logout */
         .logout-btn {
             position: absolute;
             top: 15px;
@@ -34,80 +33,51 @@
             text-decoration: none;
             transition: 0.2s;
         }
-
-        .logout-btn:hover {
-            background: #cc0000;
-        }
+        .logout-btn:hover { background: #cc0000; }
     </style>
 </head>
 
 <body>
 
-<!-- 🔴 PULSANTE LOGOUT -->
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
 <div class="header">Parti Comuni – Segnalazioni attive</div>
 
 <div class="content">
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Data</th>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>Temp</th>
-            <th>Tipo</th>
-            <th>Descrizione</th>
-            <th>Risolvi</th>
-        </tr>
-        </thead>
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
 
-        <tbody id="tbody"></tbody>
-    </table>
+<tbody id="tbody"></tbody>
+</table>
 
 </div>
 
 <script>
 
-    /* -------------------------------------------------------
-       🔒 PROTEZIONE ACCESSO ADMIN PARTI COMUNI
-    ---------------------------------------------------------- */
-    requireRole("particomuni");
+console.log("[DEBUG] Parti Comuni – pannello avviato");
 
-    /* ==========================================================
-       FILTRO PARTI COMUNI (LOGICA SUL TIPO + SOTTOTIPO)
-    =========================================================== */
-    loadSegnalazioni(r =>
+/* Protezione accesso */
+requireRole("particomuni");
 
-        r.stato === "attiva" && (
-
-            /* Caso 1 → nuovo formato: tipo = "Parti comuni" */
-            r.tipo === "Parti comuni" ||
-
-            /* Caso 2 → formato vecchio, filtro su sottotipo */
-            (
-                r.sottotipo &&
-                (
-                    r.sottotipo.includes("Luci") ||
-                    r.sottotipo.includes("Cancello") ||
-                    r.sottotipo.includes("Cortile") ||
-                    r.sottotipo.includes("Aree") ||
-                    r.sottotipo.includes("Box") ||
-                    r.sottotipo.includes("Serrande") ||
-                    r.sottotipo.includes("Vano") ||
-                    r.sottotipo.includes("Locale") ||
-                    r.sottotipo.includes("Tetto") ||
-                    r.sottotipo.includes("Pensil") ||
-                    r.sottotipo.includes("Pavimentazione") ||
-                    r.sottotipo.includes("Rivestimenti")
-                )
-            )
-        )
-
-    );
+/* Carica SOLO segnalazioni parti comuni */
+loadSegnalazioni(
+    r =>
+        (r.tipo === "Parti comuni" || r.tipo === "particomuni") &&
+        r.stato === "attiva"
+);
 
 </script>
 
