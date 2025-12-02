@@ -1,147 +1,74 @@
 /* ------------------------------
-   FORMATTAZIONE DATA
---------------------------------*/
-function formatDate(ts) {
-    if (!ts) return "-";
-    try {
-        const date = ts.toDate(); // Firestore Timestamp → Date()
-        return date.toLocaleString("it-IT", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    } catch (e) {
-        return "-";
-    }
-}
-
-/* ------------------------------
-   BADGE COLORE PER PRIORITÀ
---------------------------------*/
-function badgeTipo(tipo) {
-
-    if (!tipo)
-        return `<span class="badge badge-green">N/D</span>`;
-
-    // PARTI COMUNI
-    if (tipo === "Parti comuni")
-        return `<span class="badge badge-yellow">Parti comuni</span>`;
-
-    // EMERGENZA
-    if (["118","112","115"].includes(tipo))
-        return `<span class="badge badge-red">Emergenza</span>`;
-
-    // ALTA URGENZA
-    if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
-        return `<span class="badge badge-orange">Alta</span>`;
-
-    // MEDIA URGENZA
-    if (["serramenti","antincendio"].includes(tipo))
-        return `<span class="badge badge-yellow">Media</span>`;
-
-    // Altre (basso)
-    return `<span class="badge badge-green">${tipo}</span>`;
-}
-
-/* ------------------------------
-   RIGA TIPO + SOTTOTIPO (MODE 2)
---------------------------------*/
-function tipoConSottotipo(tipo, sottotipo) {
-
-    let html = `${badgeTipo(tipo)}`;
-
-    // aggiungiamo il sottotipo come seconda riga
-    if (sottotipo && sottotipo.trim() !== "") {
-        html += `
-            <div style="
-                margin-top:4px;
-                padding:3px 6px;
-                background:#333;
-                color:#fff;
-                font-size:0.85rem;
-                border-radius:4px;
-                display:inline-block;">
-                ${sottotipo}
-            </div>
-        `;
-    }
-
-    return html;
-}
-
-/* ------------------------------
-   AZIONE: RISOLVERE SEGNALAZIONE
---------------------------------*/
-function risolviSegnalazione(id) {
-    db.collection("segnalazioni").doc(id).update({
-        stato: "risolta"
-    });
-}
-
-/* ------------------------------
-   AZIONE: ELIMINARE SEGNALAZIONE
-   (solo SuperAdmin)
---------------------------------*/
-function eliminaSegnalazione(id) {
-    if (!confirm("Vuoi eliminare definitivamente questa segnalazione?")) return;
-    db.collection("segnalazioni").doc(id).delete();
-}
-
-/* ------------------------------
-   CARICAMENTO DINAMICO
+   CARICAMENTO DINAMICO + DEBUG
 --------------------------------*/
 function loadSegnalazioni(filterFn, superadmin = false) {
 
+    console.log("[DEBUG] loadSegnalazioni avviata…");
+
     db.collection("segnalazioni")
       .orderBy("timestamp", "desc")
-      .onSnapshot(snapshot => {
+      .onSnapshot(
+        (snapshot) => {
 
-        let html = "";
+            console.log("[DEBUG] Documenti ricevuti da Firestore:", snapshot.size);
 
-        snapshot.forEach(doc => {
+            let html = "";
 
-            const r = doc.data();
-            r.id = doc.id;
+            snapshot.forEach(doc => {
 
-            if (!r.stato) r.stato = "attiva";
-            if (!r.tipo) r.tipo = "N/D";
-            if (!r.complesso) r.complesso = "sconosciuto";
+                const r = doc.data();
+                r.id = doc.id;
 
-            // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
-            if (!filterFn(r)) return;
+                console.log("[DEBUG] Documento:", r.id, r);
 
-            html += `
-            <tr>
-                <td data-label="Data">${formatDate(r.timestamp)}</td>
-                <td data-label="Scala">${r.scala || "-"}</td>
-                <td data-label="Piano">${r.piano || "-"}</td>
-                <td data-label="Lato">${r.lato || "-"}</td>
-                <td data-label="Nome">${r.nome || "-"}</td>
-                <td data-label="Temp">${r.temperatura || "-"}</td>
+                if (!r.stato) r.stato = "attiva";
+                if (!r.tipo) r.tipo = "N/D";
+                if (!r.complesso) r.complesso = "sconosciuto";
 
-                <td data-label="Tipo">
-                    ${ tipoConSottotipo(r.tipo, r.sottotipo) }
-                </td>
+                // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
+                const passa = filterFn(r);
+                console.log("[DEBUG] filtro:", r.id, "->", passa);
 
-                <td data-label="Descrizione">${r.descrizione || "-"}</td>
+                if (!passa) return;
 
-                <td data-label="Azioni">
-                    <div style="display:flex;">
-                        <div class="action-btn btn-green"
-                             onclick="risolviSegnalazione('${r.id}')">✔</div>
+                html += `
+                <tr>
+                    <td data-label="Data">${formatDate(r.timestamp)}</td>
+                    <td data-label="Scala">${r.scala || "-"}</td>
+                    <td data-label="Piano">${r.piano || "-"}</td>
+                    <td data-label="Lato">${r.lato || "-"}</td>
+                    <td data-label="Nome">${r.nome || "-"}</td>
+                    <td data-label="Temp">${r.temperatura || "-"}</td>
 
-                        ${ superadmin
-                            ? `<div class="action-btn btn-red"
-                                   onclick="eliminaSegnalazione('${r.id}')">✖</div>`
-                            : ""
-                        }
-                    </div>
-                </td>
-            </tr>`;
-        });
+                    <td data-label="Tipo">
+                        ${ tipoConSottotipo(r.tipo, r.sottotipo) }
+                    </td>
 
-        document.getElementById("tbody").innerHTML = html;
-    });
+                    <td data-label="Descrizione">${r.descrizione || "-"}</td>
+
+                    <td data-label="Azioni">
+                        <div style="display:flex;">
+                            <div class="action-btn btn-green"
+                                 onclick="risolviSegnalazione('${r.id}')">✔</div>
+
+                            ${ superadmin
+                                ? `<div class="action-btn btn-red"
+                                       onclick="eliminaSegnalazione('${r.id}')">✖</div>`
+                                : ""
+                            }
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            document.getElementById("tbody").innerHTML = html;
+
+            console.log("[DEBUG] Righe mostrate:", html ? "OK" : "NESSUNA");
+        },
+
+        (error) => {
+            console.error("[DEBUG] ERRORE Firestore:", error);
+            alert("Errore Firestore: " + error.message);
+        }
+      );
 }
