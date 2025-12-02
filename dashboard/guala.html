@@ -2,51 +2,95 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guala – Segnalazioni attive</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="dashboard.css?v=1000">
+    <link rel="stylesheet" href="dashboard.css">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- CONFIG -->
+    <script src="firebase-config.js"></script>
+
+    <!-- DASHBOARD LOGIC -->
+    <script src="dashboard.js"></script>
+
+    <!-- SISTEMA LOGIN -->
+    <script src="admin-auth.js"></script>
+
+    <style>
+        /* Pulsante Logout */
+        .logout-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #ff0000;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+    </style>
 </head>
+<!-- SCRIPTS NECESSARI -->
+<script src="firebase-config.js?v=1"></script>
+<script src="dashboard.js?v=1"></script>
+
 
 <body>
 
-    <!-- Pulsante Logout -->
-    <a class="logout-btn" onclick="adminLogout()">Logout</a>
+<!-- 🔴 PULSANTE LOGOUT -->
+<a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-    <!-- Titolo -->
-    <div class="header">Guala – Segnalazioni attive</div>
+<div class="header">Guala – Segnalazioni attive</div>
 
-    <!-- Contenitore tabella -->
-    <div class="content">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Scala</th>
-                    <th>Piano</th>
-                    <th>Lato</th>
-                    <th>Nome</th>
-                    <th>Temp</th>
-                    <th>Tipo</th>
-                    <th>Descrizione</th>
-                    <th>Risolvi</th>
-                </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
-    </div>
+<div class="content">
 
-    <!-- Firebase -->
-    <script src="firebase-config.js?v=1000"></script>
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
 
-    <!-- Logica dashboard -->
-    <script src="dashboard.js?v=1000"></script>
+<tbody id="tbody"></tbody>
+</table>
 
-    <!-- Avvio caricamento -->
-    <script>
-        loadSegnalazioni(r => r.complesso === "guala");
-    </script>
+</div>
+
+<script>
+
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO ADMIN GUALA
+    ---------------------------------------------------------- */
+    requireRole("guala");
+
+    /* -------------------------------------------------------
+       Carica SOLO segnalazioni attive di Guala
+    ---------------------------------------------------------- */
+    loadSegnalazioni(
+        r =>
+            r.stato === "attiva" &&
+            r.complesso === "guala"
+    );
+
+</script>
 
 </body>
 </html>
