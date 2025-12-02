@@ -1,8 +1,8 @@
 /* ======================================================
-   MASTER PANEL - STILE CORRETTO E DEFINITIVO
+   MASTER PANEL - STILE DEFINITIVO (LOGOUT IN FONDO)
    ====================================================== */
 
-/* SFONDO GENERALE */
+/* SFONDO */
 body {
     background: url("login-bg.jpg") no-repeat center center fixed;
     background-size: cover;
@@ -12,17 +12,11 @@ body {
     color: #fff;
 }
 
-/* ======================================================
-   HEADER + LOGOUT
-   ====================================================== */
-
+/* HEADER */
 .header {
     width: 100%;
     padding: 25px 40px;
-    display: flex;
-    justify-content: center;   /* titolo centrato */
-    position: relative;         /* logout posizionato assoluto */
-    margin-bottom: 25px;
+    text-align: center;
 }
 
 .header-title {
@@ -30,68 +24,30 @@ body {
     font-weight: bold;
     color: #ffdd66;
     margin: 0;
-    text-shadow: 0 0 10px #000, 0 0 20px rgba(255, 221, 102, 0.5);
+    text-shadow: 0 0 10px #000;
 }
 
-/* PULSANTE LOGOUT */
-.logout {
-    position: absolute;
-    right: 40px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #d40000;
-    color: white;
-    border: none;
-    padding: 10px 26px;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    box-shadow: 0 0 12px rgba(255,0,0,0.6), 0 0 20px rgba(255,0,0,0.4);
-    transition: 0.2s ease;
-}
-
-.logout:hover {
-    background: #ff0000;
-    box-shadow: 0 0 18px rgba(255,0,0,0.8);
-}
-
-/* MOBILE */
-@media (max-width: 700px) {
-    .header {
-        padding: 20px;
-    }
-    .logout {
-        right: 20px;
-        padding: 8px 18px;
-        font-size: 0.9rem;
-    }
-    .header-title {
-        font-size: 1.8rem;
-        text-align: center;
-    }
-}
-
-/* ======================================================
-   PANNELLO CENTRALE
-   ====================================================== */
-
+/* PANNELLO */
 .panel {
-    max-width: 980px;
-    margin: 0 auto 50px auto;
+    max-width: 900px;
+    margin: 30px auto;
     padding: 25px;
-    border-radius: 18px;
-    background: rgba(0, 0, 0, 0.78);
-    box-shadow: 0 0 28px rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.70);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
     backdrop-filter: blur(6px);
 }
 
-/* TITOLI SEZIONE */
+/* SEZIONI */
+section {
+    margin-bottom: 35px;
+}
+
 section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
     color: #ffdd66;
-    font-size: 1.6rem;
-    margin-bottom: 10px;
-    text-shadow: 0 0 8px #000;
+    text-shadow: 0 0 6px #000;
 }
 
 /* LINK */
@@ -109,85 +65,106 @@ input {
     background: #222;
     border: 1px solid #666;
     color: white;
-    padding: 10px;
+    padding: 12px;
     border-radius: 6px;
-    margin: 5px 12px 15px 0;
+    margin: 5px 10px 15px 0;
+    width: 260px;
 }
 
 input:focus {
     border-color: #3399ff;
     outline: none;
-    box-shadow: 0 0 8px #3399ff;
+    box-shadow: 0 0 6px #3399ff;
 }
 
 /* BOTTONI */
-.btn-primary, .btn-secondary {
-    padding: 10px 16px;
+.btn-primary,
+.btn-secondary {
+    padding: 12px 20px;
     border: none;
-    border-radius: 6px;
-    margin: 5px;
+    border-radius: 8px;
+    margin: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.2s;
 }
 
 .btn-primary {
     background: #0066ff;
-    color: white;
+    color: #fff;
 }
+
 .btn-primary:hover {
     background: #1a80ff;
 }
 
 .btn-secondary {
     background: #777;
-    color: white;
+    color: #fff;
 }
+
 .btn-secondary:hover {
     background: #999;
 }
 
-/* ======================================================
-   TABELLE
-   ====================================================== */
-
+/* TABELLE */
 .table {
     width: 100%;
-    margin-top: 10px;
     border-collapse: collapse;
+    margin-top: 12px;
 }
 
 .table th {
     background: #222;
     color: #ffdd66;
-    padding: 12px;
-    font-size: 1rem;
-    border-bottom: 2px solid #333;
+    padding: 10px;
 }
 
 .table td {
     background: rgba(255,255,255,0.1);
-    padding: 12px;
-    color: #eee;
-    border-bottom: 1px solid #333;
-}
-
-.table tr:nth-child(even) td {
-    background: rgba(255,255,255,0.17);
+    padding: 10px;
+    border-bottom: 1px solid #444;
 }
 
 .table tr:hover td {
     background: rgba(255,255,255,0.25);
 }
 
-/* MOBILE */
-@media (max-width: 750px) {
-    .panel {
-        width: 92%;
-        padding: 15px;
-    }
+/* LOGOUT IN FONDO ALLA PAGINA */
+.logout-bottom {
+    display: block;
+    margin: 50px auto;
+    background: #d40000;
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2rem;
+    box-shadow: 0 0 15px rgba(255,0,0,0.6);
+    transition: 0.2s ease;
+}
+
+.logout-bottom:hover {
+    background: #ff0000;
+    box-shadow: 0 0 22px rgba(255,0,0,0.8);
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+
     input {
         width: 100%;
-        margin-bottom: 10px;
+        margin-right: 0;
+    }
+
+    .panel {
+        width: 92%;
+        padding: 18px;
+    }
+
+    .logout-bottom {
+        padding: 12px 26px;
+        font-size: 1rem;
     }
 }
