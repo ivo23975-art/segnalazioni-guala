@@ -8,7 +8,7 @@
 <!-- CSS -->
 <link rel="stylesheet" href="master.css?v=10000">
 
-<!-- JS (ordine corretto + anti-cache) -->
+<!-- JS -->
 <script src="master-auth.js?v=10000" defer></script>
 <script src="master.js?v=10000" defer></script>
 
@@ -16,10 +16,9 @@
 
 <body onload="checkMasterLogin()">
 
-<!-- HEADER MIGLIORATO -->
+<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
-    <button class="logout" onclick="logoutMaster()">Logout</button>
 </header>
 
 <!-- PANEL -->
@@ -83,6 +82,9 @@
     </section>
 
 </div>
+
+<!-- LOGOUT IN FONDO ALLA PAGINA -->
+<button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
 </body>
 </html>
