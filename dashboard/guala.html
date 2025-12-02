@@ -6,18 +6,18 @@
 
     <link rel="stylesheet" href="dashboard.css">
 
-    <!-- FIREBASE -->
+    <!-- FIREBASE (v8 compat) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG -->
-    <script src="firebase-config.js"></script>
+    <!-- CONFIG FIREBASE - PERCORSO CORRETTO -->
+    <script src="dashboard/firebase-config.js"></script>
 
-    <!-- DASHBOARD LOGIC -->
-    <script src="dashboard.js"></script>
+    <!-- LOGICA DASHBOARD - PERCORSO CORRETTO -->
+    <script src="dashboard/dashboard.js"></script>
 
-    <!-- SISTEMA LOGIN -->
-    <script src="admin-auth.js"></script>
+    <!-- SISTEMA LOGIN - PERCORSO CORRETTO -->
+    <script src="dashboard/admin-auth.js"></script>
 
     <style>
         /* Pulsante Logout */
@@ -40,10 +40,6 @@
         }
     </style>
 </head>
-<!-- SCRIPTS NECESSARI -->
-<script src="firebase-config.js?v=1"></script>
-<script src="dashboard.js?v=1"></script>
-
 
 <body>
 
@@ -54,23 +50,23 @@
 
 <div class="content">
 
-<table class="table">
-<thead>
-<tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Risolvi</th>
-</tr>
-</thead>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Scala</th>
+            <th>Piano</th>
+            <th>Lato</th>
+            <th>Nome</th>
+            <th>Temp</th>
+            <th>Tipo</th>
+            <th>Descrizione</th>
+            <th>Risolvi</th>
+        </tr>
+        </thead>
 
-<tbody id="tbody"></tbody>
-</table>
+        <tbody id="tbody"></tbody>
+    </table>
 
 </div>
 
