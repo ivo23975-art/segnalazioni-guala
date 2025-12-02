@@ -2,10 +2,6 @@
    SISTEMA AUTENTICAZIONE ADMIN – VERSIONE CORRETTA E FINALE
    ============================================================ */
 
-/* ===========================================
-   CONFIGURAZIONE DEFAULT
-   =========================================== */
-
 const DEFAULT_ADMIN_DATA = {
     guala: {
         role: "guala",
@@ -33,10 +29,7 @@ const DEFAULT_ADMIN_DATA = {
     }
 };
 
-/* ===========================================
-   CARICAMENTO / SALVATAGGIO CONFIG
-   =========================================== */
-
+/* LOAD / SAVE CONFIG */
 function loadAdminConfig() {
     const saved = localStorage.getItem("ADMIN_CONFIG");
     if (!saved) {
@@ -52,10 +45,7 @@ function saveAdminConfig(data) {
 
 let ADMIN_DATA = loadAdminConfig();
 
-/* ===========================================
-   LOGIN ADMIN – FUNZIONE PRINCIPALE
-   =========================================== */
-
+/* LOGIN LOGIC */
 function adminLoginAttempt(username, pin) {
 
     username = username.toLowerCase();
@@ -63,7 +53,6 @@ function adminLoginAttempt(username, pin) {
     for (const key in ADMIN_DATA) {
         const admin = ADMIN_DATA[key];
 
-        // Solo PIN
         if (admin.loginMode === "password") {
             if (pin === admin.password) {
                 setAdminSession(admin.role);
@@ -71,7 +60,6 @@ function adminLoginAttempt(username, pin) {
             }
         }
 
-        // Username + PIN
         if (admin.loginMode === "userpass") {
             if (username === admin.username.toLowerCase() &&
                 pin === admin.password) {
@@ -84,10 +72,7 @@ function adminLoginAttempt(username, pin) {
     return false;
 }
 
-/* ===========================================
-   SALVATAGGIO SESSIONE + REDIRECT
-   =========================================== */
-
+/* SESSION */
 function setAdminSession(role) {
     localStorage.setItem("ADMIN_ROLE", role);
     redirectToPanel(role);
@@ -102,10 +87,7 @@ function redirectToPanel(role) {
     }
 }
 
-/* ===========================================
-   PROTEZIONE PAGINE
-   =========================================== */
-
+/* PROTECTION */
 function requireRole(role) {
     const r = localStorage.getItem("ADMIN_ROLE");
 
@@ -120,10 +102,7 @@ function requireRole(role) {
     }
 }
 
-/* ===========================================
-   LOGOUT
-   =========================================== */
-
+/* LOGOUT */
 function adminLogout() {
     localStorage.removeItem("ADMIN_ROLE");
     window.location.href = "../login-pin.html";
