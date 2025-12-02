@@ -1,8 +1,21 @@
 /* ============================================
+   MASTER PANEL - STILE COMPLETO E DEFINITIVO
+   ============================================ */
+
+/* SFONDO GENERALE */
+body {
+    background: url("login-bg.jpg") no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+
+/* ============================================
    HEADER + LOGOUT (VERSIONE MIGLIORATA)
    ============================================ */
 
-/* Header allineato perfettamente */
 .header {
     width: 100%;
     padding: 25px 40px;
@@ -12,7 +25,6 @@
     margin-bottom: 25px;
 }
 
-/* Titolo Master */
 .header-title {
     font-size: 2.3rem;
     font-weight: bold;
@@ -21,12 +33,11 @@
     text-shadow: 0 0 10px #000, 0 0 20px rgba(255, 221, 102, 0.5);
 }
 
-/* Pulsante Logout */
 .logout {
     position: absolute;
-    right: 40px;                  /* distanza dal bordo */
+    right: 40px;
     top: 50%;
-    transform: translateY(-50%);  /* centra verticalmente */
+    transform: translateY(-50%);
     background: #d40000;
     color: white;
     border: none;
@@ -44,7 +55,7 @@
     box-shadow: 0 0 18px rgba(255,0,0,0.8);
 }
 
-/* Responsive per mobile */
+/* MOBILE */
 @media (max-width: 700px) {
     .header {
         padding: 20px;
@@ -57,5 +68,136 @@
     .header-title {
         font-size: 1.8rem;
         text-align: center;
+    }
+}
+
+/* ============================================
+   PANNELLO CENTRALE GLASS 3D
+   ============================================ */
+
+.panel {
+    max-width: 980px;
+    margin: 0 auto 50px auto;
+    padding: 25px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.78);
+    box-shadow: 0 0 28px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+}
+
+/* TITOLI SEZIONE */
+section h2 {
+    color: #ffdd66;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px #000;
+}
+
+/* ============================================
+   LINK LISTA
+   ============================================ */
+
+.link-list li a {
+    color: #66aaff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.link-list li a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   INPUT & BOTTONI
+   ============================================ */
+
+input {
+    background: #222;
+    border: 1px solid #666;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 5px 12px 15px 0;
+}
+
+input:focus {
+    border-color: #3399ff;
+    outline: none;
+    box-shadow: 0 0 8px #3399ff;
+}
+
+/* Bottoni */
+.btn-primary, .btn-secondary {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    margin: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: #0066ff;
+    color: white;
+}
+.btn-primary:hover {
+    background: #1a80ff;
+}
+
+.btn-secondary {
+    background: #777;
+    color: white;
+}
+.btn-secondary:hover {
+    background: #999;
+}
+
+/* ============================================
+   TABELLE CHIARE 
+   ============================================ */
+
+.table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.table th {
+    background: #222;
+    color: #ffdd66;
+    padding: 12px;
+    font-size: 1rem;
+    border-bottom: 2px solid #333;
+}
+
+.table td {
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    color: #eee;
+    border-bottom: 1px solid #333;
+}
+
+/* Alternanza righe */
+.table tr:nth-child(even) td {
+    background: rgba(255,255,255,0.17);
+}
+
+/* Hover */
+.table tr:hover td {
+    background: rgba(255,255,255,0.25);
+}
+
+/* ============================================
+   RESPONSIVE 
+   ============================================ */
+
+@media (max-width: 750px) {
+    .panel {
+        width: 92%;
+        padding: 15px;
+    }
+    input {
+        width: 100%;
+        margin-bottom: 10px;
     }
 }
