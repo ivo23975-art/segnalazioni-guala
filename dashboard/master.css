@@ -1,108 +1,139 @@
-/* --- MASTER-LOGIN.CSS (VERSIONE WOW NEON 3D) --- */
+/* ============================================
+   MASTER PANEL - STILE DEFINITIVO
+   ============================================ */
 
-/* SFONDO FULLSCREEN NEON */
+/* Sfondo */
 body {
+    background: url("login-bg.jpg") no-repeat center center fixed;
+    background-size: cover;
     margin: 0;
     padding: 0;
-    font-family: system-ui, sans-serif;
-    background: url("../dashboard/login-bg.jpg") no-repeat center center fixed;
-    background-size: cover;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* CONTENITORE CENTRALE */
-.login-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-/* BOX GLASS NEON */
-.login-box {
-    width: 330px;
-    padding: 35px 30px;
-    border-radius: 18px;
-    background: rgba(0, 0, 40, 0.55);
-    backdrop-filter: blur(10px);
-
-    border: 2px solid rgba(0,153,255,0.35);
-    box-shadow: 0 0 25px rgba(0,153,255,0.55),
-                0 0 45px rgba(0,153,255,0.4);
-
-    text-align: center;
-    animation: fadeIn 0.8s ease forwards;
-    transform: translateY(15px);
-    opacity: 0;
-}
-
-@keyframes fadeIn {
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* TITOLO NEON */
-.title {
-    color: #ffe680;
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    text-shadow: 0 0 6px #000,
-                 0 0 12px rgba(255,230,128,0.8),
-                 0 0 22px rgba(255,230,128,0.55);
-}
-
-/* INPUT NEON */
-.input-field {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: rgba(0,0,0,0.4);
-    box-shadow: inset 0 0 10px rgba(0,153,255,0.35);
+    font-family: Arial, sans-serif;
     color: #fff;
-    font-size: 1rem;
-    outline: none;
-    transition: 0.2s ease;
 }
 
-.input-field:focus {
-    box-shadow: inset 0 0 14px rgba(0,153,255,0.55);
-    border-color: rgba(0,153,255,0.6);
-}
-
-/* BOTTONE LOGIN NEON 3D */
-.login-btn {
+/* Header */
+.header {
     width: 100%;
-    padding: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffdd66;
+    text-shadow: 0 0 10px #000;
+}
+
+/* Logout */
+.logout {
+    background: #d40000;
+    color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
+    padding: 10px 20px;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
+    box-shadow: 0 0 12px rgba(255,0,0,0.6);
+}
 
-    background: linear-gradient(145deg, #009dff, #006bb3);
+.logout:hover {
+    background: #ff0000;
+}
+
+/* Pannello contenuti */
+.panel {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 25px;
+    background: rgba(0,0,0,0.68);
+    border-radius: 15px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.7);
+}
+
+/* Titoli sezione */
+section h2 {
+    color: #ffdd66;
+    text-shadow: 0 0 6px #000;
+}
+
+/* Liste link */
+.link-list li a {
+    color: #66aaff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.link-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Input */
+input {
+    background: #222;
+    border: 1px solid #666;
     color: white;
-    box-shadow: 0 0 15px rgba(0,153,255,0.55),
-                0 0 35px rgba(0,153,255,0.4);
-
-    transition: 0.22s ease;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 5px 10px 15px 0;
 }
 
-.login-btn:hover {
-    transform: scale(1.07);
-    box-shadow: 0 0 25px rgba(0,153,255,0.9),
-                0 0 45px rgba(0,153,255,0.7);
+/* Bottoni */
+.btn-primary, .btn-secondary {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    margin: 5px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-/* ERRORE */
-.error-msg {
-    margin-top: 12px;
-    color: #ff7e7e;
-    text-shadow: 0 0 8px rgba(255,0,0,0.6);
-    font-weight: 600;
-    min-height: 20px;
+.btn-primary {
+    background: #0066ff;
+    color: white;
+}
+.btn-primary:hover {
+    background: #1a80ff;
+}
+
+.btn-secondary {
+    background: #777;
+    color: white;
+}
+.btn-secondary:hover {
+    background: #999;
+}
+
+/* Tabelle */
+.table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.table th {
+    background: #333;
+    color: white;
+    padding: 10px;
+}
+
+.table td {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-bottom: 1px solid #555;
+}
+
+/* Responsive */
+@media (max-width: 750px) {
+    .panel {
+        width: 92%;
+        padding: 15px;
+    }
+
+    input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 }
