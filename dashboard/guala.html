@@ -44,27 +44,6 @@
 <script src="firebase-config.js?v=1"></script>
 <script src="dashboard.js?v=1"></script>
 
-<script>
-    // Guala
-    if (window.location.pathname.includes("guala")) {
-        loadSegnalazioni(r => r.complesso === "guala");
-    }
-
-    // Piobesi
-    if (window.location.pathname.includes("piobesi")) {
-        loadSegnalazioni(r => r.complesso === "piobesi");
-    }
-
-    // Parti Comuni
-    if (window.location.pathname.includes("particomuni")) {
-        loadSegnalazioni(r => r.tipo === "Parti comuni");
-    }
-
-    // SuperAdmin (vede tutto)
-    if (window.location.pathname.includes("superadmin.html")) {
-        loadSegnalazioni(r => true, true);
-    }
-</script>
 
 <body>
 
