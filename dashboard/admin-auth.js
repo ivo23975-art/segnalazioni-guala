@@ -1,9 +1,9 @@
 /* ============================================================
-   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE CORRETTA
+   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE CORRETTA E FINALE
    ============================================================ */
 
 /* ===========================================
-   CONFIGURAZIONE ADMIN
+   CONFIGURAZIONE DEFAULT
    =========================================== */
 
 const DEFAULT_ADMIN_DATA = {
@@ -33,7 +33,10 @@ const DEFAULT_ADMIN_DATA = {
     }
 };
 
-/* Carica configurazione admin */
+/* ===========================================
+   CARICAMENTO / SALVATAGGIO CONFIG
+   =========================================== */
+
 function loadAdminConfig() {
     const saved = localStorage.getItem("ADMIN_CONFIG");
     if (!saved) {
@@ -43,27 +46,24 @@ function loadAdminConfig() {
     return JSON.parse(saved);
 }
 
-/* Salva nuova configurazione admin */
-function saveAdminConfig(newData) {
-    localStorage.setItem("ADMIN_CONFIG", JSON.stringify(newData));
+function saveAdminConfig(data) {
+    localStorage.setItem("ADMIN_CONFIG", JSON.stringify(data));
 }
 
-/* Admin Data globale */
 let ADMIN_DATA = loadAdminConfig();
 
+/* ===========================================
+   LOGIN ADMIN – FUNZIONE PRINCIPALE
+   =========================================== */
 
-/* ============================================================
-   LOGIN ADMIN – USATO DA login-pin.html
-   ============================================================ */
 function adminLoginAttempt(username, pin) {
 
     username = username.toLowerCase();
 
     for (const key in ADMIN_DATA) {
-
         const admin = ADMIN_DATA[key];
 
-        // MODE: Solo password/PIN
+        // Solo PIN
         if (admin.loginMode === "password") {
             if (pin === admin.password) {
                 setAdminSession(admin.role);
@@ -71,11 +71,10 @@ function adminLoginAttempt(username, pin) {
             }
         }
 
-        // MODE: Username + Password/PIN
+        // Username + PIN
         if (admin.loginMode === "userpass") {
             if (username === admin.username.toLowerCase() &&
                 pin === admin.password) {
-
                 setAdminSession(admin.role);
                 return true;
             }
@@ -85,10 +84,10 @@ function adminLoginAttempt(username, pin) {
     return false;
 }
 
+/* ===========================================
+   SALVATAGGIO SESSIONE + REDIRECT
+   =========================================== */
 
-/* ============================================================
-   LOGIN: Salva sessione e reindirizza
-   ============================================================ */
 function setAdminSession(role) {
     localStorage.setItem("ADMIN_ROLE", role);
     redirectToPanel(role);
@@ -103,10 +102,10 @@ function redirectToPanel(role) {
     }
 }
 
-
-/* ============================================================
+/* ===========================================
    PROTEZIONE PAGINE
-   ============================================================ */
+   =========================================== */
+
 function requireRole(role) {
     const r = localStorage.getItem("ADMIN_ROLE");
 
@@ -121,10 +120,10 @@ function requireRole(role) {
     }
 }
 
-
-/* ============================================================
+/* ===========================================
    LOGOUT
-   ============================================================ */
+   =========================================== */
+
 function adminLogout() {
     localStorage.removeItem("ADMIN_ROLE");
     window.location.href = "../login-pin.html";
