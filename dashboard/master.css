@@ -12,55 +12,75 @@ body {
     color: #fff;
 }
 
-/* Header */
+/* HEADER */
 .header {
     width: 100%;
-    padding: 20px;
+    padding: 20px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
 }
 
 .header-title {
-    font-size: 2rem;
+    font-size: 2.3rem;
     font-weight: bold;
     color: #ffdd66;
     text-shadow: 0 0 10px #000;
 }
 
-/* Logout */
+/* LOGOUT */
 .logout {
     background: #d40000;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 26px;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 0 12px rgba(255,0,0,0.6);
+    font-size: 1rem;
 }
-
 .logout:hover {
     background: #ff0000;
 }
 
-/* Pannello contenuti */
+/* GLASS EFFECT — MANCAVA!!! */
+.glass {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(18px);
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+}
+
+/* PANEL */
 .panel {
     max-width: 950px;
-    margin: 30px auto;
-    padding: 25px;
-    background: rgba(0,0,0,0.68);
-    border-radius: 15px;
-    box-shadow: 0 0 18px rgba(0,0,0,0.7);
+    margin: 40px auto;
+    padding: 30px;
+}
+
+/* Sezioni */
+section {
+    margin-bottom: 35px;
 }
 
 /* Titoli sezione */
 section h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
     color: #ffdd66;
     text-shadow: 0 0 6px #000;
+    margin-bottom: 10px;
 }
 
-/* Liste link */
+/* Link */
+.link-list li {
+    margin: 4px 0;
+}
+
 .link-list li a {
     color: #66aaff;
     font-weight: bold;
@@ -78,6 +98,7 @@ input {
     padding: 10px;
     border-radius: 6px;
     margin: 5px 10px 15px 0;
+    font-size: 1rem;
 }
 
 /* Bottoni */
@@ -85,9 +106,10 @@ input {
     padding: 10px 16px;
     border: none;
     border-radius: 6px;
-    margin: 5px;
+    margin: 5px 5px 15px 0;
     cursor: pointer;
     font-weight: bold;
+    font-size: 1rem;
 }
 
 .btn-primary {
@@ -125,15 +147,27 @@ input {
     border-bottom: 1px solid #555;
 }
 
-/* Responsive */
+/* RESPONSIVE */
 @media (max-width: 750px) {
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
     .panel {
         width: 92%;
-        padding: 15px;
+        padding: 20px;
     }
 
     input {
         width: 100%;
         margin-bottom: 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
     }
 }
