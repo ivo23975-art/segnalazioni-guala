@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guala – Segnalazioni attive</title>
 
-    <!-- CSS generale -->
+    <!-- CSS -->
     <link rel="stylesheet" href="dashboard.css?v=1000">
-
 </head>
 
 <body>
 
-    <!-- Logout -->
+    <!-- Pulsante Logout -->
     <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
     <!-- Titolo -->
@@ -38,13 +37,14 @@
         </table>
     </div>
 
-    <!-- JS Firebase + Dashboard -->
+    <!-- Firebase -->
     <script src="firebase-config.js?v=1000"></script>
+
+    <!-- Logica dashboard -->
     <script src="dashboard.js?v=1000"></script>
 
-    <!-- Avvio caricamento dati -->
+    <!-- Avvio caricamento -->
     <script>
-        // FILTRO PER COMPLESSO GUALA
         loadSegnalazioni(r => r.complesso === "guala");
     </script>
 
