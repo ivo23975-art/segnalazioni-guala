@@ -1,33 +1,30 @@
 /* ============================================================
-   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE COMPLETA
+   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE CORRETTA
    ============================================================ */
 
 /* ===========================================
-   CONFIGURAZIONE ADMIN (lettura da localStorage)
+   CONFIGURAZIONE ADMIN
    =========================================== */
 
 const DEFAULT_ADMIN_DATA = {
     guala: {
         role: "guala",
-        loginMode: "password",     // "password" oppure "userpass"
-        username: "",
+        loginMode: "userpass",
+        username: "guala",
         password: "1111"
     },
-
     piobesi: {
         role: "piobesi",
-        loginMode: "password",
-        username: "",
+        loginMode: "userpass",
+        username: "piobesi",
         password: "2222"
     },
-
     particomuni: {
         role: "particomuni",
-        loginMode: "password",
-        username: "",
+        loginMode: "userpass",
+        username: "particomuni",
         password: "3333"
     },
-
     superadmin: {
         role: "superadmin",
         loginMode: "userpass",
@@ -35,7 +32,6 @@ const DEFAULT_ADMIN_DATA = {
         password: "4444"
     }
 };
-
 
 /* Carica configurazione admin */
 function loadAdminConfig() {
@@ -47,101 +43,89 @@ function loadAdminConfig() {
     return JSON.parse(saved);
 }
 
-
 /* Salva nuova configurazione admin */
 function saveAdminConfig(newData) {
     localStorage.setItem("ADMIN_CONFIG", JSON.stringify(newData));
 }
 
-
 /* Admin Data globale */
 let ADMIN_DATA = loadAdminConfig();
 
 
-/* ===========================================
-   LOGIN ADMIN (usato da login-pin.html)
-   =========================================== */
+/* ============================================================
+   LOGIN ADMIN – USATO DA login-pin.html
+   ============================================================ */
+function adminLoginAttempt(username, pin) {
 
-function loginAdmin() {
+    username = username.toLowerCase();
 
-    const user = (document.getElementById("username")?.value || "").trim();
-    const pass = (document.getElementById("password")?.value || "").trim();
-
-    if (pass === "") {
-        alert("Inserisci la password.");
-        return;
-    }
-
-    // Controlla ogni ruolo
     for (const key in ADMIN_DATA) {
-        const a = ADMIN_DATA[key];
 
-        // Modalità PASSWORD
-        if (a.loginMode === "password" && pass === a.password) {
-            setAdminSession(a.role);
-            return;
+        const admin = ADMIN_DATA[key];
+
+        // MODE: Solo password/PIN
+        if (admin.loginMode === "password") {
+            if (pin === admin.password) {
+                setAdminSession(admin.role);
+                return true;
+            }
         }
 
-        // Modalità USERNAME + PASSWORD
-        if (a.loginMode === "userpass" &&
-            user === a.username &&
-            pass === a.password) {
+        // MODE: Username + Password/PIN
+        if (admin.loginMode === "userpass") {
+            if (username === admin.username.toLowerCase() &&
+                pin === admin.password) {
 
-            setAdminSession(a.role);
-            return;
+                setAdminSession(admin.role);
+                return true;
+            }
         }
     }
 
-    alert("Credenziali errate.");
+    return false;
 }
 
 
-/* Imposta sessione admin */
+/* ============================================================
+   LOGIN: Salva sessione e reindirizza
+   ============================================================ */
 function setAdminSession(role) {
-    localStorage.setItem("ADMIN_SESSION", JSON.stringify({ role }));
+    localStorage.setItem("ADMIN_ROLE", role);
     redirectToPanel(role);
 }
 
-
-/* Redireziona al pannello corretto */
 function redirectToPanel(role) {
     switch (role) {
-        case "guala":        window.location.href = "guala.html"; break;
-        case "piobesi":      window.location.href = "piobesi.html"; break;
-        case "particomuni":  window.location.href = "particomuni.html"; break;
-        case "superadmin":   window.location.href = "superadmin.html"; break;
+        case "guala":        window.location.href = "dashboard/guala.html"; break;
+        case "piobesi":      window.location.href = "dashboard/piobesi.html"; break;
+        case "particomuni":  window.location.href = "dashboard/particomuni.html"; break;
+        case "superadmin":   window.location.href = "dashboard/superadmin.html"; break;
     }
 }
 
 
-/* ===========================================
+/* ============================================================
    PROTEZIONE PAGINE
-   =========================================== */
-
+   ============================================================ */
 function requireRole(role) {
-    const session = JSON.parse(localStorage.getItem("ADMIN_SESSION"));
+    const r = localStorage.getItem("ADMIN_ROLE");
 
-    // Non loggato
-    if (!session) {
+    if (!r) {
         window.location.href = "../login-pin.html";
         return;
     }
 
-    // Ruolo sbagliato
-    if (session.role !== role && role !== "any") {
+    if (role !== "any" && r !== role) {
         alert("Accesso non autorizzato.");
         window.location.href = "../login-pin.html";
-        return;
     }
-
-    console.log("[AUTH] Accesso consentito:", session.role);
 }
 
 
-/* ===========================================
+/* ============================================================
    LOGOUT
-   =========================================== */
+   ============================================================ */
 function adminLogout() {
-    localStorage.removeItem("ADMIN_SESSION");
+    localStorage.removeItem("ADMIN_ROLE");
     window.location.href = "../login-pin.html";
 }
