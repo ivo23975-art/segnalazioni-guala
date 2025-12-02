@@ -6,21 +6,20 @@
 
     <link rel="stylesheet" href="dashboard.css">
 
-    <!-- FIREBASE (v8 compat) -->
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE - PERCORSO CORRETTO -->
-    <script src="dashboard/firebase-config.js"></script>
+    <!-- CONFIG FIREBASE -->
+    <script src="firebase-config.js"></script>
 
-    <!-- LOGICA DASHBOARD - PERCORSO CORRETTO -->
-    <script src="dashboard/dashboard.js"></script>
+    <!-- LOGIN + RUOLI -->
+    <script src="admin-auth.js"></script>
 
-    <!-- SISTEMA LOGIN - PERCORSO CORRETTO -->
-    <script src="dashboard/admin-auth.js"></script>
+    <!-- LOGICA DASHBOARD -->
+    <script src="dashboard.js"></script>
 
     <style>
-        /* Pulsante Logout */
         .logout-btn {
             position: absolute;
             top: 15px;
@@ -34,7 +33,6 @@
             text-decoration: none;
             transition: 0.2s;
         }
-
         .logout-btn:hover {
             background: #cc0000;
         }
@@ -43,48 +41,44 @@
 
 <body>
 
-<!-- 🔴 PULSANTE LOGOUT -->
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
 <div class="header">SUPER ADMIN – TUTTE LE SEGNALAZIONI</div>
 
 <div class="content">
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Data</th>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>Temp</th>
-            <th>Tipo</th>
-            <th>Descrizione</th>
-            <th>Azioni</th>
-        </tr>
-        </thead>
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Azioni</th>
+</tr>
+</thead>
 
-        <tbody id="tbody"></tbody>
-    </table>
+<tbody id="tbody"></tbody>
+</table>
 
 </div>
 
 <script>
 
-    /* -------------------------------------------------------
-       🔒 PROTEZIONE ACCESSO SUPERADMIN
-    ---------------------------------------------------------- */
-    requireRole("superadmin");
+console.log("[DEBUG] SuperAdmin – pannello avviato");
 
-    /* -------------------------------------------------------
-       SUPERADMIN: NESSUN FILTRO, VEDE TUTTE LE SEGNALAZIONI
-       (E PUÒ ELIMINARE)
-    ---------------------------------------------------------- */
-    loadSegnalazioni(
-        r => true,
-        true   // abilita pulsante eliminazione
-    );
+/* Protezione accesso */
+requireRole("superadmin");
+
+/* Nessun filtro: il SuperAdmin vede tutto e può ELIMINARE */
+loadSegnalazioni(
+    r => true,   // mostra tutte le segnalazioni
+    true         // abilita il pulsante elimina
+);
 
 </script>
 
