@@ -12,7 +12,6 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
 }
-
 .login-box {
     width: 340px;
     margin: 120px auto;
@@ -22,7 +21,6 @@ body {
     color: #fff;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
-
 .login-box h3 {
     text-align: center;
     font-size: 1.5rem;
@@ -30,7 +28,6 @@ body {
     margin-bottom: 20px;
     color: #ffe066;
 }
-
 input {
     width: 100%;
     padding: 12px;
@@ -40,7 +37,6 @@ input {
     background: rgba(255,255,255,0.2);
     color: #fff;
 }
-
 button {
     width: 100%;
     padding: 14px;
@@ -53,11 +49,7 @@ button {
     cursor: pointer;
     transition: 0.2s;
 }
-
-button:hover {
-    background: #ff3333;
-}
-
+button:hover { background: #ff3333; }
 .error {
     color: #ff4444;
     text-align: center;
@@ -80,14 +72,9 @@ button:hover {
     <div id="error" class="error"></div>
 </div>
 
-<!-- FILE DELLE REGOLE -->
 <script src="dashboard/admin-auth.js"></script>
 
 <script>
-/* ===========================================
-   LOGIN ADMIN UNIVERSALE
-   Usa i dati contenuti in ADMIN_DATA
-=========================================== */
 function loginAdmin() {
 
     const username = document.getElementById("username").value.trim().toLowerCase();
@@ -101,35 +88,11 @@ function loginAdmin() {
         return;
     }
 
-    // Scorriamo tutti i ruoli definiti in ADMIN_DATA
-    for (const role in ADMIN_DATA) {
-
-        const admin = ADMIN_DATA[role];
-
-        // Confronto username
-        if (admin.username.toLowerCase() === username) {
-
-            // Controllo PIN tramite admin-auth.js
-            if (admin.password === pin) {
-
-                // Salva login
-                localStorage.setItem("ADMIN_ROLE", role);
-
-                // Reindirizzamento al pannello corretto
-                if (role === "superadmin") window.location.href = "dashboard/superadmin.html";
-                if (role === "guala") window.location.href = "dashboard/guala.html";
-                if (role === "piobesi") window.location.href = "dashboard/piobesi.html";
-                if (role === "particomuni") window.location.href = "dashboard/particomuni.html";
-
-                return;
-            }
-
-            err.textContent = "PIN errato";
-            return;
-        }
+    if (adminLoginAttempt(username, pin)) {
+        return;
     }
 
-    err.textContent = "Utente inesistente";
+    err.textContent = "Utente inesistente o PIN errato";
 }
 </script>
 
