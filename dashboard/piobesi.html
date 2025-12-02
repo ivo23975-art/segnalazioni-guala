@@ -16,7 +16,7 @@
     <!-- LOGIN + RUOLI -->
     <script src="admin-auth.js"></script>
 
-    <!-- LOGICA DASHBOARD -->
+    <!-- LOGICA DASHBOARD (caricamento segnalazioni) -->
     <script src="dashboard.js"></script>
 
     <style>
@@ -67,9 +67,17 @@
 
 <script>
 
-    console.log("[DEBUG] Piobesi – pannello avviato");
+console.log("[DEBUG] Piobesi – pannello avviato");
 
-    /* Protezione accesso */
-    requireRole("piobesi");
+/* Protezione accesso */
+requireRole("piobesi");
 
-    /* Carica SOLO segnalazioni attive del complesso Piobesi */
+/* Carica SOLO segnalazioni attive del complesso Piobesi */
+loadSegnalazioni(
+    r => r.complesso === "piobesi" && r.stato === "attiva"
+);
+
+</script>
+
+</body>
+</html>
