@@ -1,0 +1,20 @@
+{
+  "name": "Segnalazioni – Tutti i Complessi",
+  "short_name": "Condominio",
+  "start_url": "/segnalazioni-guala/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#222222",
+  "icons": [
+    {
+      "src": "/segnalazioni-guala/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/segnalazioni-guala/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
