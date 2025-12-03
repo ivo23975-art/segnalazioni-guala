@@ -1,0 +1,20 @@
+{
+  "name": "Segnalazioni – Complesso Guala",
+  "short_name": "Guala",
+  "start_url": "/segnalazioni-guala/index.html?complesso=guala",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#cc0000",
+  "icons": [
+    {
+      "src": "/segnalazioni-guala/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/segnalazioni-guala/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
