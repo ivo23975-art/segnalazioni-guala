@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Guala – Segnalazioni attive</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- CONFIG FIREBASE (DEVE ESSERE PRIMA DI dashboard.js) -->
+    <script src="firebase-config.js"></script>
+
+    <!-- LOGICA DASHBOARD -->
+    <script src="dashboard.js"></script>
+
+    <!-- SISTEMA LOGIN ADMIN -->
+    <script src="admin-auth.js"></script>
+
+    <!-- 👇 CSS LOGOUT PULSANTE -->
+    <style>
+        .logout-btn {
+            position: fixed;
+            top: 12px;
+            right: 20px;
+            background: #ff4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: .2s;
+            font-family: system-ui, sans-serif;
+            z-index: 9999;
+        }
+
+        .logout-btn:hover {
+            background: #ff0000;
+            transform: translateY(-2px);
+        }
+    </style>
+
+</head>
+
+<body>
+
+<!-- 🔴 LOGOUT FISSO E MODERNO -->
+<a class="logout-btn" onclick="adminLogout()">Logout</a>
+
+<div class="header">Guala – Segnalazioni attive</div>
+
+<div class="content">
+
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+</table>
+
+</div>
+
+<script>
+
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO ADMIN GUALA
+    ---------------------------------------------------------- */
+    requireRole("guala");
+
+    /* -------------------------------------------------------
+       Carica SOLO segnalazioni attive di Guala
+    ---------------------------------------------------------- */
+    loadSegnalazioni(
+        r =>
+            r.stato === "attiva" &&
+            r.complesso === "guala"
+    );
+
+</script>
+
+</body>
+</html>
