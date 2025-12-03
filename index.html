@@ -6,7 +6,6 @@
 <title>Segnalazioni Condominio Piazza Guala</title>
 
 <style>
-/* --- TUTTO IDENTICO --- */
 :root {
   --primary: #cc0000;
   --bg: #f3f4f6;
@@ -186,9 +185,8 @@ const db = firebase.firestore();
 <div class="container"></div>
 
 <!-- ===============================
-     MODALI (identiche)
+     MODALE SEGNALAZIONE
 ================================= -->
-
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
 
@@ -236,24 +234,19 @@ const db = firebase.firestore();
         <option value="">— Seleziona —</option>
         <option value="Luci cortile">Luci cortile</option>
         <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
-        <option value="2° Cancello automatico (area di decompressione)">2° Cancello automatico (area di decompressione)</option>
-        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera Via Piobesi 10</option>
-        <option value="Cancello Pedonale (cortile di Piazza Guala uscita laterale)">Cancello Pedonale (cortile di Piazza Guala uscita laterale)</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
+        <option value="Cancello Pedonale">Cancello Pedonale</option>
         <option value="Cortile">Cortile</option>
-        <option value="Aree verdi / giardinaggio">Aree verdi / giardinaggio</option>
+        <option value="Aree verdi">Aree verdi</option>
         <option value="Box interrati">Box interrati</option>
-        <option value="Serrande garage">Serrande garage</option>
+        <option value="Garage">Serrande garage</option>
         <option value="Vano scale">Vano scale</option>
         <option value="Locale contatori">Locale contatori</option>
-        <option value="Tettoie">Tettoie</option>
-        <option value="Pensiline">Pensiline</option>
-        <option value="Pavimentazione Cortile">Pavimentazione Cortile</option>
-        <option value="Rivestimenti Facciate lato Cortile">Rivestimenti Facciate lato Cortile</option>
       </select>
     </div>
 
-    <label style="margin-top:12px;">Descrizione del problema</label>
-    <textarea id="descrizioneInput" placeholder="Inserisci una descrizione dettagliata"></textarea>
+    <label style="margin-top:12px;">Descrizione</label>
+    <textarea id="descrizioneInput" placeholder="Descrizione dettagliata"></textarea>
 
     <button class="btn" onclick="confermaInvio()">Procedi</button>
     <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
@@ -261,6 +254,9 @@ const db = firebase.firestore();
   </div>
 </div>
 
+<!-- ===============================
+     MODALE CONFERMA
+================================= -->
 <div class="modal" id="modalConferma">
   <div class="modal-content">
     <h3 id="confermaTesto"></h3>
@@ -270,34 +266,141 @@ const db = firebase.firestore();
 </div>
 
 <script>
-/* ============================================================
-   FILTRO COMPLESSO (AGGIUNTA NUOVA)
-============================================================ */
-const params = new URLSearchParams(window.location.search);
-const filtroComplesso = params.get("complesso"); 
-// valori possibili: guala / piobesi / null
+/* ============================================
+   LETTURA PARAMETRO ?complesso=guala/piobesi
+============================================ */
+const complessoSelezionato =
+  new URLSearchParams(location.search).get("complesso");
 
+const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
+const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
 
-/* ============================================================
-   DATABASE SCALE (identico al tuo)
-============================================================ */
-const condominio = { /* --- TUTTO il tuo oggetto così com’è --- */ };
+function scalaAppartiene(scala) {
+  if (!complessoSelezionato) return true;
 
+  if (complessoSelezionato === "guala")
+    return scaleGuala.includes(scala);
 
-/* ============================================================
-   GENERAZIONE CARDS CON FILTRO
-============================================================ */
+  if (complessoSelezionato === "piobesi")
+    return scalePiobesi.includes(scala);
+
+  return true;
+}
+
+/* ============================================
+   DEFINIZIONE CONDOMINIO (tutte scale)
+============================================ */
+const condominio = {
+
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
+    }
+  },
+
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
+    }
+  },
+
+  "SCALA 133": {
+    piani:{
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
+    }
+  },
+
+  "SCALA 6": {
+    piani: {
+      9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+      8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+      7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+      6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+      5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+      4:{dx:"GERVASI/RACCO", sx:"PLATANIA"},
+      3:{dx:"DR ING E PERRETTI/DELL ALBA C", sx:"MAMELI/CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 8": {
+    piani: {
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 10": {
+    piani: {
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  }
+
+};
+
+/* ============================================
+   GENERA LE CARD (filtrate per complesso)
+============================================ */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
 
-  // --- NUOVO FILTRO ---
-  const isPio = ["SCALA 6","SCALA 8","SCALA 10"].includes(scala);
+  if (!scalaAppartiene(scala)) return;  // FILTRO COMPLESSO
 
-  if (filtroComplesso === "guala" && isPio) return;      // nascondi piobesi
-  if (filtroComplesso === "piobesi" && !isPio) return;   // nascondi guala
-
-  // --- resto IDENTICO ---
   const box = document.createElement("div");
   box.className = "scalaBox";
   box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
@@ -363,11 +466,9 @@ Object.keys(condominio).forEach(scala => {
   container.appendChild(box);
 });
 
-
-/* ============================================================
-   TUTTO IL RESTO IDENTICO (modali, salvataggio, colori…)
-============================================================ */
-
+/* ============================================
+   LOGICA MODALI
+============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
@@ -380,8 +481,10 @@ function apri(scala, piano, lato, nome, elem){
   scalaSel = scala;
   pianoSel = piano;
   latoSel = lato;
+
   document.getElementById("modalTitle").innerText =
     `${scala} • ${piano} • ${lato} • ${nome}`;
+
   document.getElementById("modalSegnalazione").style.display = "flex";
 }
 
@@ -396,58 +499,74 @@ function chiudiConferma(){
 function gestisciPartiComuni() {
   const tipo = document.getElementById("tipoInput").value;
   const wrapper = document.getElementById("selectPartiComuniWrapper");
-  if (tipo === "particomuni") wrapper.style.display = "block";
-  else { wrapper.style.display = "none"; document.getElementById("selectPartiComuni").value = ""; }
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
+  }
 }
 
 function confermaInvio(){
   const tipo = document.getElementById("tipoInput").value;
+
   if (tipo === "particomuni") {
     const sotto = document.getElementById("selectPartiComuni").value;
-    if (sotto === "" || document.getElementById("descrizioneInput").value.trim() === "") {
-      alert("Completa i campi prima di procedere.");
+    if (sotto === "") {
+      alert("Seleziona la parte comune.");
+      return;
+    }
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
+      alert("La descrizione è obbligatoria.");
       return;
     }
   }
+
   document.getElementById("confermaTesto").innerText =
-    `Confermi la segnalazione per:\n\n${nominativo}`;
+    `Confermi la segnalazione per:\n${nominativo}`;
+
   document.getElementById("modalConferma").style.display = "flex";
 }
 
 function inviaSegnalazioneFinale() {
+
   const tipo = document.getElementById("tipoInput").value;
   const sotto = document.getElementById("selectPartiComuni").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
 
   let priorita = "VERDE";
+
   if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "ARANCIONE";
-  else if(["serramenti","antincendio"].includes(tipo)) priorita = "GIALLO";
-  else if(tipo === "particomuni") priorita = "GIALLO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+      priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo))
+      priorita = "GIALLO";
+  else if(tipo === "particomuni")
+      priorita = "GIALLO";
 
   elementoSelezionato.classList.remove(
     "alert-red","alert-orange","alert-yellow","alert-green"
   );
-  elementoSelezionato.classList.add(
-    priorita === "ROSSO" ? "alert-red" :
-    priorita === "ARANCIONE" ? "alert-orange" :
-    priorita === "GIALLO" ? "alert-yellow" :
-    "alert-green"
-  );
+
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
+
+  elementoSelezionato.classList.add(css);
 
   const dot = elementoSelezionato.querySelector(".tempDot");
   const val = elementoSelezionato.querySelector(".tempVal");
+
   if (temp !== "ND") {
     if (temp >= 28) dot.className = "tempDot t-red";
     else if (temp >= 24) dot.className = "tempDot t-yellow";
     else dot.className = "tempDot t-blue";
+
     val.innerText = temp + "°C";
   }
-
-  let tipoFinale = tipo;
-  let sottoFinale = "";
-  if (tipo === "particomuni") { tipoFinale = "Parti comuni"; sottoFinale = sotto; }
 
   db.collection("segnalazioni").add({
       scala: scalaSel,
@@ -456,8 +575,8 @@ function inviaSegnalazioneFinale() {
       nome: nominativo,
       temperatura: temp,
       descrizione: desc,
-      tipo: tipoFinale,
-      sottotipo: sottoFinale,
+      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+      sottotipo: sotto,
       complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
       priorita: priorita,
       stato: "attiva",
@@ -473,7 +592,6 @@ function inviaSegnalazioneFinale() {
   document.getElementById("selectPartiComuni").value = "";
   document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
-
 </script>
 
 </body>
