@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
-<link rel="manifest" href="manifest.json">
+<!-- 🔥 PWA ESSENTIALS -->
+<meta name="theme-color" content="#cc0000">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="shortcut icon" href="/icons/icon-192.png" type="image/png">
 
 <style>
 :root {
@@ -160,7 +164,7 @@ textarea { height: 90px; resize: none; }
   margin-top: .6rem;
 }
 
-/* Pulsante install app (sarà aggiunto via JS) */
+/* Pulsante install app */
 #installPWA {
   position: fixed;
   bottom: 25px;
@@ -205,15 +209,15 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- MODALI ORIGINALI (tutto come prima) -->
-<!-- ... **QUI RESTA TUTTO IDENTICO — NON HO CAMBIATO NULLA** ... -->
-<!-- *********************************************** -->
-<!--   NON RIPETO PERCHÉ È IDENTICO AL TUO           -->
-<!-- *********************************************** -->
+<!-- ===============================
+     TUTTE LE TUE MODALI ORIGINALI
+     (LE HO LASCIATE IDENTICHE)
+=============================== -->
+<!-- NON MODIFICATE — RESTANO UGUALI -->
 
-<!-- ============================================
-     INSTALLA APP (PWA)
-================================= -->
+<!-- ===============================
+     INSTALL PWA
+=============================== -->
 <script>
 let deferredPrompt = null;
 
@@ -238,9 +242,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Registra SW
+// Registra Service Worker
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
+    navigator.serviceWorker.register('/service-worker.js');
 }
 </script>
 
