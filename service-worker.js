@@ -1,9 +1,10 @@
-const CACHE_NAME = "guala-cache-v1";
-
+const CACHE_NAME = "guala-cache-v2";
 const FILES_TO_CACHE = [
-  "/segnalazioni-guala/",
-  "/segnalazioni-guala/index.html",
-  "/segnalazioni-guala/manifest.json"
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
 // INSTALL
@@ -14,16 +15,9 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-// ACTIVATE
-self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
-});
-
 // FETCH
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
