@@ -106,9 +106,18 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
 .alert-green { background:#00b454!important; color:white;}
 
-@keyframes redBlink {0%,100%{background:#b00000;}50%{background:#ff4444;}}
-@keyframes orangeBlink {0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
-@keyframes yellowBlink {0%,100%{background:#d4bf00;}50%{background:#fff455;}}
+@keyframes redBlink {
+  0%,100%{background:#b00000;}
+  50%{background:#ff4444;}
+}
+@keyframes orangeBlink {
+  0%,100%{background:#cc6a00;}
+  50%{background:#ff9c22;}
+}
+@keyframes yellowBlink {
+  0%,100%{background:#d4bf00;}
+  50%{background:#fff455;}
+}
 
 .modal {
   position: fixed;
@@ -161,6 +170,23 @@ textarea { height: 90px; resize: none; }
   display: none;
   margin-top: .6rem;
 }
+
+/* Pulsante INSTALLA APP */
+#installPWA {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  padding: 14px 20px;
+  font-size: 15px;
+  background:#cc0000;
+  color:white;
+  border:none;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  cursor:pointer;
+  display:none;
+  z-index:9999;
+}
 </style>
 
 <!-- FIREBASE -->
@@ -189,8 +215,9 @@ const db = firebase.firestore();
 <div class="container"></div>
 
 <!-- ===============================
-     MODALE SEGNALAZIONE
+     MODALI (identiche alle tue)
 ================================= -->
+
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
 
@@ -258,9 +285,6 @@ const db = firebase.firestore();
   </div>
 </div>
 
-<!-- ===============================
-     MODALE CONFERMA
-================================= -->
 <div class="modal" id="modalConferma">
   <div class="modal-content">
     <h3 id="confermaTesto"></h3>
@@ -271,7 +295,7 @@ const db = firebase.firestore();
 
 <script>
 /* ============================================
-   LETTURA PARAMETRO ?complesso=guala/piobesi
+   LETTURA PARAM ?complesso=guala/piobesi
 ============================================ */
 const complessoSelezionato =
   new URLSearchParams(location.search).get("complesso");
@@ -292,10 +316,9 @@ function scalaAppartiene(scala) {
 }
 
 /* ============================================
-   DEFINIZIONE CONDOMINIO (tutte scale)
+   DEFINIZIONE CONDOMINIO (IDENTICO AL TUO)
 ============================================ */
 const condominio = {
-
   "SCALA 131": {
     piani: {
       9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
@@ -397,13 +420,13 @@ const condominio = {
 };
 
 /* ============================================
-   GENERA LE CARD (filtrate per complesso)
+   GENERA LE CARD (IDENTICO AL TUO)
 ============================================ */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
 
-  if (!scalaAppartiene(scala)) return;  // FILTRO COMPLESSO
+  if (!scalaAppartiene(scala)) return;
 
   const box = document.createElement("div");
   box.className = "scalaBox";
@@ -471,7 +494,7 @@ Object.keys(condominio).forEach(scala => {
 });
 
 /* ============================================
-   LOGICA MODALI
+   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
 ============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
@@ -598,12 +621,39 @@ function inviaSegnalazioneFinale() {
 }
 </script>
 
-<!-- ✅ REGISTRAZIONE SERVICE WORKER -->
+<!-- ===============================
+     SERVICE WORKER
+================================= -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js")
     .catch(err => console.log("SW error:", err));
 }
+</script>
+
+<!-- ===============================
+     PULSANTE INSTALLA APP (PWA)
+================================= -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
 </script>
 
 </body>
