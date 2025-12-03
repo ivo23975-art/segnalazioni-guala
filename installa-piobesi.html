@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Installa App – Complesso Piobesi</title>
+
+<link rel="manifest" href="manifest-piobesi.json">
+<meta name="theme-color" content="#007744">
+
+<style>
+body { font-family: system-ui; padding: 30px; text-align: center; }
+button {
+  padding: 15px 25px;
+  background: #007744;
+  color: white;
+  font-size: 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📲 Installa l'app del Complesso Piobesi</h2>
+<p>Tocca il pulsante per aggiungere l'app alla Home.</p>
+
+<button id="installBtn" style="display:none;">Installa App</button>
+
+<script>
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBtn").style.display = "inline-block";
+});
+
+document.getElementById("installBtn").onclick = async () => {
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+};
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
