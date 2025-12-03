@@ -1,9 +1,9 @@
 const CACHE_NAME = "guala-cache-v1";
+
 const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json"
-  // Nessuna icona qui finché non esistono davvero
+  "/segnalazioni-guala/",
+  "/segnalazioni-guala/index.html",
+  "/segnalazioni-guala/manifest.json"
 ];
 
 // INSTALL
@@ -12,6 +12,11 @@ self.addEventListener("install", event => {
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
+});
+
+// ACTIVATE
+self.addEventListener("activate", event => {
+  event.waitUntil(self.clients.claim());
 });
 
 // FETCH
