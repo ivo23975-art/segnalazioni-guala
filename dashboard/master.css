@@ -1,176 +1,207 @@
-/* ===========================================
-   SFONDO PAGINA
-=========================================== */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, sans-serif;
-    background: url("../img/login-bg.jpg") center/cover no-repeat fixed;
-    color: #fff;
+/******************************************************
+ * ACCESSO MASTER
+ ******************************************************/
+const MASTER_USER = "master";
+const MASTER_PIN = "280113";
+
+/* LOGIN */
+function loginMaster() {
+    const u = document.getElementById("user").value.trim().toLowerCase();
+    const p = document.getElementById("pin").value.trim();
+    const err = document.getElementById("err");
+
+    if (u === MASTER_USER && p === MASTER_PIN) {
+        localStorage.setItem("MASTER_LOGGED", "YES");
+        window.location.href = "master.html";
+    } else {
+        err.textContent = "Credenziali errate.";
+    }
 }
 
-/* ===========================================
-   HEADER
-=========================================== */
-.header {
-    text-align: center;
-    padding: 25px 0;
+/* CHECK LOGIN */
+function checkMasterLogin() {
+    if (localStorage.getItem("MASTER_LOGGED") !== "YES") {
+        window.location.href = "master-login.html";
+        return;
+    }
+
+    loadUsers();
+    loadLinks();
+    loadLog();
+    loadStorico();
+    aggiornaMonitor();
 }
 
-.header-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ffcc66;
+/* LOGOUT */
+function logoutMaster() {
+    localStorage.removeItem("MASTER_LOGGED");
+    window.location.href = "master-login.html";
 }
 
-/* ===========================================
-   PANEL PRINCIPALE (GLASS)
-=========================================== */
-.panel {
-    width: 90%;
-    max-width: 950px;
-    margin: 20px auto 50px auto;
-    padding: 30px;
-    background: rgba(0,0,0,0.65);
-    border-radius: 18px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 6px 25px rgba(0,0,0,0.8);
+/******************************************************
+ * GESTIONE UTENTI
+ ******************************************************/
+function getUsers() {
+    return JSON.parse(localStorage.getItem("APP_PIN_USERS")) || {};
 }
 
-/* ===========================================
-   TITOLI SEZIONI
-=========================================== */
-h2 {
-    margin-top: 28px;
-    margin-bottom: 12px;
-    color: #ffdd88;
-    border-left: 5px solid #ffdd88;
-    padding-left: 10px;
+function saveUsers(u) {
+    localStorage.setItem("APP_PIN_USERS", JSON.stringify(u));
 }
 
-/* ===========================================
-   LISTE LINK
-=========================================== */
-.link-list li {
-    list-style: none;
-    margin: 8px 0;
+/* CREA NUOVO UTENTE */
+function createUser() {
+    const user = document.getElementById("newUser").value.trim().toLowerCase();
+    const pin = document.getElementById("newPin").value.trim();
+
+    if (user === "" || pin.length !== 6) {
+        alert("Compila correttamente i campi.");
+        return;
+    }
+
+    let users = getUsers();
+    users[user] = { pin: pin, active: true };
+    saveUsers(users);
+
+    salvaStorico(`Creato utente: ${user}`);
+    loadUsers();
 }
 
-.link-list a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
+/* GENERA PIN */
+function generatePin() {
+    const p = Math.floor(100000 + Math.random() * 900000);
+    document.getElementById("newPin").value = p;
 }
 
-.link-list a:hover {
-    text-decoration: underline;
+/* ATTIVA / BLOCCA UTENTE */
+function toggleUser(username) {
+    let users = getUsers();
+    users[username].active = !users[username].active;
+    saveUsers(users);
+
+    salvaStorico(`Modificato stato utente: ${username}`);
+    loadUsers();
 }
 
-/* ===========================================
-   INPUT E SELECT
-=========================================== */
-input, select {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: 1px solid #666;
-    padding: 7px 10px;
-    border-radius: 6px;
-    outline: none;
+/* ELIMINA UTENTE */
+function deleteUser(username) {
+    if (!confirm("Eliminare utente?")) return;
+
+    let users = getUsers();
+    delete users[username];
+    saveUsers(users);
+
+    salvaStorico(`Rimosso utente: ${username}`);
+    loadUsers();
 }
 
-input::placeholder {
-    color: #bbb;
+/* CARICA LISTA UTENTI */
+function loadUsers() {
+    const tbody = document.querySelector("#usersTable tbody");
+    tbody.innerHTML = "";
+
+    const users = getUsers();
+
+    for (let u in users) {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${u}</td>
+            <td>${users[u].pin}</td>
+            <td>${users[u].active ? "ATTIVO" : "BLOCCATO"}</td>
+            <td>
+                <button onclick="toggleUser('${u}')">Attiva/Blocca</button>
+                <button onclick="deleteUser('${u}')">Elimina</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    }
 }
 
-/* ===========================================
-   BOTTONI
-=========================================== */
-.btn-primary,
-.btn-secondary {
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
+/******************************************************
+ * LINK AUTOAGGIORNANTI
+ ******************************************************/
+function loadLinks() {
+    const base = "https://ivo23975-art.github.io/segnalazioni-guala/";
+
+    const links = [
+        { name: "APP Principale", url: base + "index.html" },
+        { name: "Login PIN Utenti", url: base + "login-pin.html" },
+        { name: "Pannello SuperAdmin", url: base + "dashboard/superadmin.html" },
+        { name: "Pannello MASTER", url: base + "dashboard/master.html" }
+    ];
+
+    const ul = document.getElementById("linkList");
+    ul.innerHTML = "";
+
+    links.forEach(link => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${link.url}" target="_blank">${link.name}</a>`;
+        ul.appendChild(li);
+    });
 }
 
-.btn-primary {
-    background: #007bff;
-    color: white;
+/******************************************************
+ * LOG MASTER
+ ******************************************************/
+function salvaStorico(msg) {
+    const logs = JSON.parse(localStorage.getItem("STORICO_MASTER")) || [];
+
+    logs.push({
+        time: new Date().toLocaleString(),
+        msg: msg
+    });
+
+    localStorage.setItem("STORICO_MASTER", JSON.stringify(logs));
+    loadStorico();
 }
 
-.btn-secondary {
-    background: #666;
-    color: white;
+function loadStorico() {
+    const box = document.getElementById("storicoList");
+    if (!box) return;
+
+    const logs = JSON.parse(localStorage.getItem("STORICO_MASTER")) || [];
+
+    box.innerHTML = "";
+
+    logs.slice().reverse().forEach(l => {
+        box.innerHTML += `<p><b>${l.time}</b> – ${l.msg}</p>`;
+    });
 }
 
-.btn-primary:hover {
-    background: #0060d1;
+function exportStorico() {
+    const logs = localStorage.getItem("STORICO_MASTER") || "[]";
+    const blob = new Blob([logs], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "storico-master.json";
+    a.click();
 }
 
-.btn-secondary:hover {
-    background: #555;
-}
+/******************************************************
+ * MONITOR SEGNALAZIONI (USANO FIRESTORE)
+ ******************************************************/
+async function aggiornaMonitor() {
+    try {
+        const snap = await db.collection("segnalazioni").get();
 
-/* ===========================================
-   TABELLE STILE ORIGINALE
-=========================================== */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
+        let attive = 0;
+        let risolte = 0;
 
-.table th {
-    background: #222;
-    color: #fff;
-    padding: 9px;
-}
+        snap.forEach(doc => {
+            const d = doc.data();
+            if (d.stato === "attiva") attive++;
+            if (d.stato === "risolta") risolte++;
+        });
 
-.table td {
-    padding: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid #333;
-}
+        document.getElementById("monitorAttive").innerText = attive;
+        document.getElementById("monitorRisolte").innerText = risolte;
+        document.getElementById("monitorTotali").innerText = attive + risolte;
 
-/* ===========================================
-   MONITOR NUMERI (visibili!)
-=========================================== */
-#monitorAttive,
-#monitorRisolte,
-#monitorTotali {
-    color: #fff !important;
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-/* ===========================================
-   STORICO (TESTO BIANCO)
-=========================================== */
-#storicoList {
-    color: #fff;
-    font-size: 0.95rem;
-}
-
-#storicoList p {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 8px;
-}
-
-/* ===========================================
-   LOGOUT
-=========================================== */
-.logout-bottom {
-    width: 180px;
-    margin: 40px auto;
-    padding: 12px;
-    background: #ff4444;
-    color: white;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: center;
-    display: block;
+    } catch (err) {
+        console.error("Errore monitor:", err);
+    }
 }
