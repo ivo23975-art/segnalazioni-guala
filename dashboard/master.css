@@ -7,9 +7,14 @@ body {
     font-family: system-ui, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
+
+    /* --- SFONDO A TUTTA PAGINA CON RAW GITHUB --- */
+    background: url("https://raw.githubusercontent.com/ivo23975-art/segnalazioni-guala/main/dashboard/masterimg.png")
+                no-repeat center center fixed;
+    background-size: cover;
 }
 
+/* HEADER */
 .header {
     padding: 20px;
     background: #ffffff;
@@ -23,6 +28,7 @@ body {
     font-weight: bold;
 }
 
+/* PANEL */
 .panel {
     width: 90%;
     max-width: 900px;
