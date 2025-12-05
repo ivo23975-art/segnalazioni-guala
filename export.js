@@ -2,9 +2,7 @@
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* ================================
-   FUNZIONE PRINCIPALE DI ESPORTAZIONE
-================================= */
+/* ===== ESPORTA ===== */
 async function stampaSegnalazioni() {
 
     const complesso = document.getElementById("exportComplesso").value;
@@ -12,24 +10,19 @@ async function stampaSegnalazioni() {
 
     let q = db.collection("segnalazioni");
 
-    // FILTRO COMPLESSO
     if (complesso === "guala") q = q.where("complesso", "==", "guala");
     if (complesso === "piobesi") q = q.where("complesso", "==", "piobesi");
     if (complesso === "particomuni") q = q.where("tipo", "==", "Parti comuni");
 
-    // FILTRO STATO
     if (tipo === "attive") q = q.where("stato", "==", "attiva");
     if (tipo === "risolte") q = q.where("stato", "==", "risolta");
 
-    // ESECUZIONE QUERY
     const snap = await q.get();
 
-    // APERTURA FILE EXPORT
     const win = window.open("./export.html", "_blank");
 
     win.onload = () => {
 
-        // COLORI DINAMICI
         const colori = {
             guala: "#007bff",
             piobesi: "#00b454",
@@ -42,7 +35,6 @@ async function stampaSegnalazioni() {
             colori[complesso]
         );
 
-        // INTESTAZIONI
         win.document.getElementById("title").innerText = "Report Segnalazioni";
         win.document.getElementById("subtitle").innerText =
             "Complesso: " + complesso.toUpperCase();
@@ -51,7 +43,6 @@ async function stampaSegnalazioni() {
 
         const tbody = win.document.querySelector("#reportTable tbody");
 
-        // COMPILAZIONE RIGHE
         snap.forEach(doc => {
             const r = doc.data();
 
@@ -74,7 +65,7 @@ async function stampaSegnalazioni() {
     };
 }
 
-/* PLACEHOLDER EXPORT FUTURI */
+/* ALTRE FUNZIONI */
 function exportPDF() { alert("PDF: funzione prevista."); }
 function exportExcel() { alert("Excel: funzione prevista."); }
 function exportCSV() { alert("CSV: funzione prevista."); }
