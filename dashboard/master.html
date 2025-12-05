@@ -12,8 +12,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE (FILE IN /dashboard/) -->
-<script src="firebase-config.js"></script>
+<!-- CONFIG FIREBASE (ROOT) -->
+<script src="../firebase-config.js"></script>
 
 <!-- MASTER LOGIC -->
 <script src="master-auth.js?v=10000" defer></script>
@@ -23,24 +23,29 @@
 
 <body onload="checkMasterLogin()">
 
+<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
 </header>
 
 <div class="panel glass">
 
+    <!-- ===========================
+         LINK APP & DASHBOARD
+    ============================ -->
     <section>
         <h2>Link App & Dashboard</h2>
-        <ul class="link-list">
-            <li><a href="guala.html" class="btn-link">🔵 Pannello Guala</a></li>
-            <li><a href="piobesi.html" class="btn-link">🟢 Pannello Piobesi</a></li>
-            <li><a href="particomuni.html" class="btn-link">🟡 Parti Comuni</a></li>
-            <li><a href="superadmin.html" class="btn-link">🔴 SuperAdmin</a></li>
-        </ul>
+
+        <!-- 🔥 CORREZIONE NECESSARIA (linkList richiesto da master.js) -->
+        <ul id="linkList"></ul>
     </section>
 
+    <!-- ===========================
+         INSTALLA APP
+    ============================ -->
     <section>
         <h2>📲 Installazione App</h2>
+
         <div class="install-box">
 
             <a class="btn-primary" href="https://ivo23975-art.github.io/segnalazioni-guala/installa-guala.html" target="_blank">
@@ -58,6 +63,9 @@
         </div>
     </section>
 
+    <!-- ===========================
+         STAMPA & ESPORTA
+    ============================ -->
     <section>
         <h2>🖨️ Stampa & Esporta Segnalazioni</h2>
 
@@ -84,6 +92,9 @@
         </div>
     </section>
 
+    <!-- ===========================
+         CREA UTENTE
+    ============================ -->
     <section>
         <h2>Crea nuovo utente App</h2>
         <label>Username</label>
@@ -96,6 +107,9 @@
         <button class="btn-secondary" onclick="generatePin()">Genera PIN Automatico</button>
     </section>
 
+    <!-- ===========================
+         UTENTI REGISTRATI
+    ============================ -->
     <section>
         <h2>Utenti App Registrati</h2>
         <table class="table" id="usersTable">
@@ -111,8 +125,12 @@
         </table>
     </section>
 
+    <!-- ===========================
+         LOG
+    ============================ -->
     <section>
         <h2>Registro attività MASTER</h2>
+
         <button class="btn-secondary" onclick="exportLog()">Scarica LOG</button>
 
         <table class="table" id="logTable">
@@ -126,6 +144,9 @@
         </table>
     </section>
 
+    <!-- ===========================
+         INFO
+    ============================ -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
@@ -136,9 +157,10 @@
 
 </div>
 
+<!-- LOGOUT -->
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
-<!-- EXPORT ENGINE (ROOT) — AGGIORNATO COME ORDINATO -->
+<!-- EXPORT ENGINE -->
 <script src="../export_new.js?v=1"></script>
 
 </body>
