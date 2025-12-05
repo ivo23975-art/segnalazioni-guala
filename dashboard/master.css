@@ -1,42 +1,85 @@
-/* MASTER CSS – versione aggiornata con monitor e storico visibili */
-
 /* ===========================================
-   STILI DI BASE
+   SFONDO PAGINA (IDENTICO AL LOGIN)
 =========================================== */
 body {
-    font-family: system-ui, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
+    font-family: system-ui, sans-serif;
+    background: url("../img/login-bg.jpg") center/cover no-repeat fixed;
+    color: #fff;
 }
 
+/* ===========================================
+   HEADER
+=========================================== */
 .header {
-    padding: 20px;
-    background: #ffffff;
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 25px 0;
 }
 
 .header-title {
-    margin: 0;
-    font-size: 1.8rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffcc66;
+}
+
+/* ===========================================
+   PANEL PRINCIPALE (GLASS + NERO)
+=========================================== */
+.panel {
+    width: 90%;
+    max-width: 950px;
+    margin: 20px auto 50px auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.8);
+}
+
+/* ===========================================
+   TITOLI SEZIONI
+=========================================== */
+h2 {
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: #ffdd88;
+    border-left: 5px solid #ffdd88;
+    padding-left: 10px;
+}
+
+/* ===========================================
+   LISTE LINK
+=========================================== */
+.link-list li {
+    list-style: none;
+    margin: 8px 0;
+}
+
+.link-list a {
+    color: #fff;
+    text-decoration: none;
     font-weight: bold;
 }
 
-.panel {
-    width: 90%;
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+.link-list a:hover {
+    text-decoration: underline;
 }
 
-h2 {
-    margin-top: 25px;
-    margin-bottom: 10px;
+/* ===========================================
+   INPUT E SELECT
+=========================================== */
+input, select {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid #666;
+    padding: 7px 10px;
+    border-radius: 6px;
+    outline: none;
+}
+
+input::placeholder {
+    color: #bbb;
 }
 
 /* ===========================================
@@ -45,27 +88,29 @@ h2 {
 .btn-primary,
 .btn-secondary,
 .btn-link {
-    display: inline-block;
     padding: 10px 15px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.95rem;
+    border-radius: 6px;
+    border: none;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .btn-primary {
     background: #007bff;
-    color: #fff;
+    color: white;
 }
 
 .btn-secondary {
     background: #666;
-    color: #fff;
+    color: white;
 }
 
-.btn-link {
-    background: #eaeaea;
-    color: #222;
+.btn-primary:hover {
+    background: #0060d1;
+}
+
+.btn-secondary:hover {
+    background: #555;
 }
 
 /* ===========================================
@@ -78,55 +123,55 @@ h2 {
 }
 
 .table th {
-    background: #333;
+    background: #222;
     color: #fff;
-    padding: 8px;
+    padding: 9px;
 }
 
 .table td {
-    border: 1px solid #ccc;
     padding: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
 }
 
 /* ===========================================
-   MONITOR – VISIBILITÀ NUMERI
+   MONITOR NUMERI (BIANCHI E VISIBILI)
 =========================================== */
 #monitorAttive,
 #monitorRisolte,
 #monitorTotali {
-    color: #000 !important;
+    color: #fff !important;
+    font-size: 2rem;
     font-weight: bold;
 }
 
 /* ===========================================
-   STORICO MASTER – VISIBILE
+   STORICO (TESTO BIANCO)
 =========================================== */
 #storicoList {
-    color: #000;
+    color: #fff;
     font-size: 0.95rem;
-    line-height: 1.4rem;
 }
 
 #storicoList p {
-    margin: 5px 0;
-    padding: 6px 8px;
-    background: #ffffff;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #444;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    padding: 8px;
 }
 
 /* ===========================================
-   LOGOUT BUTTON
+   LOGOUT
 =========================================== */
 .logout-bottom {
-    margin: 20px auto;
-    display: block;
-    width: 200px;
+    width: 180px;
+    margin: 40px auto;
     padding: 12px;
-    text-align: center;
     background: #ff4444;
     color: white;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
+    text-align: center;
+    display: block;
 }
