@@ -1,7 +1,6 @@
 /* =====================================
-   EXPORT ENGINE
-   Funziona con Firebase già inizializzato
-   (firebase-config.js NON SI TOCCA)
+   EXPORT ENGINE RISCRITTO
+   Compatibile con GitHub Pages
 ===================================== */
 
 /* ===== STAMPA ===== */
@@ -23,54 +22,42 @@ async function stampaSegnalazioni() {
 
     const snap = await q.get();
 
-    // apro pagina export.html nella root
-    const win = window.open("../export.html", "_blank");
-
-    win.onload = () => {
-
-        // colori tema
-        const colori = {
-            guala: "#007bff",
-            piobesi: "#00b454",
-            particomuni: "#ffcc00",
-            tutti: "#822bff"
-        };
-
-        win.document.documentElement.style.setProperty(
-            "--main-color",
-            colori[complesso]
-        );
-
-        // intestazioni
-        win.document.getElementById("title").innerText = "Report Segnalazioni";
-        win.document.getElementById("subtitle").innerText =
-            "Complesso: " + complesso.toUpperCase();
-        win.document.getElementById("date").innerText =
-            "Generato il: " + new Date().toLocaleString();
-
-        const tbody = win.document.querySelector("#reportTable tbody");
-
-        snap.forEach(doc => {
-            const r = doc.data();
-
-            const tr = win.document.createElement("tr");
-            tr.innerHTML = `
-                <td>${r.timestamp ? r.timestamp.toDate().toLocaleString() : ""}</td>
-                <td>${r.scala}</td>
-                <td>${r.piano}</td>
-                <td>${r.lato}</td>
-                <td>${r.nome}</td>
-                <td>${r.temperatura}</td>
-                <td>${r.tipo}</td>
-                <td>${r.descrizione}</td>
-                <td>${r.stato}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // stampa
-        setTimeout(() => win.print(), 400);
+    // colori tema
+    const colori = {
+        guala: "#007bff",
+        piobesi: "#00b454",
+        particomuni: "#ffcc00",
+        tutti: "#822bff"
     };
+
+    const rows = [];
+
+    snap.forEach(doc => {
+        const r = doc.data();
+        rows.push({
+            timestamp: r.timestamp ? r.timestamp.toDate().toLocaleString() : "",
+            scala: r.scala || "",
+            piano: r.piano || "",
+            lato: r.lato || "",
+            nome: r.nome || "",
+            temperatura: r.temperatura || "",
+            tipo: r.tipo || "",
+            descrizione: r.descrizione || "",
+            stato: r.stato || ""
+        });
+    });
+
+    // PREPARO PACCHETTO DATI PER EXPORT.HTML
+    const exportData = {
+        complesso,
+        colore: colori[complesso],
+        rows
+    };
+
+    localStorage.setItem("exportData", JSON.stringify(exportData));
+
+    // apro pagina export
+    window.open("../export.html", "_blank");
 }
 
 /* ===== ESPORTAZIONI FUTURE ===== */
