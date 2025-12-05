@@ -13,11 +13,11 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <!-- CONFIG FIREBASE -->
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js?v=20000"></script>
 
-<!-- MASTER LOGIC -->
-<script src="master-auth.js?v=10000" defer></script>
-<script src="master.js?v=10000" defer></script>
+<!-- MASTER LOGIC (VERSIONE ANTI-CACHE) -->
+<script src="master-auth.js?v=20000" defer></script>
+<script src="master.js?v=20000" defer></script>
 
 </head>
 
@@ -206,7 +206,7 @@
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
 <!-- ENGINE EXPORT -->
-<script src="../export_new.js?v=1"></script>
+<script src="../export_new.js?v=20000"></script>
 
 </body>
 </html>
