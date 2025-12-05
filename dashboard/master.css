@@ -7,12 +7,9 @@ body {
     font-family: system-ui, sans-serif;
     margin: 0;
     padding: 0;
-
-    /* SFONDO IN BASE64 */
-    background: url("data:image/png;base64,INCOPIAQUI_TUTTO_IL_TUO_BASE64") 
-                no-repeat center center fixed;
-    background-size: cover;
+    background: #f0f0f0;
 }
+
 .header {
     padding: 20px;
     background: #ffffff;
@@ -132,4 +129,4 @@ h2 {
     font-weight: bold;
     border-radius: 10px;
     cursor: pointer;
-}
+} mi puoi integrare questa immagine come sfono nel mio master.css?
