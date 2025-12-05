@@ -12,7 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE (CORRETTO) -->
+<!-- CONFIG FIREBASE (PERCORSO CORRETTO) -->
 <script src="firebase-config.js"></script>
 
 <!-- MASTER LOGIC -->
@@ -23,7 +23,6 @@
 
 <body onload="checkMasterLogin()">
 
-<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
 </header>
@@ -35,6 +34,8 @@
     ============================ -->
     <section>
         <h2>Link App & Dashboard</h2>
+
+        <!-- RICHIESTO DAL TUO master.js (NON È GRAFICA) -->
         <ul id="linkList"></ul>
     </section>
 
@@ -95,6 +96,7 @@
     ============================ -->
     <section>
         <h2>Crea nuovo utente App</h2>
+
         <label>Username</label>
         <input type="text" id="newUser">
 
@@ -155,7 +157,6 @@
 
 </div>
 
-<!-- LOGOUT -->
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
 <!-- EXPORT ENGINE -->
