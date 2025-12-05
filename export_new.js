@@ -1,16 +1,15 @@
 /* =====================================
-   ESPORTAZIONE — USA db GIÀ DEFINITO
+   EXPORT ENGINE
+   Funziona con Firebase già inizializzato
    (firebase-config.js NON SI TOCCA)
 ===================================== */
 
-/* ===== ESPORTA ===== */
+/* ===== STAMPA ===== */
 async function stampaSegnalazioni() {
 
-    // valori selezionati dal master
     const complesso = document.getElementById("exportComplesso").value;
     const tipo = document.getElementById("exportTipo").value;
 
-    // query iniziale
     let q = db.collection("segnalazioni");
 
     // filtro complesso
@@ -22,11 +21,10 @@ async function stampaSegnalazioni() {
     if (tipo === "attive") q = q.where("stato", "==", "attiva");
     if (tipo === "risolte") q = q.where("stato", "==", "risolta");
 
-    // recupero dati
     const snap = await q.get();
 
-    // apro la pagina di esportazione
-    const win = window.open("./export.html", "_blank");
+    // apro pagina export.html nella root
+    const win = window.open("../export.html", "_blank");
 
     win.onload = () => {
 
@@ -52,13 +50,12 @@ async function stampaSegnalazioni() {
 
         const tbody = win.document.querySelector("#reportTable tbody");
 
-        // popolamento tabella
         snap.forEach(doc => {
             const r = doc.data();
 
             const tr = win.document.createElement("tr");
             tr.innerHTML = `
-                <td>${r.timestamp?.toDate().toLocaleString() || ""}</td>
+                <td>${r.timestamp ? r.timestamp.toDate().toLocaleString() : ""}</td>
                 <td>${r.scala}</td>
                 <td>${r.piano}</td>
                 <td>${r.lato}</td>
@@ -71,12 +68,12 @@ async function stampaSegnalazioni() {
             tbody.appendChild(tr);
         });
 
-        // avvia stampa
+        // stampa
         setTimeout(() => win.print(), 400);
     };
 }
 
-/* ===== PLACEHOLDER PER FUTURE ESPORTAZIONI ===== */
+/* ===== ESPORTAZIONI FUTURE ===== */
 function exportPDF() { alert("PDF: funzione prevista."); }
 function exportExcel() { alert("Excel: funzione prevista."); }
 function exportCSV() { alert("CSV: funzione prevista."); }
