@@ -1,61 +1,59 @@
-/* ================
-   FIRESTORE INIT
-================ */
+/* INIT FIRESTORE */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* EXPORT ================================================= */
+/* Mappa colori per titolo */
+const colori = {
+    guala: "#007bff",
+    piobesi: "#00b454",
+    particomuni: "#ffcc00",
+    tutti: "#822bff"
+};
 
+const titoli = {
+    guala: "Complesso Guala",
+    piobesi: "Complesso Piobesi",
+    particomuni: "Parti Comuni",
+    tutti: "Tutti i Complessi"
+};
+
+/* FUNZIONE PRINCIPALE */
 async function exportReport(tipo) {
 
-    // TITOLO
-    const titolo = {
-        guala: "Complesso Guala",
-        piobesi: "Complesso Piobesi",
-        comune: "Parti Comuni",
-        completo: "Tutti i Complessi"
-    };
-
-    // COLORE
-    const colore = {
-        guala: "#007bff",   // blu
-        piobesi: "#00b454", // verde
-        comune: "#ffcc00",  // giallo
-        completo: "#822bff" // viola
-    };
-
-    // Query Firestore
     let query = db.collection("segnalazioni");
 
     if (tipo === "guala") query = query.where("complesso", "==", "guala");
     if (tipo === "piobesi") query = query.where("complesso", "==", "piobesi");
-    if (tipo === "comune") query = query.where("tipo", "==", "Parti comuni");
+    if (tipo === "particomuni") query = query.where("tipo", "==", "Parti comuni");
 
     const snap = await query.get();
 
-    // Apri nuova finestra invisibile
-    const win = window.open("export.html", "_blank");
+    /* Apri pagina di esportazione */
+    const win = window.open("../export.html", "_blank");
 
     win.onload = () => {
 
-        // Imposta colore tema
-        win.document.documentElement.style.setProperty("--color-main", colore[tipo]);
+        /* Colore del complesso */
+        win.document.documentElement.style.setProperty(
+            "--color-main",
+            colori[tipo]
+        );
 
-        // Titoli
+        /* Titoli */
         win.document.getElementById("export-title").innerText =
-            "Report Segnalazioni – " + titolo[tipo];
+            "Segnalazioni – " + titoli[tipo];
 
         win.document.getElementById("export-subtitle").innerText =
-            "Generato dal pannello MASTER";
+            "Documento generato dal pannello MASTER";
 
         win.document.getElementById("export-date").innerText =
             "Data generazione: " + new Date().toLocaleString();
 
-        // Tabella
+        /* Tabella */
         const tbody = win.document.querySelector("#exportTable tbody");
         tbody.innerHTML = "";
 
-        snap.docs.forEach(doc => {
+        snap.forEach(doc => {
             const r = doc.data();
             const tr = win.document.createElement("tr");
 
@@ -73,9 +71,9 @@ async function exportReport(tipo) {
             tbody.appendChild(tr);
         });
 
-        // Stampa automatica
+        /* Stampa automatica */
         setTimeout(() => {
             win.print();
-        }, 600);
+        }, 500);
     };
 }
