@@ -5,17 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
 
-<!-- CSS -->
 <link rel="stylesheet" href="master.css?v=10000">
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE (PERCORSO CORRETTO) -->
+<!-- CONFIG FIREBASE CORRETTO -->
 <script src="firebase-config.js"></script>
 
-<!-- MASTER LOGIC -->
 <script src="master-auth.js?v=10000" defer></script>
 <script src="master.js?v=10000" defer></script>
 
@@ -35,8 +32,16 @@
     <section>
         <h2>Link App & Dashboard</h2>
 
-        <!-- RICHIESTO DAL TUO master.js (NON È GRAFICA) -->
-        <ul id="linkList"></ul>
+        <!-- 🔥 RIPRISTINO TUA GRAFICA ORIGINALE -->
+        <ul class="link-list">
+            <li><span style="color:#0094ff">●</span> Pannello Guala</li>
+            <li><span style="color:#00b454">●</span> Pannello Piobesi</li>
+            <li><span style="color:#ffcc00">●</span> Parti Comuni</li>
+            <li><span style="color:#ff4444">●</span> SuperAdmin</li>
+        </ul>
+
+        <!-- 🔥 NECESSARIO PER master.js — INVISIBILE, ZERO IMPATTO -->
+        <ul id="linkList" style="display:none;"></ul>
     </section>
 
     <!-- ===========================
@@ -144,9 +149,6 @@
         </table>
     </section>
 
-    <!-- ===========================
-         INFO
-    ============================ -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
