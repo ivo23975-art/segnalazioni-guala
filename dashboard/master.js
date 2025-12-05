@@ -2,7 +2,7 @@
  * ACCESSO MASTER
  ******************************************************/
 const MASTER_USER = "master";
-const MASTER_PIN = "280113";
+const MASTER_PIN = "482915";   // PIN CORRETTO
 
 /* LOGIN */
 function loginMaster() {
@@ -12,7 +12,7 @@ function loginMaster() {
 
     if (u === MASTER_USER && p === MASTER_PIN) {
         localStorage.setItem("MASTER_LOGGED", "YES");
-        addToStorico("Accesso MASTER");
+        addToStorico("Accesso MASTER effettuato");
         window.location.href = "master.html";
     } else {
         err.textContent = "Credenziali errate.";
@@ -29,8 +29,8 @@ function checkMasterLogin() {
     loadUsers();
     loadLinks();
     loadLog();
-    loadMonitor();     // <-- MONITOR
-    loadStorico();     // <-- STORICO
+    loadMonitor();
+    loadStorico();
 }
 
 /* LOGOUT */
@@ -128,10 +128,9 @@ function loadUsers() {
 }
 
 /******************************************************
- * LINK AUTOAGGIORNANTI – versione sicura
+ * LINK AUTOAGGIORNANTI
  ******************************************************/
 function loadLinks() {
-
     const ul = document.getElementById("linkList");
     if (!ul) return;
 
