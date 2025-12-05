@@ -28,11 +28,52 @@
             <th>Stato</th>
         </tr>
     </thead>
-
-    <tbody>
-        <!-- le righe verranno inserite da export_new.js -->
-    </tbody>
+    <tbody></tbody>
 </table>
+
+<script>
+/* ===== LETTURA DATI DA LOCALSTORAGE ===== */
+
+const json = localStorage.getItem("exportData");
+if (!json) {
+    alert("Errore: nessun dato ricevuto.");
+} else {
+    const data = JSON.parse(json);
+
+    // intestazioni
+    document.getElementById("subtitle").innerText =
+        "Complesso: " + data.complesso.toUpperCase();
+
+    document.getElementById("date").innerText =
+        "Generato il: " + new Date().toLocaleString();
+
+    document.documentElement.style.setProperty(
+        "--main-color",
+        data.colore
+    );
+
+    const tbody = document.querySelector("#reportTable tbody");
+
+    data.rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${r.timestamp}</td>
+            <td>${r.scala}</td>
+            <td>${r.piano}</td>
+            <td>${r.lato}</td>
+            <td>${r.nome}</td>
+            <td>${r.temperatura}</td>
+            <td>${r.tipo}</td>
+            <td>${r.descrizione}</td>
+            <td>${r.stato}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // stampa ritardata per sicurezza
+    setTimeout(() => window.print(), 400);
+}
+</script>
 
 </body>
 </html>
