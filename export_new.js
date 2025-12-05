@@ -1,7 +1,22 @@
 /* =====================================
-   EXPORT ENGINE RISCRITTO
-   Compatibile con GitHub Pages
+   EXPORT ENGINE COMPLETO
+   Stampa + PDF + XLSX + CSV
 ===================================== */
+
+/* ===== LIBRERIE PER PDF & EXCEL ===== */
+const jsPDFUrl = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+const autoTableUrl = "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js";
+const sheetJSUrl = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+
+/* Carica script da URL */
+function loadScript(url) {
+    return new Promise(resolve => {
+        const s = document.createElement("script");
+        s.src = url;
+        s.onload = resolve;
+        document.body.appendChild(s);
+    });
+}
 
 /* ===== STAMPA ===== */
 async function stampaSegnalazioni() {
@@ -47,7 +62,7 @@ async function stampaSegnalazioni() {
         });
     });
 
-    // PREPARO PACCHETTO DATI PER EXPORT.HTML
+    // PREPARO PACCHETTO DATI
     const exportData = {
         complesso,
         colore: colori[complesso],
@@ -56,11 +71,99 @@ async function stampaSegnalazioni() {
 
     localStorage.setItem("exportData", JSON.stringify(exportData));
 
-    // apro pagina export
+    // APRE export.html
     window.open("../export.html", "_blank");
 }
 
-/* ===== ESPORTAZIONI FUTURE ===== */
-function exportPDF() { alert("PDF: funzione prevista."); }
-function exportExcel() { alert("Excel: funzione prevista."); }
-function exportCSV() { alert("CSV: funzione prevista."); }
+/* =====================================================
+   EXPORT PDF — jsPDF + autoTable
+===================================================== */
+async function exportPDF() {
+
+    await loadScript(jsPDFUrl);
+    await loadScript(autoTableUrl);
+
+    const json = localStorage.getItem("exportData");
+    if (!json) return alert("Genera prima una stampa.");
+
+    const data = JSON.parse(json);
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    doc.setFontSize(18);
+    doc.text("Report Segnalazioni", 40, 40);
+
+    doc.setFontSize(12);
+    doc.text(`Complesso: ${data.complesso.toUpperCase()}`, 40, 60);
+    doc.text(`Generato il: ${new Date().toLocaleString()}`, 40, 80);
+
+    const tableData = data.rows.map(r => [
+        r.timestamp, r.scala, r.piano, r.lato, r.nome,
+        r.temperatura, r.tipo, r.descrizione, r.stato
+    ]);
+
+    doc.autoTable({
+        head: [[
+            "Data", "Scala", "Piano", "Lato", "Nome",
+            "Temp", "Tipo", "Descrizione", "Stato"
+        ]],
+        body: tableData,
+        startY: 110,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: data.colore || "#000" }
+    });
+
+    doc.save("segnalazioni.pdf");
+}
+
+/* =====================================================
+   EXPORT EXCEL — SheetJS (XLSX)
+===================================================== */
+async function exportExcel() {
+
+    await loadScript(sheetJSUrl);
+
+    const json = localStorage.getItem("exportData");
+    if (!json) return alert("Genera prima una stampa.");
+
+    const data = JSON.parse(json);
+
+    const sheetData = [
+        ["Data", "Scala", "Piano", "Lato", "Nome", "Temp", "Tipo", "Descrizione", "Stato"],
+        ...data.rows.map(r => [
+            r.timestamp, r.scala, r.piano, r.lato, r.nome,
+            r.temperatura, r.tipo, r.descrizione, r.stato
+        ])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Segnalazioni");
+
+    XLSX.writeFile(wb, "segnalazioni.xlsx");
+}
+
+/* =====================================================
+   EXPORT CSV
+===================================================== */
+function exportCSV() {
+    const json = localStorage.getItem("exportData");
+    if (!json) return alert("Genera prima una stampa.");
+
+    const data = JSON.parse(json);
+
+    let csv = "Data;Scala;Piano;Lato;Nome;Temp;Tipo;Descrizione;Stato\n";
+
+    data.rows.forEach(r => {
+        csv += `${r.timestamp};${r.scala};${r.piano};${r.lato};${r.nome};${r.temperatura};${r.tipo};${r.descrizione};${r.stato}\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "segnalazioni.csv";
+    a.click();
+}
