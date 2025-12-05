@@ -12,6 +12,7 @@ function loginMaster() {
 
     if (u === MASTER_USER && p === MASTER_PIN) {
         localStorage.setItem("MASTER_LOGGED", "YES");
+        addToStorico("Accesso MASTER");
         window.location.href = "master.html";
     } else {
         err.textContent = "Credenziali errate.";
@@ -28,10 +29,13 @@ function checkMasterLogin() {
     loadUsers();
     loadLinks();
     loadLog();
+    loadMonitor();     // <-- MONITOR
+    loadStorico();     // <-- STORICO
 }
 
 /* LOGOUT */
 function logoutMaster() {
+    addToStorico("Logout MASTER");
     localStorage.removeItem("MASTER_LOGGED");
     window.location.href = "master-login.html";
 }
@@ -62,6 +66,8 @@ function createUser() {
     saveUsers(users);
 
     log(`Creato utente: ${user}`);
+    addToStorico(`Creato nuovo utente: ${user}`);
+
     loadUsers();
 }
 
@@ -78,6 +84,8 @@ function toggleUser(username) {
     saveUsers(users);
 
     log(`Modificato stato utente: ${username}`);
+    addToStorico(`Modificato stato utente: ${username}`);
+
     loadUsers();
 }
 
@@ -90,6 +98,8 @@ function deleteUser(username) {
     saveUsers(users);
 
     log(`Rimosso utente: ${username}`);
+    addToStorico(`Rimosso utente: ${username}`);
+
     loadUsers();
 }
 
@@ -122,9 +132,8 @@ function loadUsers() {
  ******************************************************/
 function loadLinks() {
 
-    // Se il blocco link NON è presente nel master, non fare nulla
     const ul = document.getElementById("linkList");
-    if (!ul) return; // <-- Questa è la fix che evita il crash
+    if (!ul) return;
 
     const base = "https://ivo23975-art.github.io/segnalazioni-guala/";
 
@@ -185,5 +194,68 @@ function exportLog() {
     const a = document.createElement("a");
     a.href = url;
     a.download = "master-log.json";
+    a.click();
+}
+
+/******************************************************
+ * MONITOR SEGNALAZIONI
+ ******************************************************/
+async function loadMonitor() {
+    try {
+        const snap = await db.collection("segnalazioni").get();
+
+        let attive = 0;
+        let risolte = 0;
+
+        snap.forEach(doc => {
+            const s = doc.data().stato;
+            if (s === "attiva") attive++;
+            if (s === "risolta") risolte++;
+        });
+
+        const totali = attive + risolte;
+
+        document.getElementById("monitorAttive").textContent = attive;
+        document.getElementById("monitorRisolte").textContent = risolte;
+        document.getElementById("monitorTotali").textContent = totali;
+
+    } catch (err) {
+        console.error("Errore monitor:", err);
+    }
+}
+
+/******************************************************
+ * STORICO LOCALE
+ ******************************************************/
+function addToStorico(azione) {
+    const storico = JSON.parse(localStorage.getItem("MASTER_STORICO")) || [];
+    storico.push({
+        time: new Date().toLocaleString(),
+        action: azione
+    });
+    localStorage.setItem("MASTER_STORICO", JSON.stringify(storico));
+}
+
+function loadStorico() {
+    const div = document.getElementById("storicoList");
+    if (!div) return;
+
+    const storico = JSON.parse(localStorage.getItem("MASTER_STORICO")) || [];
+
+    div.innerHTML = storico
+        .slice().reverse()
+        .map(s => `<p><strong>${s.time}:</strong> ${s.action}</p>`)
+        .join("");
+}
+
+function exportStorico() {
+    const storico = localStorage.getItem("MASTER_STORICO") || "[]";
+
+    const blob = new Blob([storico], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "storico-master.json";
     a.click();
 }
