@@ -12,8 +12,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE (ROOT) — PERCORSO CORRETTO -->
-<script src="../firebase-config.js?v=1"></script>
+<!-- CONFIG FIREBASE – PERCORSO ASSOLUTO CORRETTO -->
+<script src="https://ivo23975-art.github.io/segnalazioni-guala/firebase-config.js?v=1"></script>
 
 <!-- MASTER LOGIC -->
 <script src="master-auth.js?v=10000" defer></script>
@@ -23,16 +23,12 @@
 
 <body onload="checkMasterLogin()">
 
-<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
 </header>
 
 <div class="panel glass">
 
-    <!-- ===========================
-         LINK APP & DASHBOARD
-    ============================ -->
     <section>
         <h2>Link App & Dashboard</h2>
         <ul class="link-list">
@@ -43,9 +39,6 @@
         </ul>
     </section>
 
-    <!-- ===========================
-         INSTALLA APP
-    ============================ -->
     <section>
         <h2>📲 Installazione App</h2>
 
@@ -66,9 +59,6 @@
         </div>
     </section>
 
-    <!-- ===========================
-         STAMPA & ESPORTA
-    ============================ -->
     <section>
         <h2>🖨️ Stampa & Esporta Segnalazioni</h2>
 
@@ -95,9 +85,6 @@
         </div>
     </section>
 
-    <!-- ===========================
-         CREA UTENTE
-    ============================ -->
     <section>
         <h2>Crea nuovo utente App</h2>
         <label>Username</label>
@@ -110,9 +97,6 @@
         <button class="btn-secondary" onclick="generatePin()">Genera PIN Automatico</button>
     </section>
 
-    <!-- ===========================
-         UTENTI REGISTRATI
-    ============================ -->
     <section>
         <h2>Utenti App Registrati</h2>
         <table class="table" id="usersTable">
@@ -128,9 +112,6 @@
         </table>
     </section>
 
-    <!-- ===========================
-         LOG
-    ============================ -->
     <section>
         <h2>Registro attività MASTER</h2>
 
@@ -147,9 +128,6 @@
         </table>
     </section>
 
-    <!-- ===========================
-         INFO
-    ============================ -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
@@ -160,10 +138,8 @@
 
 </div>
 
-<!-- LOGOUT -->
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
-<!-- EXPORT ENGINE -->
 <script src="../export_new.js?v=1"></script>
 
 </body>
