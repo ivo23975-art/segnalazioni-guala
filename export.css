@@ -1,40 +1,44 @@
+:root {
+    --color-main: #007bff;
+}
+
 body {
     font-family: system-ui, sans-serif;
     background: white;
     color: #222;
-    padding: 20px;
+    padding: 25px;
 }
 
 #export-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
 }
 
 #export-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 900;
     margin: 0;
     color: var(--color-main);
 }
 
 #export-subtitle {
-    font-size: 1.3rem;
-    margin-top: 5px;
+    font-size: 1.2rem;
+    margin-top: 4px;
     font-weight: 600;
-    color: #555;
+    color: #666;
 }
 
 #export-date {
     margin-top: 10px;
-    color: #777;
     font-size: 0.9rem;
+    color: #777;
 }
 
 .export-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-    margin-top: 20px;
+    font-size: 0.95rem;
+    margin-top: 25px;
 }
 
 .export-table th {
@@ -45,10 +49,10 @@ body {
 }
 
 .export-table td {
-    padding: 6px;
+    padding: 7px;
     border: 1px solid #ccc;
 }
 
 .export-table tr:nth-child(even) {
-    background: #f7f7f7;
+    background: #f6f6f6;
 }
