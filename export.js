@@ -1,8 +1,10 @@
-/* INIT FIREBASE */
+/* INIZIALIZZAZIONE FIREBASE */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* ===== ESPORTA ===== */
+/* =====================================
+   FUNZIONE PRINCIPALE DI ESPORTAZIONE
+===================================== */
 async function stampaSegnalazioni() {
 
     const complesso = document.getElementById("exportComplesso").value;
@@ -10,19 +12,23 @@ async function stampaSegnalazioni() {
 
     let q = db.collection("segnalazioni");
 
+    // FILTRO COMPLESSO
     if (complesso === "guala") q = q.where("complesso", "==", "guala");
     if (complesso === "piobesi") q = q.where("complesso", "==", "piobesi");
     if (complesso === "particomuni") q = q.where("tipo", "==", "Parti comuni");
 
+    // FILTRO STATO
     if (tipo === "attive") q = q.where("stato", "==", "attiva");
     if (tipo === "risolte") q = q.where("stato", "==", "risolta");
 
     const snap = await q.get();
 
+    // APERTURA DEL TEMPLATE DI ESPORTAZIONE
     const win = window.open("./export.html", "_blank");
 
     win.onload = () => {
 
+        // COLORI TEMA
         const colori = {
             guala: "#007bff",
             piobesi: "#00b454",
@@ -35,6 +41,7 @@ async function stampaSegnalazioni() {
             colori[complesso]
         );
 
+        // INTESTAZIONI
         win.document.getElementById("title").innerText = "Report Segnalazioni";
         win.document.getElementById("subtitle").innerText =
             "Complesso: " + complesso.toUpperCase();
@@ -43,6 +50,7 @@ async function stampaSegnalazioni() {
 
         const tbody = win.document.querySelector("#reportTable tbody");
 
+        // POPOLAMENTO RIGHE
         snap.forEach(doc => {
             const r = doc.data();
 
@@ -61,11 +69,14 @@ async function stampaSegnalazioni() {
             tbody.appendChild(tr);
         });
 
+        // AVVIO STAMPA
         setTimeout(() => win.print(), 400);
     };
 }
 
-/* ALTRE FUNZIONI */
+/* =====================================
+   SEGNAPOSTO PER ESPORTAZIONI FUTURE
+===================================== */
 function exportPDF() { alert("PDF: funzione prevista."); }
 function exportExcel() { alert("Excel: funzione prevista."); }
 function exportCSV() { alert("CSV: funzione prevista."); }
