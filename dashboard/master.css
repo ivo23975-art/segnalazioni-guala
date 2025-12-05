@@ -89,62 +89,30 @@ h2 {
 }
 
 /* ===========================================
-   MONITOR – VISIBILITÀ NUMERI + MIGLIORIE
+   MONITOR – VISIBILITÀ NUMERI
 =========================================== */
 #monitorAttive,
 #monitorRisolte,
 #monitorTotali {
     color: #000 !important;
     font-weight: bold;
-    transition: all 0.3s ease-in-out;
-}
-
-/* Animazione ingresso numeri */
-@keyframes popIn {
-    0% { transform: scale(0.7); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.monitor-box div {
-    animation: popIn 0.4s ease forwards;
-}
-
-/* Rafforzamento bordi monitor */
-.monitor-box {
-    border-width: 4px !important;
 }
 
 /* ===========================================
-   STORICO MASTER – VISIBILE + MIGLIORIE
+   STORICO MASTER – VISIBILE
 =========================================== */
 #storicoList {
     color: #000;
     font-size: 0.95rem;
-    line-height: 1.45rem;
+    line-height: 1.4rem;
 }
 
 #storicoList p {
     margin: 5px 0;
-    padding: 8px 10px;
+    padding: 6px 8px;
     background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    transition: background 0.2s;
-}
-
-#storicoList p:hover {
-    background: #f2f2f2;
-}
-
-/* Pulsante Svuota Storico (JS sarà aggiunto dopo) */
-.btn-clear-storico {
-    background: #d9534f;
-    color: white;
-    padding: 8px 12px;
     border-radius: 6px;
-    cursor: pointer;
-    margin-top: 6px;
+    border: 1px solid #ddd;
 }
 
 /* ===========================================
