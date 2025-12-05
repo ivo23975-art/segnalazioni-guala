@@ -7,9 +7,15 @@ body {
     font-family: system-ui, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
+
+    /* SFONDO COSMICO INTEGRATO */
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgAAAAQACAIAAACoEwUVAAEQamNhQlgAARBqanV...IAAAKoAOJtxA3VybjpjMnBhOjA0Y2VjYmY5LWI4YjItNDgxNy05YzNhLTM3ZTMz") no-repeat center center fixed;
+    background-size: cover;
 }
 
+/* ===========================================
+   HEADER
+=========================================== */
 .header {
     padding: 20px;
     background: #ffffff;
@@ -23,6 +29,9 @@ body {
     font-weight: bold;
 }
 
+/* ===========================================
+   PANEL
+=========================================== */
 .panel {
     width: 90%;
     max-width: 900px;
