@@ -8,11 +8,11 @@ body {
     margin: 0;
     padding: 0;
 
-    /* SFONDO CON L’IMMAGINE FORNITA */
-    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgAAAAQACAIAAACoEwUVAAFI..." ) no-repeat center center fixed;
+    /* SFONDO IN BASE64 */
+    background: url("data:image/png;base64,INCOPIAQUI_TUTTO_IL_TUO_BASE64") 
+                no-repeat center center fixed;
     background-size: cover;
 }
-
 .header {
     padding: 20px;
     background: #ffffff;
