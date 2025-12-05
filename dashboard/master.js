@@ -118,9 +118,14 @@ function loadUsers() {
 }
 
 /******************************************************
- * LINK AUTOAGGIORNANTI
+ * LINK AUTOAGGIORNANTI – versione sicura
  ******************************************************/
 function loadLinks() {
+
+    // Se il blocco link NON è presente nel master, non fare nulla
+    const ul = document.getElementById("linkList");
+    if (!ul) return; // <-- Questa è la fix che evita il crash
+
     const base = "https://ivo23975-art.github.io/segnalazioni-guala/";
 
     const links = [
@@ -130,7 +135,6 @@ function loadLinks() {
         { name: "Pannello MASTER", url: base + "dashboard/master.html" }
     ];
 
-    const ul = document.getElementById("linkList");
     ul.innerHTML = "";
 
     links.forEach(link => {
