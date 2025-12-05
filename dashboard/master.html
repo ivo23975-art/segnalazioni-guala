@@ -15,7 +15,7 @@
 <!-- CONFIG FIREBASE (ROOT) -->
 <script src="../firebase-config.js"></script>
 
-<!-- MASTER LOGIC (CARTELLA /dash/) -->
+<!-- MASTER LOGIC -->
 <script src="master-auth.js?v=10000" defer></script>
 <script src="master.js?v=10000" defer></script>
 
@@ -23,16 +23,12 @@
 
 <body onload="checkMasterLogin()">
 
-<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
 </header>
 
 <div class="panel glass">
 
-    <!-- ===========================
-         LINK APP & DASHBOARD
-    ============================ -->
     <section>
         <h2>Link App & Dashboard</h2>
         <ul class="link-list">
@@ -43,32 +39,21 @@
         </ul>
     </section>
 
-    <!-- ===========================
-         INSTALLA APP
-    ============================ -->
     <section>
         <h2>📲 Installazione App</h2>
-
         <div class="install-box">
-
             <a class="btn-primary" href="https://ivo23975-art.github.io/segnalazioni-guala/installa-guala.html" target="_blank">
                 🔵 Installa App Guala
             </a>
-
             <a class="btn-primary" href="https://ivo23975-art.github.io/segnalazioni-guala/installa-piobesi.html" target="_blank">
                 🟢 Installa App Piobesi
             </a>
-
             <a class="btn-primary" href="https://ivo23975-art.github.io/segnalazioni-guala/installa-completo.html" target="_blank">
                 🟣 Installa App Completa
             </a>
-
         </div>
     </section>
 
-    <!-- ===========================
-         STAMPA & ESPORTA
-    ============================ -->
     <section>
         <h2>🖨️ Stampa & Esporta Segnalazioni</h2>
 
@@ -95,9 +80,6 @@
         </div>
     </section>
 
-    <!-- ===========================
-         CREA UTENTE
-    ============================ -->
     <section>
         <h2>Crea nuovo utente App</h2>
         <label>Username</label>
@@ -110,9 +92,6 @@
         <button class="btn-secondary" onclick="generatePin()">Genera PIN Automatico</button>
     </section>
 
-    <!-- ===========================
-         UTENTI REGISTRATI
-    ============================ -->
     <section>
         <h2>Utenti App Registrati</h2>
         <table class="table" id="usersTable">
@@ -128,12 +107,8 @@
         </table>
     </section>
 
-    <!-- ===========================
-         LOG
-    ============================ -->
     <section>
         <h2>Registro attività MASTER</h2>
-
         <button class="btn-secondary" onclick="exportLog()">Scarica LOG</button>
 
         <table class="table" id="logTable">
@@ -147,24 +122,12 @@
         </table>
     </section>
 
-    <!-- ===========================
-         INFO
-    ============================ -->
-    <section>
-        <h2>LEGGIMI</h2>
-        <p>
-            Questo pannello controlla utenti, accessi e struttura dell'app.<br>
-            Tutte le operazioni vengono registrate automaticamente nel LOG.
-        </p>
-    </section>
-
 </div>
 
-<!-- LOGOUT -->
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
-<!-- EXPORT ENGINE (ROOT) — *** CORRETTO CON DEFER *** -->
-<script src="../export.js?v=1" defer></script>
+<!-- EXPORT ENGINE — CORRETTO -->
+<script src="../export.js?v=1"></script>
 
 </body>
 </html>
