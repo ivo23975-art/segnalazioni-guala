@@ -1,34 +1,36 @@
-/* INIZIALIZZAZIONE FIREBASE */
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 /* =====================================
-   FUNZIONE PRINCIPALE DI ESPORTAZIONE
+   ESPORTAZIONE — USA db GIÀ DEFINITO
+   (firebase-config.js NON SI TOCCA)
 ===================================== */
+
+/* ===== ESPORTA ===== */
 async function stampaSegnalazioni() {
 
+    // valori selezionati dal master
     const complesso = document.getElementById("exportComplesso").value;
     const tipo = document.getElementById("exportTipo").value;
 
+    // query iniziale
     let q = db.collection("segnalazioni");
 
-    // FILTRO COMPLESSO
+    // filtro complesso
     if (complesso === "guala") q = q.where("complesso", "==", "guala");
     if (complesso === "piobesi") q = q.where("complesso", "==", "piobesi");
     if (complesso === "particomuni") q = q.where("tipo", "==", "Parti comuni");
 
-    // FILTRO STATO
+    // filtro stato
     if (tipo === "attive") q = q.where("stato", "==", "attiva");
     if (tipo === "risolte") q = q.where("stato", "==", "risolta");
 
+    // recupero dati
     const snap = await q.get();
 
-    // APERTURA DEL TEMPLATE DI ESPORTAZIONE
+    // apro la pagina di esportazione
     const win = window.open("./export.html", "_blank");
 
     win.onload = () => {
 
-        // COLORI TEMA
+        // colori tema
         const colori = {
             guala: "#007bff",
             piobesi: "#00b454",
@@ -41,7 +43,7 @@ async function stampaSegnalazioni() {
             colori[complesso]
         );
 
-        // INTESTAZIONI
+        // intestazioni
         win.document.getElementById("title").innerText = "Report Segnalazioni";
         win.document.getElementById("subtitle").innerText =
             "Complesso: " + complesso.toUpperCase();
@@ -50,7 +52,7 @@ async function stampaSegnalazioni() {
 
         const tbody = win.document.querySelector("#reportTable tbody");
 
-        // POPOLAMENTO RIGHE
+        // popolamento tabella
         snap.forEach(doc => {
             const r = doc.data();
 
@@ -69,14 +71,12 @@ async function stampaSegnalazioni() {
             tbody.appendChild(tr);
         });
 
-        // AVVIO STAMPA
+        // avvia stampa
         setTimeout(() => win.print(), 400);
     };
 }
 
-/* =====================================
-   SEGNAPOSTO PER ESPORTAZIONI FUTURE
-===================================== */
+/* ===== PLACEHOLDER PER FUTURE ESPORTAZIONI ===== */
 function exportPDF() { alert("PDF: funzione prevista."); }
 function exportExcel() { alert("Excel: funzione prevista."); }
 function exportCSV() { alert("CSV: funzione prevista."); }
