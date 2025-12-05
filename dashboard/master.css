@@ -94,8 +94,9 @@ h2 {
 #monitorAttive,
 #monitorRisolte,
 #monitorTotali {
-    color: #000 !important;
+    color: #000 !important;   /* testo nero per visibilità */
     font-weight: bold;
+    text-shadow: 0 0 3px rgba(255,255,255,0.6); /* migliora leggibilità senza alterare grafica */
 }
 
 /* ===========================================
@@ -113,6 +114,8 @@ h2 {
     background: #ffffff;
     border-radius: 6px;
     border: 1px solid #ddd;
+    color: #000; /* testo visibile */
+    text-shadow: none;
 }
 
 /* ===========================================
