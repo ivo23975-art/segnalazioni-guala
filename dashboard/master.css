@@ -1,119 +1,75 @@
-/* ===========================================
-   SFONDO PAGINA
-=========================================== */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, sans-serif;
-    background: url("../img/login-bg.jpg") center/cover no-repeat fixed;
-    color: #fff;
-}
+/* MASTER CSS – versione aggiornata con monitor e storico visibili */
 
 /* ===========================================
-   HEADER
+   STILI DI BASE
 =========================================== */
+body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f0f0;
+}
+
 .header {
+    padding: 20px;
+    background: #ffffff;
     text-align: center;
-    padding: 25px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .header-title {
-    font-size: 2rem;
+    margin: 0;
+    font-size: 1.8rem;
     font-weight: bold;
-    color: #ffcc66;
 }
 
-/* ===========================================
-   PANEL PRINCIPALE (GLASS)
-=========================================== */
 .panel {
     width: 90%;
-    max-width: 950px;
-    margin: 20px auto 50px auto;
-    padding: 30px;
-    background: rgba(0,0,0,0.65);
-    border-radius: 18px;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
     backdrop-filter: blur(10px);
-    box-shadow: 0 6px 25px rgba(0,0,0,0.8);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
 
-/* ===========================================
-   TITOLI SEZIONI
-=========================================== */
 h2 {
-    margin-top: 28px;
-    margin-bottom: 12px;
-    color: #ffdd88;
-    border-left: 5px solid #ffdd88;
-    padding-left: 10px;
-}
-
-/* ===========================================
-   LISTE LINK
-=========================================== */
-.link-list li {
-    list-style: none;
-    margin: 8px 0;
-}
-
-.link-list a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.link-list a:hover {
-    text-decoration: underline;
-}
-
-/* ===========================================
-   INPUT E SELECT
-=========================================== */
-input, select {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: 1px solid #666;
-    padding: 7px 10px;
-    border-radius: 6px;
-    outline: none;
-}
-
-input::placeholder {
-    color: #bbb;
+    margin-top: 25px;
+    margin-bottom: 10px;
 }
 
 /* ===========================================
    BOTTONI
 =========================================== */
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-link {
+    display: inline-block;
     padding: 10px 15px;
-    border-radius: 6px;
-    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
     cursor: pointer;
-    font-weight: bold;
 }
 
 .btn-primary {
     background: #007bff;
-    color: white;
+    color: #fff;
 }
 
 .btn-secondary {
     background: #666;
-    color: white;
+    color: #fff;
 }
 
-.btn-primary:hover {
-    background: #0060d1;
-}
-
-.btn-secondary:hover {
-    background: #555;
+.btn-link {
+    background: #eaeaea;
+    color: #222;
 }
 
 /* ===========================================
-   TABELLE STILE ORIGINALE
+   TABELLE
 =========================================== */
 .table {
     width: 100%;
@@ -122,55 +78,55 @@ input::placeholder {
 }
 
 .table th {
-    background: #222;
+    background: #333;
     color: #fff;
-    padding: 9px;
+    padding: 8px;
 }
 
 .table td {
+    border: 1px solid #ccc;
     padding: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid #333;
 }
 
 /* ===========================================
-   MONITOR NUMERI (visibili!)
+   MONITOR – VISIBILITÀ NUMERI
 =========================================== */
 #monitorAttive,
 #monitorRisolte,
 #monitorTotali {
-    color: #fff !important;
-    font-size: 2rem;
+    color: #000 !important;
     font-weight: bold;
 }
 
 /* ===========================================
-   STORICO (TESTO BIANCO)
+   STORICO MASTER – VISIBILE
 =========================================== */
 #storicoList {
-    color: #fff;
+    color: #000;
     font-size: 0.95rem;
+    line-height: 1.4rem;
 }
 
 #storicoList p {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid #444;
+    margin: 5px 0;
+    padding: 6px 8px;
+    background: #ffffff;
     border-radius: 6px;
-    padding: 8px;
+    border: 1px solid #ddd;
 }
 
 /* ===========================================
-   LOGOUT
+   LOGOUT BUTTON
 =========================================== */
 .logout-bottom {
-    width: 180px;
-    margin: 40px auto;
+    margin: 20px auto;
+    display: block;
+    width: 200px;
     padding: 12px;
+    text-align: center;
     background: #ff4444;
     color: white;
     font-weight: bold;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    text-align: center;
-    display: block;
-}
+}                   prova a vedere sè p questo 
