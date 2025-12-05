@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER – Pannello di Controllo</title>
 
+<!-- CSS -->
 <link rel="stylesheet" href="master.css?v=10000">
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE CORRETTO -->
-<script src="firebase-config.js"></script>
+<!-- CONFIG FIREBASE (ROOT) -->
+<script src="../firebase-config.js"></script>
 
+<!-- MASTER LOGIC (CARTELLA /dash/) -->
 <script src="master-auth.js?v=10000" defer></script>
 <script src="master.js?v=10000" defer></script>
 
@@ -20,6 +23,7 @@
 
 <body onload="checkMasterLogin()">
 
+<!-- HEADER -->
 <header class="header">
     <h1 class="header-title">MASTER – Gestione Utenti & Struttura</h1>
 </header>
@@ -31,17 +35,12 @@
     ============================ -->
     <section>
         <h2>Link App & Dashboard</h2>
-
-        <!-- 🔥 RIPRISTINO TUA GRAFICA ORIGINALE -->
         <ul class="link-list">
-            <li><span style="color:#0094ff">●</span> Pannello Guala</li>
-            <li><span style="color:#00b454">●</span> Pannello Piobesi</li>
-            <li><span style="color:#ffcc00">●</span> Parti Comuni</li>
-            <li><span style="color:#ff4444">●</span> SuperAdmin</li>
+            <li><a href="guala.html" class="btn-link">🔵 Pannello Guala</a></li>
+            <li><a href="piobesi.html" class="btn-link">🟢 Pannello Piobesi</a></li>
+            <li><a href="particomuni.html" class="btn-link">🟡 Parti Comuni</a></li>
+            <li><a href="superadmin.html" class="btn-link">🔴 SuperAdmin</a></li>
         </ul>
-
-        <!-- 🔥 NECESSARIO PER master.js — INVISIBILE, ZERO IMPATTO -->
-        <ul id="linkList" style="display:none;"></ul>
     </section>
 
     <!-- ===========================
@@ -101,7 +100,6 @@
     ============================ -->
     <section>
         <h2>Crea nuovo utente App</h2>
-
         <label>Username</label>
         <input type="text" id="newUser">
 
@@ -149,6 +147,9 @@
         </table>
     </section>
 
+    <!-- ===========================
+         INFO
+    ============================ -->
     <section>
         <h2>LEGGIMI</h2>
         <p>
@@ -159,9 +160,10 @@
 
 </div>
 
+<!-- LOGOUT -->
 <button class="logout-bottom" onclick="logoutMaster()">Logout</button>
 
-<!-- EXPORT ENGINE -->
+<!-- EXPORT ENGINE CORRETTO -->
 <script src="../export_new.js?v=1"></script>
 
 </body>
