@@ -15,9 +15,9 @@ function logoutAdmin(){
 }
 
 /* ==========================================================
-   FIRESTORE
+   FIRESTORE (db è già definito in firebase-config.js)
 ===========================================================*/
-const db = firebase.firestore();
+
 const USERS = "utenti_PPFG";
 
 /* ==========================================================
@@ -33,17 +33,22 @@ async function createUser(){
         return;
     }
 
-    await db.collection(USERS).doc(username).set({
-        username: username,
-        pin: pin,
-        ruolo: role,
-        active: true,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    try {
+        await db.collection(USERS).doc(username).set({
+            username: username,
+            pin: pin,
+            ruolo: role,
+            active: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-    alert("Utente creato!");
+        alert("Utente creato!");
+        loadUsers();
 
-    loadUsers();
+    } catch (error) {
+        console.error("Errore creazione utente:", error);
+        alert("Errore Firestore. Controlla la console.");
+    }
 }
 
 /* ==========================================================
@@ -61,37 +66,46 @@ async function loadUsers(){
     const tbody = document.querySelector("#usersTable tbody");
     tbody.innerHTML = "";
 
-    const snap = await db.collection(USERS).orderBy("username").get();
+    try {
+        const snap = await db.collection(USERS).orderBy("username").get();
 
-    snap.forEach(doc => {
-        const u = doc.data();
+        snap.forEach(doc => {
+            const u = doc.data();
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${u.username}</td>
-            <td>${u.pin}</td>
-            <td>${u.ruolo}</td>
-            <td>${u.active ? "✔️" : "❌"}</td>
-            <td>
-                <button onclick="toggleUser('${u.username}', ${u.active})">
-                    ${u.active ? "Blocca" : "Attiva"}
-                </button>
-                <button onclick="deleteUser('${u.username}')">Elimina</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${u.username}</td>
+                <td>${u.pin}</td>
+                <td>${u.ruolo}</td>
+                <td>${u.active ? "✔️" : "❌"}</td>
+                <td>
+                    <button onclick="toggleUser('${u.username}', ${u.active})">
+                        ${u.active ? "Blocca" : "Attiva"}
+                    </button>
+                    <button onclick="deleteUser('${u.username}')">Elimina</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Errore caricamento utenti:", error);
+    }
 }
 
 /* ==========================================================
    ATTIVA / BLOCCA
 ===========================================================*/
 async function toggleUser(username, isActive){
-    await db.collection(USERS).doc(username).update({
-        active: !isActive
-    });
+    try {
+        await db.collection(USERS).doc(username).update({
+            active: !isActive
+        });
+        loadUsers();
 
-    loadUsers();
+    } catch (error) {
+        console.error("Errore toggle user:", error);
+    }
 }
 
 /* ==========================================================
@@ -100,7 +114,11 @@ async function toggleUser(username, isActive){
 async function deleteUser(username){
     if(!confirm("Eliminare utente?")) return;
 
-    await db.collection(USERS).doc(username).delete();
+    try {
+        await db.collection(USERS).doc(username).delete();
+        loadUsers();
 
-    loadUsers();
+    } catch (error) {
+        console.error("Errore eliminazione utente:", error);
+    }
 }
