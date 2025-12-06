@@ -9,69 +9,261 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG FIREBASE (CORRETTO) -->
+<!-- CONFIG FIREBASE -->
 <script src="firebase-config.js"></script>
 
 <!-- LOGICA ADMIN -->
 <script src="admin-utenti.js" defer></script>
 
+<!-- STILE NEON FUTURISTICO -->
+<link rel="stylesheet" href="dashboard.css">
+
 <style>
-body{font-family:Arial;background:#f4f4f4;padding:20px;}
-h1{text-align:center;}
-.box{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.15);
-    margin-bottom:20px;
+/* SFONDO FUTURISTICO */
+body {
+    background: linear-gradient(135deg, #05060a, #0a0f1f, #031123);
+    background-size: cover;
+    color: #e5f3ff;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
 }
-input,select{
-    padding:10px;
-    margin:5px 0;
-    width:100%;
+
+/* CONTAINER CARD CENTRALE */
+.panel {
+    max-width: 1050px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(8, 15, 30, 0.7);
+    border-radius: 18px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 25px rgba(0, 180, 255, 0.35),
+                inset 0 0 12px rgba(0, 80, 130, 0.3);
 }
-button{padding:10px;margin:3px;cursor:pointer;}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;}
+
+/* TABS */
+.tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    background: #0b162c;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #9dd7ff;
+    border: 2px solid #123456;
+    transition: 0.25s;
+}
+
+.tab-btn:hover {
+    box-shadow: 0 0 12px #2fa8ff;
+}
+
+.tab-active {
+    background: #102442;
+    color: #ffffff;
+    border-color: #3bc5ff;
+    box-shadow: 0 0 18px #45c8ff;
+}
+
+/* SEZIONI */
+.section {
+    display: none;
+    animation: fadeIn 0.35s ease;
+}
+.section-active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* CARD FORM CREAZIONE */
+.card {
+    background: rgba(10,18,30,0.65);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #1e90ff55, inset 0 0 10px #0a335544;
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    background: #0d1729;
+    border: 1px solid #1d3557;
+    border-radius: 8px;
+    color: #bde3ff;
+    margin-top: 8px;
+}
+
+button {
+    padding: 12px 18px;
+    background: #1b70ff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 12px;
+    transition: 0.25s;
+}
+button:hover {
+    background: #3ba0ff;
+    box-shadow: 0 0 12px #3ba0ff;
+}
+
+/* TABELLA NEON */
+.table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.table th {
+    background: #0b1a33;
+    color: #8fd4ff;
+    padding: 10px;
+    border-bottom: 2px solid #1f406e;
+}
+
+.table td {
+    background: rgba(11, 25, 45, 0.7);
+    padding: 10px;
+    border-bottom: 1px solid #133254;
+}
+
+.table tr:hover td {
+    background: rgba(20, 50, 90, 0.7);
+}
+
+/* ONLINE/OFFLINE BADGES */
+.badge {
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+.online { background: #00d46a; color:#000; box-shadow:0 0 8px #00ff88; }
+.inactive { background:#ffd000; color:#000; box-shadow:0 0 8px #ffe36e; }
+.offline { background:#ff3b3b; color:#fff; box-shadow:0 0 8px #ff6868; }
+
+/* FILTRI */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-btn {
+    padding: 8px 14px;
+    background: #113355;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #9cd7ff;
+    border: 1px solid #1c4a77;
+    transition: 0.2s;
+}
+.filter-btn:hover { box-shadow: 0 0 10px #2fa8ff; }
+.filter-active {
+    background: #2074c8;
+    color: #fff;
+    border-color: #3bc5ff;
+    box-shadow: 0 0 12px #3bc5ff;
+}
 </style>
 
 </head>
-<body onload="checkAdminAccess()">
+<body onload="initAdminPanel()">
 
-<h1>Gestione Utenti – Admin</h1>
+<div class="panel">
 
-<div class="box">
-    <h2>Crea Nuovo Utente</h2>
-    <input type="text" id="newUser" placeholder="Username">
-    <input type="text" id="newPin" maxlength="6" placeholder="PIN (6 cifre)">
-    <select id="newRole">
-        <option value="guala">Guala</option>
-        <option value="piobesi">Piobesi</option>
-        <option value="particomuni">Parti Comuni</option>
-        <option value="admin">Admin</option>
-        <option value="superadmin">SuperAdmin</option>
-    </select>
-    <button onclick="createUser()">Crea Utente</button>
-    <button onclick="generatePin()">Genera PIN</button>
+    <div class="tabs">
+        <div id="tab1" class="tab-btn tab-active" onclick="switchTab(1)">Gestione Utenti</div>
+        <div id="tab2" class="tab-btn" onclick="switchTab(2)">Storico Azioni</div>
+    </div>
+
+    <!-- ===========================
+         TAB 1 — GESTIONE UTENTI
+    ============================ -->
+    <div id="section1" class="section section-active">
+
+        <div class="card">
+            <h2>Crea Nuovo Utente</h2>
+            <input type="text" id="newUser" placeholder="Username">
+            <input type="text" id="newPin" maxlength="6" placeholder="PIN (6 cifre)">
+            <select id="newRole">
+                <option value="guala">Guala</option>
+                <option value="piobesi">Piobesi</option>
+                <option value="particomuni">Parti Comuni</option>
+                <option value="admin">Admin</option>
+                <option value="superadmin">SuperAdmin</option>
+            </select>
+            <button onclick="createUser()">Crea Utente</button>
+            <button onclick="generatePin()">Genera PIN</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-btn filter-active" onclick="setUserFilter('all')">Tutti</div>
+            <div class="filter-btn" onclick="setUserFilter('online')">Online</div>
+            <div class="filter-btn" onclick="setUserFilter('offline')">Offline</div>
+            <div class="filter-btn" onclick="setUserFilter('active')">Attivi</div>
+            <div class="filter-btn" onclick="setUserFilter('blocked')">Bloccati</div>
+        </div>
+
+        <table id="usersTable" class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>PIN</th>
+                    <th>Ruolo</th>
+                    <th>Stato</th>
+                    <th>Ultima Attività</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <!-- ===========================
+         TAB 2 — STORICO AZIONI
+    ============================ -->
+    <div id="section2" class="section">
+
+        <div class="filters">
+            <div class="filter-btn filter-active" onclick="setLogFilter('all')">Tutte</div>
+            <div class="filter-btn" onclick="setLogFilter('bloccato')">Bloccati</div>
+            <div class="filter-btn" onclick="setLogFilter('riattivato')">Riattivati</div>
+            <div class="filter-btn" onclick="setLogFilter('eliminato')">Eliminati</div>
+        </div>
+
+        <table id="logTable" class="table">
+            <thead>
+                <tr>
+                    <th>Utente</th>
+                    <th>Azione</th>
+                    <th>Data</th>
+                    <th>Admin</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
 </div>
 
-<div class="box">
-    <h2>Utenti Registrati</h2>
-    <table id="usersTable">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>PIN</th>
-                <th>Ruolo</th>
-                <th>Attivo</th>
-                <th>Azioni</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
-
-<button onclick="logoutAdmin()">Logout</button>
+<button onclick="logoutAdmin()" style="margin-left:20px">Logout</button>
 
 </body>
 </html>
