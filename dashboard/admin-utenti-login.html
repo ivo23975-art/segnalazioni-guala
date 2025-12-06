@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Admin Utenti</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f0f0f0;
+    padding:40px;
+    text-align:center;
+}
+.box{
+    display:inline-block;
+    padding:30px;
+    background:white;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.15);
+}
+input{
+    display:block;
+    width:200px;
+    margin:10px auto;
+    padding:10px;
+    font-size:1.1rem;
+}
+button{
+    padding:10px 20px;
+    font-size:1rem;
+    cursor:pointer;
+}
+#error{color:red;margin-top:10px;}
+</style>
+
+</head>
+<body>
+
+<div class="box">
+    <h2>Accesso Admin Utenti</h2>
+    <input type="password" id="pin" placeholder="PIN">
+    <button onclick="loginAdmin()">Entra</button>
+    <div id="error"></div>
+</div>
+
+<script>
+const ADMIN_PIN = "280113";
+
+function loginAdmin(){
+    const p = document.getElementById("pin").value.trim();
+    const err = document.getElementById("error");
+
+    if(p === ADMIN_PIN){
+        localStorage.setItem("ADMIN_UTENTI_OK","YES");
+        window.location.href = "admin-utenti.html";
+    } else {
+        err.textContent = "PIN errato";
+    }
+}
+</script>
+
+</body>
+</html>
