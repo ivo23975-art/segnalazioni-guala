@@ -1,4 +1,85 @@
 /* ==========================================================
+   TEMA ORIGINALE (TUO)
+===========================================================*/
+
+body {
+    margin: 0;
+    background: #111;
+    color: #eee;
+    font-family: system-ui, sans-serif;
+}
+
+.header {
+    background: #181818;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #fff;
+    border-bottom: 2px solid #333;
+}
+
+.content {
+    padding: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table th {
+    background: #222;
+    color: #fff;
+    padding: 10px;
+}
+
+.table td {
+    background: #1a1a1a;
+    padding: 10px;
+    border-top: 1px solid #333;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.badge-red { background: #b30000; }
+.badge-orange { background: #d98200; }
+.badge-yellow { background: #d4c800; color: #000; }
+.badge-green { background: #008f39; }
+
+.action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+.btn-green {
+    background: #00aa55;
+    color: #fff;
+}
+.btn-red {
+    background: #cc0000;
+    color: #fff;
+}
+.btn-green:hover { background: #00cc66; }
+.btn-red:hover { background: #ff0000; }
+
+
+
+
+
+/* ==========================================================
    ESTENSIONE NEON FUTURISTICA (Admin Utenti)
    Compatibile al 100% con il CSS già esistente
 ===========================================================*/
