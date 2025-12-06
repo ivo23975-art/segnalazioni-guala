@@ -92,18 +92,18 @@ function requireRole(role) {
     const r = localStorage.getItem("ADMIN_ROLE");
 
     if (!r) {
-        window.location.href = "../login-pin.html";
+        window.location.href = "../login.html";   // CORRETTO
         return;
     }
 
     if (role !== "any" && r !== role) {
         alert("Accesso non autorizzato.");
-        window.location.href = "../login-pin.html";
+        window.location.href = "../login.html";   // CORRETTO
     }
 }
 
 /* LOGOUT */
 function adminLogout() {
     localStorage.removeItem("ADMIN_ROLE");
-    window.location.href = "../login-pin.html";
+    window.location.href = "../login.html";        // CORRETTO
 }
