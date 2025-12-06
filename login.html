@@ -55,7 +55,7 @@ button {
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)">
 
-    <button onclick="loginApp()">Entra</button>
+    <button onclick="doLogin()">Entra</button>
 
     <div id="error" class="error"></div>
 </div>
@@ -67,8 +67,30 @@ button {
 <!-- CONFIG FIREBASE -->
 <script src="dashboard/firebase-config.js"></script>
 
-<!-- LOGICA LOGIN FIRESTORE -->
-<script src="app-pin.js"></script>
+<!-- SISTEMA ADMIN RUOLI -->
+<script src="dashboard/admin-auth.js"></script>
+
+<!-- LOGIN WRAPPER -->
+<script>
+function doLogin() {
+    const user = document.getElementById("username").value.trim();
+    const pin  = document.getElementById("pin").value.trim();
+    const err  = document.getElementById("error");
+
+    err.textContent = "";
+
+    if (!user || !pin) {
+        err.textContent = "Inserisci username e PIN.";
+        return;
+    }
+
+    const ok = adminLoginAttempt(user, pin);
+
+    if (!ok) {
+        err.textContent = "Credenziali errate.";
+    }
+}
+</script>
 
 </body>
 </html>
