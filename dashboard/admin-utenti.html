@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Gestione Utenti</title>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<!-- CONFIG FIREBASE -->
+<script src="../firebase-config.js"></script>
+
+<!-- LOGICA ADMIN -->
+<script src="admin-utenti.js" defer></script>
+
+<style>
+body{font-family:Arial;background:#f4f4f4;padding:20px;}
+h1{text-align:center;}
+.box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.15);
+    margin-bottom:20px;
+}
+input,select{
+    padding:10px;
+    margin:5px 0;
+    width:100%;
+}
+button{padding:10px;margin:3px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;}
+</style>
+
+</head>
+<body onload="checkAdminAccess()">
+
+<h1>Gestione Utenti – Admin</h1>
+
+<div class="box">
+    <h2>Crea Nuovo Utente</h2>
+    <input type="text" id="newUser" placeholder="Username">
+    <input type="text" id="newPin" maxlength="6" placeholder="PIN (6 cifre)">
+    <select id="newRole">
+        <option value="guala">Guala</option>
+        <option value="piobesi">Piobesi</option>
+        <option value="particomuni">Parti Comuni</option>
+        <option value="admin">Admin</option>
+        <option value="superadmin">SuperAdmin</option>
+    </select>
+    <button onclick="createUser()">Crea Utente</button>
+    <button onclick="generatePin()">Genera PIN</button>
+</div>
+
+<div class="box">
+    <h2>Utenti Registrati</h2>
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>PIN</th>
+                <th>Ruolo</th>
+                <th>Attivo</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<button onclick="logoutAdmin()">Logout</button>
+
+</body>
+</html>
