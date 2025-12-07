@@ -10,16 +10,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE (DEVE ESSERE PRIMA DI dashboard.js) -->
+    <!-- CONFIG FIREBASE -->
     <script src="firebase-config.js"></script>
+
+    <!-- SISTEMA LOGIN ADMIN (DEVE ESSERE PRIMA DI dashboard.js) -->
+    <script src="admin-auth.js"></script>
 
     <!-- LOGICA DASHBOARD -->
     <script src="dashboard.js"></script>
 
-    <!-- SISTEMA LOGIN ADMIN -->
-    <script src="admin-auth.js"></script>
-
-    <!-- 👇 CSS LOGOUT PULSANTE -->
     <style>
         .logout-btn {
             position: fixed;
@@ -34,7 +33,6 @@
             border: none;
             text-decoration: none;
             transition: .2s;
-            font-family: system-ui, sans-serif;
             z-index: 9999;
         }
 
@@ -48,7 +46,6 @@
 
 <body>
 
-<!-- 🔴 LOGOUT FISSO E MODERNO -->
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
 <div class="header">Guala – Segnalazioni attive</div>
@@ -77,14 +74,8 @@
 
 <script>
 
-    /* -------------------------------------------------------
-       🔒 PROTEZIONE ACCESSO ADMIN GUALA
-    ---------------------------------------------------------- */
     requireRole("guala");
 
-    /* -------------------------------------------------------
-       Carica SOLO segnalazioni attive di Guala
-    ---------------------------------------------------------- */
     loadSegnalazioni(
         r =>
             r.stato === "attiva" &&
