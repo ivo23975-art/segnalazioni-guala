@@ -51,12 +51,12 @@ function requireRole(role) {
         const data = JSON.parse(localStorage.getItem("ADMIN_LOGGED"));
 
         if (!data) {
-            window.location.href = "../login.html";
+            window.location.href = "/segnalazioni-guala/login.html";
             return false;
         }
 
         if (data.role !== role) {
-            window.location.href = "../login.html";
+            window.location.href = "/segnalazioni-guala/login.html";
             return false;
         }
 
@@ -64,7 +64,7 @@ function requireRole(role) {
 
     } catch (err) {
         console.error("Errore requireRole:", err);
-        window.location.href = "../login.html";
+        window.location.href = "/segnalazioni-guala/login.html";
         return false;
     }
 }
@@ -75,5 +75,5 @@ function requireRole(role) {
 
 function adminLogout() {
     localStorage.removeItem("ADMIN_LOGGED");
-    window.location.href = "../login.html";
+    window.location.href = "/segnalazioni-guala/login.html";
 }
