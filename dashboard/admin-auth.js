@@ -7,7 +7,7 @@ const ADMIN_ACCOUNTS = {
     guala: {
         role: "guala",
         username: "guala",
-        pin: "111111"
+        pin: "000000"
     },
     piobesi: {
         role: "piobesi",
