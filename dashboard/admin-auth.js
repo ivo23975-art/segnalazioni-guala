@@ -1,109 +1,49 @@
-/* ============================================================
-   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE CORRETTA E FINALE
-   ============================================================ */
+// ============================================================
+// ADMIN AUTH COMPLETAMENTE ALLINEATO A FIRESTORE
+// ============================================================
 
-const DEFAULT_ADMIN_DATA = {
-    guala: {
-        role: "guala",
-        loginMode: "userpass",
-        username: "guala",
-        password: "1111"
-    },
-    piobesi: {
-        role: "piobesi",
-        loginMode: "userpass",
-        username: "piobesi",
-        password: "2222"
-    },
-    particomuni: {
-        role: "particomuni",
-        loginMode: "userpass",
-        username: "particomuni",
-        password: "3333"
-    },
-    superadmin: {
-        role: "superadmin",
-        loginMode: "userpass",
-        username: "admin",
-        password: "4444"
-    }
-};
+const USERS = "utenti_PPFG";
 
-/* LOAD / SAVE CONFIG */
-function loadAdminConfig() {
-    const saved = localStorage.getItem("ADMIN_CONFIG");
-    if (!saved) {
-        localStorage.setItem("ADMIN_CONFIG", JSON.stringify(DEFAULT_ADMIN_DATA));
-        return DEFAULT_ADMIN_DATA;
-    }
-    return JSON.parse(saved);
-}
-
-function saveAdminConfig(data) {
-    localStorage.setItem("ADMIN_CONFIG", JSON.stringify(data));
-}
-
-let ADMIN_DATA = loadAdminConfig();
-
-/* LOGIN LOGIC */
-function adminLoginAttempt(username, pin) {
-
+// LOGIN ADMIN (usato in admin-utenti-login.html)
+async function adminLoginAttempt(username, pin) {
     username = username.toLowerCase();
 
-    for (const key in ADMIN_DATA) {
-        const admin = ADMIN_DATA[key];
+    try {
+        const ref = db.collection(USERS).doc(username);
+        const snap = await ref.get();
 
-        if (admin.loginMode === "password") {
-            if (pin === admin.password) {
-                setAdminSession(admin.role);
-                return true;
-            }
+        if (!snap.exists) return false;
+
+        const user = snap.data();
+
+        // Deve essere admin o superadmin
+        if (user.ruolo !== "admin" && user.ruolo !== "superadmin") {
+            return false;
         }
 
-        if (admin.loginMode === "userpass") {
-            if (username === admin.username.toLowerCase() &&
-                pin === admin.password) {
-                setAdminSession(admin.role);
-                return true;
-            }
-        }
-    }
+        if (!user.active) return false;
+        if (user.pin !== pin) return false;
 
-    return false;
-}
+        // salva sessione
+        localStorage.setItem("ADMIN_UTENTI_OK", "YES");
 
-/* SESSION */
-function setAdminSession(role) {
-    localStorage.setItem("ADMIN_ROLE", role);
-    redirectToPanel(role);
-}
+        return true;
 
-function redirectToPanel(role) {
-    switch (role) {
-        case "guala":        window.location.href = "dashboard/guala.html"; break;
-        case "piobesi":      window.location.href = "dashboard/piobesi.html"; break;
-        case "particomuni":  window.location.href = "dashboard/particomuni.html"; break;
-        case "superadmin":   window.location.href = "dashboard/superadmin.html"; break;
+    } catch (err) {
+        console.error("Errore admin login:", err);
+        return false;
     }
 }
 
-/* PROTECTION */
-function requireRole(role) {
-    const r = localStorage.getItem("ADMIN_ROLE");
-
-    if (!r) {
-        window.location.href = "../login.html";   // CORRETTO
-        return;
-    }
-
-    if (role !== "any" && r !== role) {
-        alert("Accesso non autorizzato.");
-        window.location.href = "../login.html";   // CORRETTO
+// Protezione pagine admin
+function checkAdminAccess() {
+    if (localStorage.getItem("ADMIN_UTENTI_OK") !== "YES") {
+        window.location.href = "admin-utenti-login.html";
     }
 }
 
-/* LOGOUT */
-function adminLogout() {
-    localStorage.removeItem("ADMIN_ROLE");
-    window.location.href = "../login.html";        // CORRETTO
+// Logout admin
+function logoutAdmin() {
+    localStorage.removeItem("ADMIN_UTENTI_OK");
+    window.location.href = "admin-utenti-login.html";
 }
