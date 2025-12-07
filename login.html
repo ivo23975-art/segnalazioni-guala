@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accesso App</title>
 
+<!-- CSS corretto -->
 <link rel="stylesheet" href="dashboard/dashboard.css">
 
 <style>
@@ -66,12 +67,13 @@ button {
 <!-- CONFIG FIREBASE -->
 <script src="dashboard/firebase-config.js"></script>
 
+<!-- SISTEMA ADMIN RUOLI -->
+<script src="dashboard/admin-auth.js"></script>
+
+<!-- LOGIN WRAPPER -->
 <script>
-// =========================
-// LOGIN FIRESTORE
-// =========================
-async function doLogin() {
-    const user = document.getElementById("username").value.trim().toLowerCase();
+function doLogin() {
+    const user = document.getElementById("username").value.trim();
     const pin  = document.getElementById("pin").value.trim();
     const err  = document.getElementById("error");
 
@@ -82,62 +84,10 @@ async function doLogin() {
         return;
     }
 
-    try {
-        const doc = await db.collection("utenti_PPFG").doc(user).get();
+    const ok = adminLoginAttempt(user, pin);
 
-        if (!doc.exists) {
-            err.textContent = "Utente non trovato.";
-            return;
-        }
-
-        const u = doc.data();
-
-        if (!u.active) {
-            err.textContent = "Utente bloccato.";
-            return;
-        }
-
-        if (u.pin !== pin) {
-            err.textContent = "PIN errato.";
-            return;
-        }
-
-        // ----------------------------------
-        // LOGIN OK → salvo sessione
-        // ----------------------------------
-        localStorage.setItem("ADMIN_ROLE", u.ruolo);
-
-        // Aggiorna ultima attività
-        db.collection("utenti_PPFG").doc(user).update({
-            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // ----------------------------------
-        // Instrada al pannello giusto
-        // ----------------------------------
-        switch (u.ruolo) {
-            case "guala":
-                window.location.href = "dashboard/guala.html";
-                break;
-            case "piobesi":
-                window.location.href = "dashboard/piobesi.html";
-                break;
-            case "particomuni":
-                window.location.href = "dashboard/particomuni.html";
-                break;
-            case "superadmin":
-                window.location.href = "dashboard/superadmin.html";
-                break;
-            case "admin":
-                window.location.href = "dashboard/admin-utenti.html";
-                break;
-            default:
-                err.textContent = "Ruolo non riconosciuto.";
-        }
-
-    } catch (e) {
-        console.error(e);
-        err.textContent = "Errore di connessione a Firestore.";
+    if (!ok) {
+        err.textContent = "Credenziali errate.";
     }
 }
 </script>
