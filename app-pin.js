@@ -1,124 +1,69 @@
-// ============================================================
-// LOGIN UTENTI VIA FIRESTORE
-// ============================================================
+/******************************************************
+ * SISTEMA LOGIN APP SEGNALAZIONI — USERNAME + PIN
+ * Salvataggio accesso: APP_USER_LOGGED = "appPPFG"
+ ******************************************************/
 
-// Collection Firestore
-const USERS = "utenti_PPFG";
+// Inizializza storage utenti se non esiste
+if (!localStorage.getItem("APP_PIN_USERS")) {
+    const defaultUsers = {
+        "superadmin": { pin: "482915", active: true }
+    };
+    localStorage.setItem("APP_PIN_USERS", JSON.stringify(defaultUsers));
+}
 
-// Login
-async function loginApp() {
-    const username = document.getElementById("username").value.trim().toLowerCase();
+
+/******************************************************
+ * LOGIN UTENTE (USERNAME + PIN)
+ ******************************************************/
+function loginApp() {
+    const user = document.getElementById("username").value.trim().toLowerCase();
     const pin = document.getElementById("pin").value.trim();
+    const err = document.getElementById("error");
 
-    const errorBox = document.getElementById("error");
-
-    if (username === "" || pin.length !== 6) {
-        errorBox.textContent = "Inserisci username e PIN di 6 cifre.";
+    if (user === "" || pin === "") {
+        err.textContent = "Inserisci username e PIN.";
         return;
     }
 
-    try {
-        // Cerca utente
-        const ref = db.collection(USERS).doc(username);
-        const snap = await ref.get();
+    let users = JSON.parse(localStorage.getItem("APP_PIN_USERS"));
 
-        if (!snap.exists) {
-            errorBox.textContent = "Utente non trovato.";
-            return;
-        }
-
-        const user = snap.data();
-
-        // Utente bloccato
-        if (!user.active) {
-            errorBox.textContent = "Utente bloccato dall'amministratore.";
-            return;
-        }
-
-        // Controllo PIN
-        if (user.pin !== pin) {
-            errorBox.textContent = "PIN errato.";
-            return;
-        }
-
-        // SALVA SESSIONE
-        localStorage.setItem("APP_USER", username);
-        localStorage.setItem("APP_ROLE", user.ruolo);
-
-        // Aggiorna Firestore
-        await ref.update({
-            online: true,
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Reindirizzamento in base al ruolo
-        switch (user.ruolo) {
-            case "guala":
-                window.location.href = "dashboard/guala.html";
-                break;
-
-            case "piobesi":
-                window.location.href = "dashboard/piobesi.html";
-                break;
-
-            case "particomuni":
-                window.location.href = "dashboard/particomuni.html";
-                break;
-
-            case "admin":
-                window.location.href = "dashboard/admin-utenti.html";
-                break;
-
-            case "superadmin":
-                window.location.href = "dashboard/superadmin.html";
-                break;
-
-            default:
-                errorBox.textContent = "Ruolo non valido.";
-                break;
-        }
-
-    } catch (err) {
-        console.error("Errore login:", err);
-        errorBox.textContent = "Errore durante il login.";
-    }
-}
-
-// ============================================================
-// LOGOUT (usato da tutte le dashboard)
-// ============================================================
-async function appLogout() {
-    const username = localStorage.getItem("APP_USER");
-    if (username) {
-        try {
-            await db.collection(USERS).doc(username).update({
-                online: false,
-                lastLogout: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (e) {
-            console.warn("Logout Firestore fallito:", e);
-        }
-    }
-
-    localStorage.removeItem("APP_USER");
-    localStorage.removeItem("APP_ROLE");
-
-    window.location.href = "../login.html";
-}
-
-// ============================================================
-// PROTEZIONE PAGINE
-// ============================================================
-function requireAppRole(allowedRoles) {
-    const r = localStorage.getItem("APP_ROLE");
-
-    if (!r) {
-        window.location.href = "../login.html";
+    if (!users[user]) {
+        err.textContent = "Utente inesistente.";
         return;
     }
 
-    if (!allowedRoles.includes(r)) {
-        alert("Accesso negato.");
-        window.location.href = "../login.html";
+    if (!users[user].active) {
+        err.textContent = "Utente disattivato.";
+        return;
     }
+
+    if (users[user].pin !== pin) {
+        err.textContent = "PIN errato.";
+        return;
+    }
+
+    // Login OK → salva token principale
+    localStorage.setItem("APP_USER_LOGGED", "appPPFG");
+
+    // Vai all'app
+    window.location.href = "indice.html";
+}
+
+
+/******************************************************
+ * CONTROLLO ACCESSO PAGINE
+ ******************************************************/
+function checkAppLogin() {
+    if (localStorage.getItem("APP_USER_LOGGED") !== "appPPFG") {
+        window.location.href = "login.html";
+    }
+}
+
+
+/******************************************************
+ * LOGOUT
+ ******************************************************/
+function appLogout() {
+    localStorage.removeItem("APP_USER_LOGGED");
+    window.location.href = "login.html";
 }
