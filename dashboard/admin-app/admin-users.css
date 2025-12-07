@@ -35,18 +35,24 @@ body.panel-body::before {
 }
 
 /* ===============================
-   TOP BAR
+   TOP BAR (FIX LOGOUT + MOBILE)
 =============================== */
 
 .top-bar {
     width: 100%;
     background: rgba(0,20,40,0.80);
-    padding: 20px;
+    padding: 15px 20px;
+
     border-bottom: 2px solid #004d80;
     box-shadow: 0 0 20px #007acc66;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .top-bar h1 {
@@ -57,7 +63,7 @@ body.panel-body::before {
 }
 
 /* ===============================
-   LOGOUT BUTTON – FIX MOBILE
+   LOGOUT BUTTON – PERFECT FIX
 =============================== */
 
 .logout-btn {
@@ -68,6 +74,8 @@ body.panel-body::before {
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+
+    margin-right: 20px; /* 🔥 FIX DEFINITIVO */
     box-shadow: 0 0 12px #ff0033cc;
     transition: 0.2s;
 }
@@ -77,10 +85,16 @@ body.panel-body::before {
     box-shadow: 0 0 20px #ff3355;
 }
 
+/* Mobile fix */
 @media (max-width: 480px) {
     .logout-btn {
         padding: 8px 14px;
         font-size: 14px;
+        margin-right: 0; /* più comodo per smartphone */
+    }
+
+    .top-bar h1 {
+        font-size: 1.3rem;
     }
 }
 
@@ -203,7 +217,7 @@ input::placeholder {
 }
 
 /* ===============================
-   TABELLONA UTENTI NEON
+   TABELLA UTENTI NEON
 =============================== */
 
 .neon-table {
