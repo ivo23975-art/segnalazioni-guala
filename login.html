@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accesso App</title>
 
-<!-- CSS corretto -->
-<link rel="stylesheet" href="dashboard/dashboard.css">
-
 <style>
 body {
     background: url("dashboard/login-bg.jpg") no-repeat center center fixed;
@@ -22,7 +19,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 14px rgba(0,0,0,0.25);
 }
-input {
+input, select {
     width: 100%;
     padding: 12px;
     margin-top: 12px;
@@ -52,23 +49,42 @@ button {
 <div class="login-box">
     <h3 style="text-align:center;margin-bottom:20px;color:#333;">Accesso</h3>
 
+    <select id="role">
+        <option value="guala">Admin Guala</option>
+        <option value="piobesi">Admin Piobesi</option>
+        <option value="particomuni">Admin Parti Comuni</option>
+        <option value="superadmin">SuperAdmin</option>
+    </select>
+
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)">
 
-    <button onclick="loginApp()">Entra</button>
+    <button onclick="doLogin()">Entra</button>
 
     <div id="error" class="error"></div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<!-- SISTEMA LOGIN ADMIN -->
+<script src="dashboard/admin-auth.js"></script>
 
-<!-- CONFIG FIREBASE -->
-<script src="dashboard/firebase-config.js"></script>
+<script>
+function doLogin() {
 
-<!-- LOGICA LOGIN FIRESTORE -->
-<script src="app-pin.js"></script>
+    const role = document.getElementById("role").value;
+    const user = document.getElementById("username").value.trim().toLowerCase();
+    const pin  = document.getElementById("pin").value.trim();
+
+    if (!adminLogin(role, user, pin)) {
+        document.getElementById("error").textContent = "Utente inesistente.";
+        return;
+    }
+
+    if (role === "guala")      location.href = "dashboard/guala.html";
+    if (role === "piobesi")    location.href = "dashboard/piobesi.html";
+    if (role === "particomuni")location.href = "dashboard/particomuni.html";
+    if (role === "superadmin") location.href = "dashboard/superadmin.html";
+}
+</script>
 
 </body>
 </html>
