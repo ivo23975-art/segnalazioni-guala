@@ -1,108 +1,124 @@
-/******************************************************
- * LOGIN APP — Collegato a Firestore (utenti_PPFG)
- * Controllo PIN, ruolo, stato active
- ******************************************************/
+// ============================================================
+// LOGIN UTENTI VIA FIRESTORE
+// ============================================================
 
-// Firestore è già inizializzato da firebase-config.js
+// Collection Firestore
 const USERS = "utenti_PPFG";
 
-/******************************************************
- * LOGIN UTENTE
- ******************************************************/
+// Login
 async function loginApp() {
-    const user = document.getElementById("username").value.trim().toLowerCase();
+    const username = document.getElementById("username").value.trim().toLowerCase();
     const pin = document.getElementById("pin").value.trim();
-    const err = document.getElementById("error");
 
-    err.textContent = "";
+    const errorBox = document.getElementById("error");
 
-    if (user === "" || pin === "") {
-        err.textContent = "Inserisci username e PIN.";
+    if (username === "" || pin.length !== 6) {
+        errorBox.textContent = "Inserisci username e PIN di 6 cifre.";
         return;
     }
 
     try {
-        const docRef = await db.collection(USERS).doc(user).get();
+        // Cerca utente
+        const ref = db.collection(USERS).doc(username);
+        const snap = await ref.get();
 
-        // Utente inesistente
-        if (!docRef.exists) {
-            err.textContent = "Utente inesistente.";
+        if (!snap.exists) {
+            errorBox.textContent = "Utente non trovato.";
             return;
         }
 
-        const u = docRef.data();
+        const user = snap.data();
 
-        // Utente disattivato
-        if (!u.active) {
-            err.textContent = "Utente disattivato.";
+        // Utente bloccato
+        if (!user.active) {
+            errorBox.textContent = "Utente bloccato dall'amministratore.";
             return;
         }
 
-        // PIN errato
-        if (u.pin !== pin) {
-            err.textContent = "PIN errato.";
+        // Controllo PIN
+        if (user.pin !== pin) {
+            errorBox.textContent = "PIN errato.";
             return;
         }
 
-        /********************************************
-         * LOGIN OK — salvataggio sessione
-         ********************************************/
-        localStorage.setItem("APP_USER_LOGGED", "appPPFG");
-        localStorage.setItem("APP_USER_ROLE", u.ruolo);
-        localStorage.setItem("APP_USER_NAME", u.username);
+        // SALVA SESSIONE
+        localStorage.setItem("APP_USER", username);
+        localStorage.setItem("APP_ROLE", user.ruolo);
 
-        /********************************************
-         * REDIRECT IN BASE AL RUOLO
-         ********************************************/
-        switch (u.ruolo) {
+        // Aggiorna Firestore
+        await ref.update({
+            online: true,
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
+        // Reindirizzamento in base al ruolo
+        switch (user.ruolo) {
             case "guala":
-                window.location.href =
-                  "dashboard/guala.html";
+                window.location.href = "dashboard/guala.html";
                 break;
 
             case "piobesi":
-                window.location.href =
-                  "dashboard/piobesi.html";
+                window.location.href = "dashboard/piobesi.html";
                 break;
 
             case "particomuni":
-                window.location.href =
-                  "dashboard/particomuni.html";
+                window.location.href = "dashboard/particomuni.html";
+                break;
+
+            case "admin":
+                window.location.href = "dashboard/admin-utenti.html";
                 break;
 
             case "superadmin":
-                window.location.href =
-                  "dashboard/superadmin.html";
+                window.location.href = "dashboard/superadmin.html";
                 break;
 
             default:
-                err.textContent = "Ruolo non valido.";
+                errorBox.textContent = "Ruolo non valido.";
                 break;
         }
 
-    } catch (error) {
-        console.error("ERRORE LOGIN:", error);
-        err.textContent = "Errore interno. Controlla la console.";
+    } catch (err) {
+        console.error("Errore login:", err);
+        errorBox.textContent = "Errore durante il login.";
     }
 }
 
-
-/******************************************************
- * CONTROLLO ACCESSO PAGINE
- ******************************************************/
-function checkAppLogin() {
-    if (localStorage.getItem("APP_USER_LOGGED") !== "appPPFG") {
-        window.location.href = "login.html";
+// ============================================================
+// LOGOUT (usato da tutte le dashboard)
+// ============================================================
+async function appLogout() {
+    const username = localStorage.getItem("APP_USER");
+    if (username) {
+        try {
+            await db.collection(USERS).doc(username).update({
+                online: false,
+                lastLogout: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (e) {
+            console.warn("Logout Firestore fallito:", e);
+        }
     }
+
+    localStorage.removeItem("APP_USER");
+    localStorage.removeItem("APP_ROLE");
+
+    window.location.href = "../login.html";
 }
 
-/******************************************************
- * LOGOUT
- ******************************************************/
-function appLogout() {
-    localStorage.removeItem("APP_USER_LOGGED");
-    localStorage.removeItem("APP_USER_ROLE");
-    localStorage.removeItem("APP_USER_NAME");
-    window.location.href = "login.html";
+// ============================================================
+// PROTEZIONE PAGINE
+// ============================================================
+function requireAppRole(allowedRoles) {
+    const r = localStorage.getItem("APP_ROLE");
+
+    if (!r) {
+        window.location.href = "../login.html";
+        return;
+    }
+
+    if (!allowedRoles.includes(r)) {
+        alert("Accesso negato.");
+        window.location.href = "../login.html";
+    }
 }
