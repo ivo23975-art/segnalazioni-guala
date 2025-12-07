@@ -3,67 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
+<title>Accesso Amministrazione</title>
 
+<!-- CSS LOGIN FUTURISTICO -->
 <link rel="stylesheet" href="admin-users.css">
 
-</head>
-<body class="login-body">
+<style>
+/* CORREGGE BODY DEL LOGIN */
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
 
-<div class="login-box">
+    background: url("img/usersimg.png") no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* overlay */
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+}
+
+/* contenitore login */
+.login-panel {
+    position: relative;
+    z-index: 5;
+    width: 380px;
+    margin: 120px auto;
+    padding: 30px;
+    border-radius: 15px;
+    background: rgba(0,0,0,0.65);
+    border: 1px solid #00aaff;
+    box-shadow: 0 0 20px #00aaffaa;
+}
+
+h2 {
+    text-align: center;
+    color: #dff6ff;
+    margin-bottom: 20px;
+}
+
+select, input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+    background: #0c1624;
+    border: 1px solid #0088cc;
+    color: white;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #0077ff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 12px #0099ff;
+}
+
+button:hover {
+    background: #0094ff;
+    box-shadow: 0 0 20px #00b7ff;
+}
+
+#errorMsg {
+    color: #ff4444;
+    text-align: center;
+    margin-top: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-panel">
     <h2>Accesso Amministrazione</h2>
 
-    <label>Ruolo</label>
-    <select id="roleSelect">
+    <select id="role">
         <option value="superadmin">SuperAdmin</option>
-        <option value="guala">Admin Guala</option>
-        <option value="piobesi">Admin Piobesi</option>
-        <option value="particomuni">Admin Parti Comuni</option>
+        <option value="guala">Guala</option>
+        <option value="piobesi">Piobesi</option>
+        <option value="particomuni">Parti Comuni</option>
     </select>
 
-    <label>Username</label>
-    <input type="text" id="username">
-
-    <label>PIN (6 cifre)</label>
-    <input type="password" id="pin" maxlength="6">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="pin" maxlength="6" placeholder="PIN (6 cifre)">
 
     <button onclick="doLogin()">Entra</button>
 
-    <p id="errorMsg"></p>
+    <div id="errorMsg"></div>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- Config -->
 <script src="../firebase-config.js"></script>
-
-<!-- Logica -->
 <script src="admin-users.js"></script>
 
 <script>
 async function doLogin() {
-    const role = document.getElementById("roleSelect").value;
-    const user = document.getElementById("username").value.trim().toLowerCase();
+    const role = document.getElementById("role").value;
+    const user = document.getElementById("username").value.trim();
     const pin  = document.getElementById("pin").value.trim();
-    const err  = document.getElementById("errorMsg");
-
-    err.textContent = "";
-
-    if (!user || !pin) {
-        err.textContent = "Inserisci username e PIN.";
-        return;
-    }
 
     const ok = await adminAppLogin(role, user, pin);
 
-    if (!ok) {
-        err.textContent = "Credenziali non valide.";
-        return;
+    if (ok) {
+        window.location.href = "admin-users.html";
+    } else {
+        document.getElementById("errorMsg").innerText = "Credenziali non valide.";
     }
-
-    window.location.href = "admin-users.html";
 }
 </script>
 
