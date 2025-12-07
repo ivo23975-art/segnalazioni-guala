@@ -1,49 +1,79 @@
-// ============================================================
-// ADMIN AUTH COMPLETAMENTE ALLINEATO A FIRESTORE
-// ============================================================
+/* ============================================================
+   SISTEMA AUTENTICAZIONE ADMIN – VERSIONE STABILE
+============================================================ */
 
-const USERS = "utenti_PPFG";
+/* 🔥 CONFIG STATICA DEI RUOLI */
+const ADMIN_ACCOUNTS = {
+    guala: {
+        role: "guala",
+        username: "guala",
+        pin: "111111"
+    },
+    piobesi: {
+        role: "piobesi",
+        username: "piobesi",
+        pin: "222222"
+    },
+    particomuni: {
+        role: "particomuni",
+        username: "particomuni",
+        pin: "333333"
+    },
+    superadmin: {
+        role: "superadmin",
+        username: "admin",
+        pin: "444444"
+    }
+};
 
-// LOGIN ADMIN (usato in admin-utenti-login.html)
-async function adminLoginAttempt(username, pin) {
-    username = username.toLowerCase();
+/* ============================================================
+   LOGIN
+============================================================ */
 
+function adminLogin(role, user, pin) {
+    const acc = ADMIN_ACCOUNTS[role];
+    if (!acc) return false;
+
+    if (acc.username === user && acc.pin === pin) {
+        localStorage.setItem("ADMIN_LOGGED", JSON.stringify(acc));
+        return true;
+    }
+
+    return false;
+}
+
+/* ============================================================
+   REQUIRE ROLE – Protezione dashboard
+============================================================ */
+
+function requireRole(role) {
     try {
-        const ref = db.collection(USERS).doc(username);
-        const snap = await ref.get();
+        const data = JSON.parse(localStorage.getItem("ADMIN_LOGGED"));
 
-        if (!snap.exists) return false;
-
-        const user = snap.data();
-
-        // Deve essere admin o superadmin
-        if (user.ruolo !== "admin" && user.ruolo !== "superadmin") {
+        if (!data) {
+            window.location.href = "../login.html";
             return false;
         }
 
-        if (!user.active) return false;
-        if (user.pin !== pin) return false;
-
-        // salva sessione
-        localStorage.setItem("ADMIN_UTENTI_OK", "YES");
+        if (data.role !== role) {
+            window.location.href = "../login.html";
+            return false;
+        }
 
         return true;
 
     } catch (err) {
-        console.error("Errore admin login:", err);
+        console.error("Errore requireRole:", err);
+        window.location.href = "../login.html";
         return false;
     }
 }
 
-// Protezione pagine admin
-function checkAdminAccess() {
-    if (localStorage.getItem("ADMIN_UTENTI_OK") !== "YES") {
-        window.location.href = "admin-utenti-login.html";
-    }
-}
+/* ============================================================
+   LOGOUT
+============================================================ */
 
-// Logout admin
-function logoutAdmin() {
-    localStorage.removeItem("ADMIN_UTENTI_OK");
-    window.location.href = "admin-utenti-login.html";
+function adminLogout() {
+    localStorage.removeItem("ADMIN_LOGGED");
+    window.location.href = "../login.html";
 }
