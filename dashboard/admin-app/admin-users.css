@@ -3,103 +3,47 @@
    Percorso: dashboard/admin-app/admin-users.css
 ========================================================== */
 
-/* ======== GENERALE ======== */
+/* ===============================
+   SFONDO FUTURISTICO + OVERLAY
+=============================== */
 
-body {
+body.panel-body {
     margin: 0;
     font-family: system-ui, sans-serif;
     color: #dff6ff;
-}
 
-.login-body {
-    background: #050b16 url("../login-bg.jpg") no-repeat center center fixed;
+    background: url("img/usersimg.png") no-repeat center center fixed;
     background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    position: relative;
 }
 
-/* ======== LOGIN BOX ======== */
+/* overlay semitrasparente */
+body.panel-body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+    z-index: 0;
+}
 
-.login-box {
-    width: 360px;
-    padding: 35px;
-    background: rgba(0, 10, 20, 0.8);
-    border-radius: 15px;
-    border: 1px solid #00aaff88;
-    box-shadow: 0 0 25px #00aaffcc;
+/* Tutti i contenuti sempre sopra overlay */
+.top-bar,
+.container {
     position: relative;
     z-index: 2;
 }
 
-.login-box h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #b8eaff;
-}
-
-.login-box label {
-    display: block;
-    margin-top: 10px;
-    color: #aadfff;
-}
-
-.login-box input,
-.login-box select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    border-radius: 8px;
-    border: none;
-    background: #0c121c;
-    color: white;
-    border: 1px solid #0088cc;
-    outline: none;
-    box-shadow: 0 0 6px #0077cc55 inset;
-}
-
-.login-box button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 20px;
-    background: #0077ff;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 12px #0099ff;
-}
-
-.login-box button:hover {
-    background: #0094ff;
-    box-shadow: 0 0 20px #00b7ff;
-}
-
-#errorMsg {
-    text-align: center;
-    color: #ff5555;
-    margin-top: 10px;
-    min-height: 20px;
-}
-
-
-/* ======== PANEL BODY ======== */
-
-.panel-body {
-    background: #03070f;
-    padding-bottom: 60px;
-}
-
-/* ======== TOP BAR ======== */
+/* ===============================
+   TOP BAR
+=============================== */
 
 .top-bar {
     width: 100%;
-    background: #02101e;
+    background: rgba(0,20,40,0.80);
     padding: 20px;
     border-bottom: 2px solid #004d80;
-    box-shadow: 0 0 15px #0066aa55;
+    box-shadow: 0 0 20px #007acc66;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -108,26 +52,41 @@ body {
 .top-bar h1 {
     margin: 0;
     font-size: 1.8rem;
-    color: #bde7ff;
+    color: #cceeff;
     text-shadow: 0 0 12px #00aaff;
 }
+
+/* ===============================
+   LOGOUT BUTTON – FIX MOBILE
+=============================== */
 
 .logout-btn {
     background: #ff0033;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 22px;
     color: white;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 0 10px #ff0033aa;
+    font-weight: bold;
+    box-shadow: 0 0 12px #ff0033cc;
+    transition: 0.2s;
 }
 
 .logout-btn:hover {
     background: #ff3355;
-    box-shadow: 0 0 18px #ff3355dd;
+    box-shadow: 0 0 20px #ff3355;
 }
 
-/* ======== CONTAINER ======== */
+@media (max-width: 480px) {
+    .logout-btn {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+}
+
+/* ===============================
+   CONTAINER
+=============================== */
 
 .container {
     width: 92%;
@@ -135,10 +94,12 @@ body {
     margin-top: 30px;
 }
 
-/* ======== BOX ======== */
+/* ===============================
+   BOX / SECTION
+=============================== */
 
 .box {
-    background: #06121f;
+    background: rgba(0,0,0,0.60);
     border-radius: 15px;
     padding: 25px;
     margin-bottom: 25px;
@@ -156,8 +117,9 @@ body {
     text-shadow: 0 0 10px #00aaff;
 }
 
-
-/* ======== INPUT E SELECT ======== */
+/* ===============================
+   INPUT E SELECT
+=============================== */
 
 .box input,
 .box select {
@@ -165,15 +127,20 @@ body {
     padding: 12px;
     margin: 5px 0;
     border-radius: 8px;
-    border: none;
     background: #0b1624;
     color: #eef;
-    border: 1px solid #0077bb;
+    border: 1px solid #0088bb;
     box-shadow: 0 0 8px #00557755 inset;
+    outline: none;
 }
 
+input::placeholder {
+    color: #99c2dd;
+}
 
-/* ======== BUTTONS ======== */
+/* ===============================
+   BUTTONS
+=============================== */
 
 .btn-primary {
     padding: 12px 20px;
@@ -182,12 +149,13 @@ body {
     border: none;
     cursor: pointer;
     border-radius: 8px;
-    box-shadow: 0 0 12px #0066ffcc;
+    font-weight: bold;
+    box-shadow: 0 0 14px #0066ffdd;
 }
 
 .btn-primary:hover {
     background: #0080ff;
-    box-shadow: 0 0 20px #0099ff;
+    box-shadow: 0 0 20px #00aaff;
 }
 
 .btn-secondary {
@@ -205,13 +173,15 @@ body {
     box-shadow: 0 0 15px #0066aa;
 }
 
-/* Mini Buttons */
+/* MINI BUTTONS */
+
 .btn-mini {
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
     color: white;
     font-size: 0.75rem;
+    font-weight: bold;
 }
 
 .btn-toggle {
@@ -232,8 +202,9 @@ body {
     background: #ff0000;
 }
 
-
-/* ======== TABELLA NEON ======== */
+/* ===============================
+   TABELLONA UTENTI NEON
+=============================== */
 
 .neon-table {
     width: 100%;
@@ -256,15 +227,16 @@ body {
 .neon-table td {
     padding: 10px;
     border-bottom: 1px solid #003355;
-    background: #04101c;
+    background: rgba(0, 20, 36, 0.6);
 }
 
 .neon-table tr:hover td {
-    background: #062238;
+    background: rgba(0, 64, 110, 0.5);
     box-shadow: 0 0 10px #0077bb77 inset;
 }
 
-/* BADGE */
+/* BADGES */
+
 .badge {
     padding: 5px 8px;
     border-radius: 6px;
@@ -285,14 +257,32 @@ body {
     color: black;
 }
 
+/* DOT ONLINE */
 
-/* ======== STORICO BOX ======== */
+.dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-online {
+    background: #00ff88;
+}
+
+.dot-offline {
+    background: #888;
+}
+
+/* ===============================
+   STORICO OPERAZIONI
+=============================== */
 
 .storico-box {
     max-height: 260px;
     overflow-y: scroll;
     padding: 15px;
-    background: #050f1b;
+    background: rgba(5, 15, 27, 0.75);
     border-radius: 10px;
     border: 1px solid #004466;
     box-shadow: 0 0 12px #004466aa inset;
@@ -303,3 +293,17 @@ body {
     font-size: 0.9rem;
 }
 
+/* SCROLLBAR */
+
+.storico-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.storico-box::-webkit-scrollbar-thumb {
+    background: #00aaff;
+    border-radius: 10px;
+}
+
+.storico-box::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
