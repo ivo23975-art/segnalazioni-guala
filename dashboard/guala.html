@@ -13,7 +13,7 @@
     <!-- CONFIG FIREBASE -->
     <script src="firebase-config.js"></script>
 
-    <!-- SISTEMA LOGIN ADMIN (DEVE ESSERE PRIMA DI dashboard.js) -->
+    <!-- SISTEMA LOGIN ADMIN -->
     <script src="admin-auth.js"></script>
 
     <!-- LOGICA DASHBOARD -->
@@ -41,7 +41,6 @@
             transform: translateY(-2px);
         }
     </style>
-
 </head>
 
 <body>
@@ -72,8 +71,32 @@
 
 </div>
 
-<script>
 
+<!-- ===================================================
+     POPUP CHAT FUTURISTICO
+=================================================== -->
+
+<div id="chatPopup" class="chat-overlay" style="display:none;">
+    <div class="chat-window">
+        <h2 id="chatTitle">Chat segnalazione</h2>
+
+        <div id="chatMessages" class="chat-messages"></div>
+
+        <textarea id="chatInput" class="chat-input"
+            placeholder="Scrivi un messaggio..."></textarea>
+
+        <div class="chat-buttons">
+            <button class="chat-send" onclick="sendChatMessage()">Invia</button>
+            <button class="chat-close" onclick="closeChat()">Chiudi</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ===================================================
+     AVVIO PAGINA
+=================================================== -->
+<script>
     requireRole("guala");
 
     loadSegnalazioni(
@@ -81,7 +104,6 @@
             r.stato === "attiva" &&
             r.complesso === "guala"
     );
-
 </script>
 
 </body>
