@@ -1,340 +1,336 @@
-/* =========================================================
-   DASHBOARD – LETTURA REALTIME DELLE SEGNALAZIONI + CHAT
-   Percorso: dashboard/dashboard.js
-========================================================= */
+// dashboard.js
+// Gestione segnalazioni + UI chat (solo dove presente il popup HTML)
 
-/* ------------------------------------------------------------------
-   VARIABILI GLOBALI PER LA CHAT
------------------------------------------------------------------- */
+// Assumo che Firebase sia già inizializzato in firebase-config.js
+const db = firebase.firestore();
 
-let currentChatSegnalazioneId = null;   // id della segnalazione aperta
-let chatUnsubscribe = null;             // funzione per staccare il listener chat
+// ===============================
+// Utility generali
+// ===============================
 
+function formatDate(ts) {
+    if (!ts) return "";
 
-/* ------------------------------------------------------------------
-   LOAD SEGNALAZIONI
------------------------------------------------------------------- */
+    // Se è un Timestamp Firestore
+    if (ts.seconds) {
+        const date = ts.toDate();
+        return date.toLocaleString("it-IT", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    // Se è una Date JS
+    if (ts instanceof Date) {
+        return ts.toLocaleString("it-IT", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    // Fallback
+    try {
+        const date = new Date(ts);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleString("it-IT", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+    } catch (e) {
+        console.warn("formatDate: valore non riconosciuto", ts);
+    }
+
+    return "";
+}
+
+function tipoConSottotipo(tipo, sottotipo) {
+    if (!tipo && !sottotipo) return "";
+    if (tipo && !sottotipo) return tipo;
+    if (!tipo && sottotipo) return `<span class="sottotipo">${sottotipo}</span>`;
+    return `${tipo} <span class="sottotipo">${sottotipo}</span>`;
+}
+
+// ===============================
+// Caricamento segnalazioni
+// ===============================
+
 /**
- * Carica in realtime le segnalazioni e popola la tabella.
- *
- * @param {Function} filterFn   funzione che riceve una segnalazione "r"
- *                              e deve restituire true/false
- * @param {Boolean}  superadmin se true mostra anche il bottone "✖"
+ * Carica le segnalazioni in tempo reale e popola la tabella.
+ * @param {Function} filterFn funzione che riceve un record "r" e ritorna true/false
+ * @param {boolean} superadmin se true, mostra anche il bottone elimina
  */
 function loadSegnalazioni(filterFn, superadmin = false) {
+    const tbody = document.getElementById("tbody");
+    if (!tbody) {
+        console.error("Impossibile trovare tbody per le segnalazioni");
+        return;
+    }
 
-    console.log("[DEBUG] loadSegnalazioni avviata…");
+    // Verifica se la pagina supporta la chat:
+    // se NON esiste #chatPopup, non mostriamo l'icona 💬.
+    const chatAvailable = !!document.getElementById("chatPopup");
 
     db.collection("segnalazioni")
-      .orderBy("timestamp", "desc")
-      .onSnapshot(
-        (snapshot) => {
-
-            console.log("[DEBUG] Documenti ricevuti:", snapshot.size);
-
-            let html = "";
+        .orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+            tbody.innerHTML = "";
 
             snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                const r = {
+                    id: doc.id,
+                    complesso: (data.complesso || "").toLowerCase(),
+                    complessoLabel: data.complesso || "",
+                    scala: data.scala || "",
+                    piano: data.piano || "",
+                    lato: data.lato || "",
+                    nome: data.nome || "",
+                    temperatura: (data.temperatura !== undefined && data.temperatura !== null)
+                        ? data.temperatura
+                        : "",
+                    tipo: data.tipo || "",
+                    sottotipo: data.sottotipo || "",
+                    descrizione: data.descrizione || "",
+                    stato: (data.stato || "").toLowerCase(),
+                    timestamp: data.timestamp || null
+                };
 
-                const r = doc.data();
-                r.id = doc.id;
+                // Applica filtro specifico (es. solo guala, solo attive, ecc.)
+                if (typeof filterFn === "function" && !filterFn(r)) {
+                    return;
+                }
 
-                if (!r.stato)     r.stato     = "attiva";
-                if (!r.tipo)      r.tipo      = "N/D";
-                if (!r.complesso) r.complesso = "sconosciuto";
+                // Normalizzazioni (solo label dove serve)
+                const statoLabel = r.stato === "risolta" ? "Risolta" : "Attiva";
 
-                // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
-                const passa = filterFn(r);
-                if (!passa) return;
+                const tipoLabelHtml = tipoConSottotipo(r.tipo, r.sottotipo);
+                const dataLabel = formatDate(r.timestamp);
 
-                html += `
-                <tr>
-                    <td data-label="Data">${formatDate(r.timestamp)}</td>
-                    <td data-label="Scala">${r.scala || "-"}</td>
-                    <td data-label="Piano">${r.piano || "-"}</td>
-                    <td data-label="Lato">${r.lato || "-"}</td>
-                    <td data-label="Nome">${r.nome || "-"}</td>
-                    <td data-label="Temp">${r.temperatura || "-"}</td>
-                    <td data-label="Tipo">${tipoConSottotipo(r.tipo, r.sottotipo)}</td>
-                    <td data-label="Descrizione">${r.descrizione || "-"}</td>
+                // Safe per l'attributo HTML (nome in openChat)
+                const safeNome = (r.nome || "")
+                    .replace(/'/g, "&#39;")
+                    .replace(/"/g, "&quot;");
 
+                // Costruzione riga tabella
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td data-label="Data">${dataLabel}</td>
+                    <td data-label="Complesso">${r.complessoLabel}</td>
+                    <td data-label="Scala">${r.scala}</td>
+                    <td data-label="Piano">${r.piano}</td>
+                    <td data-label="Lato">${r.lato}</td>
+                    <td data-label="Nome">${r.nome}</td>
+                    <td data-label="Temperatura">${r.temperatura}</td>
+                    <td data-label="Tipo">${tipoLabelHtml}</td>
+                    <td data-label="Descrizione">${r.descrizione}</td>
+                    <td data-label="Stato">${statoLabel}</td>
                     <td data-label="Azioni">
-                        <div style="display:flex; gap:6px;">
+                        <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
                             <div class="action-btn btn-green"
                                  onclick="risolviSegnalazione('${r.id}')">✔</div>
 
-                            <!-- CHAT ICON -->
-                            <div class="action-btn btn-chat"
-                                 title="Apri chat"
-                                 onclick="openChat('${r.id}')">💬</div>
+                            ${chatAvailable
+                                ? `
+                                    <div class="chat-icon"
+                                         title="Apri chat con il condomino"
+                                         onclick="openChat('${r.id}', '${safeNome}')">
+                                        💬
+                                    </div>
+                                  `
+                                : ""}
 
-                            ${
-                                superadmin
-                                  ? `<div class="action-btn btn-red"
-                                         onclick="eliminaSegnalazione('${r.id}')">✖</div>`
-                                  : ""
-                            }
+                            ${superadmin
+                                ? `
+                                    <div class="action-btn btn-red"
+                                         onclick="eliminaSegnalazione('${r.id}')">✖</div>
+                                  `
+                                : ""}
                         </div>
                     </td>
-                </tr>`;
+                `;
+
+                tbody.appendChild(tr);
             });
-
-            const bodyEl = document.getElementById("tbody");
-            if (bodyEl) bodyEl.innerHTML = html;
-        },
-
-        (error) => {
-            console.error("[DEBUG] ERRORE Firestore:", error);
-            alert("Errore Firestore: " + error.message);
-        }
-      );
+        }, error => {
+            console.error("Errore nel listener delle segnalazioni:", error);
+        });
 }
 
-
-/* ------------------------------------------------------------------
-   RISOLVI SEGNALAZIONE
------------------------------------------------------------------- */
+// ===============================
+// Azioni: risolvi / elimina
+// ===============================
 
 function risolviSegnalazione(id) {
-    if (!confirm("Segnalazione risolta?")) return;
+    if (!id) return;
 
-    db.collection("segnalazioni").doc(id).update({
-        stato: "risolta",
-        risolta_il: new Date()
-    })
-    .then(() => console.log("Segnalazione risolta:", id))
-    .catch(err => alert("Errore: " + err.message));
+    const conferma = confirm("Segnare questa segnalazione come RISOLTA?");
+    if (!conferma) return;
+
+    db.collection("segnalazioni")
+        .doc(id)
+        .update({
+            stato: "risolta",
+            risolta_il: new Date()
+        })
+        .then(() => {
+            console.log("Segnalazione risolta:", id);
+        })
+        .catch(err => {
+            console.error("Errore nel risolvere la segnalazione:", err);
+            alert("Si è verificato un errore nel segnare la segnalazione come risolta.");
+        });
 }
-
-
-/* ------------------------------------------------------------------
-   ELIMINA SEGNALAZIONE (solo SuperAdmin)
------------------------------------------------------------------- */
 
 function eliminaSegnalazione(id) {
-    if (!confirm("Eliminare definitivamente la segnalazione?")) return;
+    if (!id) return;
 
-    db.collection("segnalazioni").doc(id).delete()
-      .then(() => console.log("Segnalazione eliminata:", id))
-      .catch(err => alert("Errore: " + err.message));
+    const conferma = confirm(
+        "Sei sicuro di voler ELIMINARE definitivamente questa segnalazione?"
+    );
+    if (!conferma) return;
+
+    db.collection("segnalazioni")
+        .doc(id)
+        .delete()
+        .then(() => {
+            console.log("Segnalazione eliminata:", id);
+        })
+        .catch(err => {
+            console.error("Errore nell'eliminare la segnalazione:", err);
+            alert("Si è verificato un errore nell'eliminare la segnalazione.");
+        });
 }
 
+// ===============================
+// BLOCCO CHAT - SOLO UI (nessun Firestore) - SAFE OVUNQUE
+// ===============================
 
-/* ------------------------------------------------------------------
-   FORMATTAZIONE DATA
------------------------------------------------------------------- */
-
-function formatDate(ts) {
-    if (!ts) return "-";
-
-    try {
-        const d = ts.toDate(); // Firestore Timestamp
-        return d.toLocaleDateString("it-IT") + " " + d.toLocaleTimeString("it-IT");
-    } catch {
-        return "-";
-    }
-}
-
-
-/* ------------------------------------------------------------------
-   TIPO + SOTTOTIPO
------------------------------------------------------------------- */
-
-function tipoConSottotipo(tipo, sottotipo) {
-    if (!sottotipo) return tipo || "N/D";
-    return `${tipo} – <span class="sottotipo">${sottotipo}</span>`;
-}
-
-
-/* =========================================================
-   SEZIONE CHAT
-========================================================= */
+let currentChatSegnalazioneId = null;
 
 /**
- * Apre il popup chat per una segnalazione.
- * - Mostra il popup
- * - Carica il titolo (scala/piano/nome) dalla segnalazione
- * - Attiva il listener realtime sui messaggi
+ * Recupera in modo sicuro gli elementi della chat.
+ * Se non esistono (pagine senza popup), ritorna null
+ * SENZA generare errori.
  */
-function openChat(segnalazioneId) {
+function getChatElements() {
+    const popup = document.getElementById("chatPopup");
+    const title = document.getElementById("chatTitle");
+    const messages = document.getElementById("chatMessages");
+    const input = document.getElementById("chatInput");
 
-    const popup   = document.getElementById("chatPopup");
-    const titleEl = document.getElementById("chatTitle");
-    const msgBox  = document.getElementById("chatMessages");
-    const inputEl = document.getElementById("chatInput");
+    if (!popup || !title || !messages || !input) {
+        // Niente chat su questa pagina → nessun errore, solo log.
+        console.warn("UI chat non disponibile su questa dashboard.");
+        return null;
+    }
 
-    // Se la pagina non ha la struttura della chat (es. altre dashboard)
-    if (!popup || !titleEl || !msgBox || !inputEl) {
-        console.warn("openChat: struttura chat non presente in questa pagina.");
-        alert("Chat non disponibile su questa pagina.");
+    return { popup, title, messages, input };
+}
+
+function openChat(segnalazioneId, nomeCondomino) {
+    const els = getChatElements();
+    if (!els) {
+        // Eventuale feedback “gentile” per l’utente, ma opzionale:
+        // alert("La chat non è disponibile in questa dashboard.");
         return;
     }
 
     currentChatSegnalazioneId = segnalazioneId;
 
-    // mostro overlay
+    const { popup, title, messages, input } = els;
+
+    // Titolo popup
+    if (nomeCondomino) {
+        title.innerText = `Chat segnalazione – ${nomeCondomino}`;
+    } else {
+        title.innerText = "Chat segnalazione";
+    }
+
+    // Per ora: puliamo i messaggi e mostriamo un messaggio di sistema di benvenuto
+    messages.innerHTML = "";
+
+    const now = new Date();
+    const introDiv = document.createElement("div");
+    introDiv.className = "chat-system-message";
+    introDiv.innerText = `[${now.toLocaleTimeString("it-IT", {
+        hour: "2-digit",
+        minute: "2-digit"
+    })}] Chat avviata per questa segnalazione (SOLO INTERFACCIA, nessun salvataggio).`;
+
+    messages.appendChild(introDiv);
+
+    // Mostra popup
     popup.style.display = "flex";
 
-    // pulisco input
-    inputEl.value = "";
-
-    // setto titolo leggendo la segnalazione
-    db.collection("segnalazioni").doc(segnalazioneId).get()
-        .then(doc => {
-            if (!doc.exists) {
-                titleEl.innerText = "Segnalazione (non trovata)";
-                return;
-            }
-            const r = doc.data();
-            const parts = [];
-            if (r.complesso) parts.push(r.complesso.toUpperCase());
-            if (r.scala)     parts.push("Scala " + r.scala);
-            if (r.piano)     parts.push(r.piano + "° piano");
-            if (r.lato)      parts.push(r.lato);
-            if (r.nome)      parts.push(r.nome);
-
-            titleEl.innerText = parts.join(" • ") || "Chat segnalazione";
-        })
-        .catch(err => {
-            console.warn("openChat: errore lettura segnalazione:", err);
-            titleEl.innerText = "Chat segnalazione";
-        });
-
-    // attivo listener realtime sulla sotto-collezione "chat"
-    subscribeChat(segnalazioneId);
+    // Reset + focus input
+    input.value = "";
+    input.focus();
 }
 
-
-/**
- * Attiva il listener realtime sui messaggi della chat.
- */
-function subscribeChat(segnalazioneId) {
-
-    // se c'era un listener precedente lo stacco
-    if (chatUnsubscribe) {
-        chatUnsubscribe();
-        chatUnsubscribe = null;
-    }
-
-    const msgBox = document.getElementById("chatMessages");
-    if (!msgBox) return;
-
-    msgBox.innerHTML = "<p>Caricamento messaggi…</p>";
-
-    chatUnsubscribe = db.collection("segnalazioni")
-        .doc(segnalazioneId)
-        .collection("chat")
-        .orderBy("timestamp", "asc")
-        .onSnapshot(
-            (snapshot) => {
-                let html = "";
-
-                snapshot.forEach(doc => {
-                    const m = doc.data();
-                    const testo  = escapeHtml(m.text || "");
-                    const sender = m.sender || "admin";
-                    let when = "-";
-                    try {
-                        if (m.timestamp && m.timestamp.toDate) {
-                            when = m.timestamp.toDate().toLocaleString("it-IT");
-                        }
-                    } catch (e) {}
-
-                    html += `
-                        <div class="chat-message">
-                            <div class="chat-meta">
-                                <span class="chat-sender">${escapeHtml(sender)}</span>
-                                <span class="chat-time">${when}</span>
-                            </div>
-                            <div class="chat-text">${testo}</div>
-                        </div>
-                    `;
-                });
-
-                if (!html) {
-                    html = "<p>Nessun messaggio ancora. Scrivi il primo.</p>";
-                }
-
-                msgBox.innerHTML = html;
-
-                // scroll in fondo
-                msgBox.scrollTop = msgBox.scrollHeight;
-            },
-            (error) => {
-                console.error("subscribeChat: errore Firestore chat:", error);
-                msgBox.innerHTML = "<p>Errore nel caricamento della chat.</p>";
-            }
-        );
-}
-
-
-/**
- * Invia un messaggio nella chat della segnalazione corrente.
- */
-function sendChatMessage() {
-    const inputEl = document.getElementById("chatInput");
-    if (!inputEl) return;
-
-    const text = (inputEl.value || "").trim();
-    if (!text) return;
-
-    if (!currentChatSegnalazioneId) {
-        alert("Nessuna segnalazione selezionata.");
-        return;
-    }
-
-    const segnalazioneId = currentChatSegnalazioneId;
-
-    // puoi cambiare "guala-admin" con qualcosa di più specifico se vuoi
-    const senderLabel = "guala-admin";
-
-    db.collection("segnalazioni")
-        .doc(segnalazioneId)
-        .collection("chat")
-        .add({
-            text: text,
-            sender: senderLabel,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
-            inputEl.value = "";
-        })
-        .catch(err => {
-            console.error("sendChatMessage: errore invio:", err);
-            alert("Errore nell'invio del messaggio.");
-        });
-}
-
-
-/**
- * Chiude il popup chat e ferma il listener sui messaggi.
- */
 function closeChat() {
-    const popup   = document.getElementById("chatPopup");
-    const msgBox  = document.getElementById("chatMessages");
-    const inputEl = document.getElementById("chatInput");
+    const els = getChatElements();
+    if (!els) return;
 
-    if (popup)  popup.style.display = "none";
-    if (msgBox) msgBox.innerHTML = "";
-    if (inputEl) inputEl.value = "";
+    const { popup, messages, input } = els;
 
+    popup.style.display = "none";
+    messages.innerHTML = "";
+    input.value = "";
     currentChatSegnalazioneId = null;
+}
 
-    if (chatUnsubscribe) {
-        chatUnsubscribe();
-        chatUnsubscribe = null;
+function sendChatMessage() {
+    const els = getChatElements();
+    if (!els) return;
+
+    const { messages, input } = els;
+
+    const testo = (input.value || "").trim();
+    if (!testo) return;
+
+    const now = new Date();
+    const oraStr = now.toLocaleTimeString("it-IT", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    // Per ora: solo UI locale, nessun salvataggio su Firestore
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "chat-message chat-message-admin";
+    msgDiv.innerHTML = `
+        <span class="chat-meta">[${oraStr}] ADMIN</span>
+        <span class="chat-text"></span>
+    `;
+    msgDiv.querySelector(".chat-text").innerText = testo;
+
+    messages.appendChild(msgDiv);
+
+    // Reset input + scroll in basso
+    input.value = "";
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// Opzionale: invio con ENTER (ma senza bloccare mai la pagina se gli elementi non esistono)
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        const els = getChatElements();
+        if (!els) return;
+
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.id === "chatInput") {
+            e.preventDefault();
+            sendChatMessage();
+        }
     }
-}
-
-
-/* ------------------------------------------------------------------
-   HELPER PER EVITARE PROBLEMI DI HTML NEL TESTO CHAT
------------------------------------------------------------------- */
-function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+});
