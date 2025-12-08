@@ -1,17 +1,14 @@
 /* ========================================================
    DASHBOARD – LETTURA REALTIME DELLE SEGNALAZIONI
+   + Pulsante CHAT (non attivo ma pronto per integrazione)
 ======================================================== */
 
 function loadSegnalazioni(filterFn, superadmin = false) {
-
-    console.log("[DEBUG] loadSegnalazioni avviata…");
 
     db.collection("segnalazioni")
       .orderBy("timestamp", "desc")
       .onSnapshot(
         (snapshot) => {
-
-            console.log("[DEBUG] Documenti ricevuti:", snapshot.size);
 
             let html = "";
 
@@ -24,7 +21,7 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                 if (!r.tipo) r.tipo = "N/D";
                 if (!r.complesso) r.complesso = "sconosciuto";
 
-                // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
+                // 🔍 filtro personalizzato: Guala / Piobesi / Parti Comuni / Superadmin
                 const passa = filterFn(r);
                 if (!passa) return;
 
@@ -42,10 +39,17 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                     <td data-label="Descrizione">${r.descrizione || "-"}</td>
 
                     <td data-label="Azioni">
-                        <div style="display:flex;">
+                        <div style="display:flex; gap:4px;">
+
+                            <!-- ✔ Segnalazione risolta -->
                             <div class="action-btn btn-green"
                                  onclick="risolviSegnalazione('${r.id}')">✔</div>
 
+                            <!-- 💬 CHAT (nuovo pulsante) -->
+                            <div class="action-btn btn-blue"
+                                 onclick="openChat('${r.id}')">💬</div>
+
+                            <!-- ✖ Eliminazione (solo superadmin) -->
                             ${ superadmin
                                 ? `<div class="action-btn btn-red"
                                        onclick="eliminaSegnalazione('${r.id}')">✖</div>`
@@ -60,7 +64,7 @@ function loadSegnalazioni(filterFn, superadmin = false) {
         },
 
         (error) => {
-            console.error("[DEBUG] ERRORE Firestore:", error);
+            console.error("ERRORE Firestore:", error);
             alert("Errore Firestore: " + error.message);
         }
       );
@@ -77,8 +81,15 @@ function risolviSegnalazione(id) {
         stato: "risolta",
         risolta_il: new Date()
     })
-    .then(() => console.log("Segnalazione risolta:", id))
     .catch(err => alert("Errore: " + err.message));
+}
+
+
+/* ========================================================
+   CHAT – Placeholder in attesa del vero popup
+======================================================== */
+function openChat(idSegnalazione) {
+    alert("💬 CHAT in arrivo! (ID: " + idSegnalazione + ")");
 }
 
 
@@ -89,7 +100,6 @@ function eliminaSegnalazione(id) {
     if (!confirm("Eliminare definitivamente la segnalazione?")) return;
 
     db.collection("segnalazioni").doc(id).delete()
-      .then(() => console.log("Segnalazione eliminata:", id))
       .catch(err => alert("Errore: " + err.message));
 }
 
@@ -101,7 +111,7 @@ function formatDate(ts) {
     if (!ts) return "-";
 
     try {
-        const d = ts.toDate(); // Firestore Timestamp
+        const d = ts.toDate(); 
         return d.toLocaleDateString("it-IT") + " " + d.toLocaleTimeString("it-IT");
     } catch {
         return "-";
@@ -110,11 +120,9 @@ function formatDate(ts) {
 
 
 /* ========================================================
-   GESTIONE TIPO + SOTTOTIPO
+   TIPO + SOTTOTIPO
 ======================================================== */
 function tipoConSottotipo(tipo, sottotipo) {
-
     if (!sottotipo) return tipo;
-
     return `${tipo} – <span class="sottotipo">${sottotipo}</span>`;
 }
