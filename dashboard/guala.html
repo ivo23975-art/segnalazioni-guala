@@ -10,15 +10,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE -->
+    <!-- CONFIG FIREBASE (DEVE ESSERE PRIMA DI dashboard.js) -->
     <script src="firebase-config.js"></script>
-
-    <!-- SISTEMA LOGIN ADMIN -->
-    <script src="admin-auth.js"></script>
 
     <!-- LOGICA DASHBOARD -->
     <script src="dashboard.js"></script>
 
+    <!-- SISTEMA LOGIN ADMIN -->
+    <script src="admin-auth.js"></script>
+
+    <!-- 👇 CSS LOGOUT PULSANTE -->
     <style>
         .logout-btn {
             position: fixed;
@@ -33,6 +34,7 @@
             border: none;
             text-decoration: none;
             transition: .2s;
+            font-family: system-ui, sans-serif;
             z-index: 9999;
         }
 
@@ -41,10 +43,12 @@
             transform: translateY(-2px);
         }
     </style>
+
 </head>
 
 <body>
 
+<!-- 🔴 LOGOUT FISSO E MODERNO -->
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
 <div class="header">Guala – Segnalazioni attive</div>
@@ -71,39 +75,22 @@
 
 </div>
 
-
-<!-- ===================================================
-     POPUP CHAT FUTURISTICO
-=================================================== -->
-
-<div id="chatPopup" class="chat-overlay" style="display:none;">
-    <div class="chat-window">
-        <h2 id="chatTitle">Chat segnalazione</h2>
-
-        <div id="chatMessages" class="chat-messages"></div>
-
-        <textarea id="chatInput" class="chat-input"
-            placeholder="Scrivi un messaggio..."></textarea>
-
-        <div class="chat-buttons">
-            <button class="chat-send" onclick="sendChatMessage()">Invia</button>
-            <button class="chat-close" onclick="closeChat()">Chiudi</button>
-        </div>
-    </div>
-</div>
-
-
-<!-- ===================================================
-     AVVIO PAGINA
-=================================================== -->
 <script>
+
+    /* -------------------------------------------------------
+       🔒 PROTEZIONE ACCESSO ADMIN GUALA
+    ---------------------------------------------------------- */
     requireRole("guala");
 
+    /* -------------------------------------------------------
+       Carica SOLO segnalazioni attive di Guala
+    ---------------------------------------------------------- */
     loadSegnalazioni(
         r =>
             r.stato === "attiva" &&
             r.complesso === "guala"
     );
+
 </script>
 
 </body>
