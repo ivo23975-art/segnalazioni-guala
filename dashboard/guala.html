@@ -13,7 +13,7 @@
     <!-- CONFIG FIREBASE -->
     <script src="firebase-config.js"></script>
 
-    <!-- SISTEMA LOGIN ADMIN (DEVE ESSERE PRIMA DI dashboard.js) -->
+    <!-- SISTEMA LOGIN ADMIN -->
     <script src="admin-auth.js"></script>
 
     <!-- LOGICA DASHBOARD -->
@@ -40,6 +40,16 @@
             background: #ff0000;
             transform: translateY(-2px);
         }
+
+        /* Bottone chat */
+        .btn-blue {
+            background: #005eff;
+            color: white;
+        }
+
+        .btn-blue:hover {
+            background: #1a77ff;
+        }
     </style>
 
 </head>
@@ -63,7 +73,7 @@
     <th>Temp</th>
     <th>Tipo</th>
     <th>Descrizione</th>
-    <th>Risolvi</th>
+    <th>Azioni</th>
 </tr>
 </thead>
 
@@ -74,13 +84,20 @@
 
 <script>
 
+    /* PROTEZIONE */
     requireRole("guala");
 
+    /* CARICA SEGNALAZIONI */
     loadSegnalazioni(
         r =>
             r.stato === "attiva" &&
             r.complesso === "guala"
     );
+
+    /* APERTURA CHAT */
+    function openChat(id) {
+        window.location.href = `dashboard/chat.html?id=${id}`;
+    }
 
 </script>
 
