@@ -47,12 +47,10 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                             <div class="action-btn btn-green"
                                  onclick="risolviSegnalazione('${r.id}')">✔</div>
 
-                            <!-- CHAT ICON SEMPRE VISIBILE -->
+                            <!-- CHAT (sempre visibile, attiva SOLO su Guala) -->
                             <div class="chat-icon"
                                  title="Apri chat"
-                                 onclick="openChat('${r.id}', '${safeNome}')">
-                                💬
-                            </div>
+                                 onclick="openChat('${r.id}', '${safeNome}')">💬</div>
 
                             <!-- ELIMINA (solo superadmin) -->
                             ${
@@ -80,6 +78,7 @@ function loadSegnalazioni(filterFn, superadmin = false) {
 /* ========================================================
    RISOLVI SEGNALAZIONE
 ======================================================== */
+
 function risolviSegnalazione(id) {
     if (!confirm("Segnalazione risolta?")) return;
 
@@ -95,6 +94,7 @@ function risolviSegnalazione(id) {
 /* ========================================================
    ELIMINA SEGNALAZIONE (solo SuperAdmin)
 ======================================================== */
+
 function eliminaSegnalazione(id) {
     if (!confirm("Eliminare definitivamente la segnalazione?")) return;
 
@@ -107,6 +107,7 @@ function eliminaSegnalazione(id) {
 /* ========================================================
    FORMATTA DATA
 ======================================================== */
+
 function formatDate(ts) {
     if (!ts) return "-";
 
@@ -122,6 +123,7 @@ function formatDate(ts) {
 /* ========================================================
    TIPO + SOTTOTIPO
 ======================================================== */
+
 function tipoConSottotipo(tipo, sottotipo) {
     if (!sottotipo) return tipo;
     return `${tipo} – <span class="sottotipo">${sottotipo}</span>`;
@@ -141,7 +143,7 @@ function openChat(id, nome) {
     const msgBox   = document.getElementById("chatMessages");
     const inputEl  = document.getElementById("chatInput");
 
-    // SE NON ESISTE LA CHAT → SIAMO IN PIUOBESI/PARTICOMUNI/SUPERADMIN
+    // Chat NON presente → altri pannelli
     if (!popup || !titleEl || !msgBox || !inputEl) {
         alert("La chat è disponibile solo per il pannello Guala.");
         return;
@@ -150,8 +152,8 @@ function openChat(id, nome) {
     currentChatSegnalazioneId = id;
 
     titleEl.innerText = `Chat segnalazione – ${nome}`;
-    msgBox.innerHTML  =
-        `<p><em>(Chat di prova – id: ${id}. Non salviamo ancora su Firestore.)</em></p>`;
+    msgBox.innerHTML =
+        `<p><em>(Chat attiva – id: ${id}. Messaggi real-time in arrivo allo Step 2.)</em></p>`;
     inputEl.value = "";
 
     popup.style.display = "flex";
@@ -163,19 +165,38 @@ function closeChat() {
     currentChatSegnalazioneId = null;
 }
 
-function sendChatMessage() {
-    const msgBox  = document.getElementById("chatMessages");
-    const inputEl = document.getElementById("chatInput");
 
-    if (!msgBox || !inputEl) return;
+/* ========================================================
+   STEP 1 — INVIO MESSAGGI SU FIRESTORE
+======================================================== */
+
+function sendChatMessage() {
+
+    const inputEl = document.getElementById("chatInput");
+    if (!inputEl) return;
 
     const text = inputEl.value.trim();
     if (!text) return;
 
-    const now = new Date().toLocaleString("it-IT");
+    if (!currentChatSegnalazioneId) {
+        console.error("Nessuna segnalazione attiva.");
+        return;
+    }
 
-    msgBox.innerHTML += `<p><strong>[${now}] ADMIN:</strong> ${text}</p>`;
-    inputEl.value = "";
-
-    msgBox.scrollTop = msgBox.scrollHeight;
+    // 🔥 Salva messaggio su Firestore
+    db.collection("segnalazioni")
+      .doc(currentChatSegnalazioneId)
+      .collection("chat")
+      .add({
+          testo: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          mittente: "admin"
+      })
+      .then(() => {
+          inputEl.value = "";
+      })
+      .catch(err => {
+          console.error("Errore invio messaggio:", err);
+          alert("Errore durante l'invio del messaggio.");
+      });
 }
