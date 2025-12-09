@@ -49,6 +49,7 @@ function loadSegnalazioni(filterFn, superadmin = false) {
 
                             <!-- CHAT ICON -->
                             <div class="chat-icon"
+                                 style="cursor:pointer; pointer-events:auto; display:inline-flex; align-items:center; justify-content:center;"
                                  title="Apri chat"
                                  onclick="openChat('${r.id}', '${safeNome}')">💬</div>
 
@@ -143,6 +144,8 @@ let unsubscribeChatListener = null;
 =========================== */
 function openChat(id, nome) {
 
+    console.log("[CHAT] openChat", id, nome);
+
     const popup    = document.getElementById("chatPopup");
     const titleEl  = document.getElementById("chatTitle");
     const msgBox   = document.getElementById("chatMessages");
@@ -160,7 +163,6 @@ function openChat(id, nome) {
 
     popup.style.display = "flex";
 
-    /* --- ATTIVO LISTENER REALTIME --- */
     if (unsubscribeChatListener) unsubscribeChatListener();
 
     unsubscribeChatListener = db.collection("segnalazioni")
