@@ -6,13 +6,6 @@ function loadSegnalazioni(filterFn, superadmin = false) {
 
     console.log("[DEBUG] loadSegnalazioni avviata…");
 
-    // CHAT DISPONIBILE SOLO SE ESISTONO TUTTI GLI ELEMENTI HTML
-    const chatAvailable =
-        document.getElementById("chatPopup") &&
-        document.getElementById("chatTitle") &&
-        document.getElementById("chatMessages") &&
-        document.getElementById("chatInput");
-
     db.collection("segnalazioni")
       .orderBy("timestamp", "desc")
       .onSnapshot(
@@ -31,11 +24,9 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                 if (!r.tipo) r.tipo = "N/D";
                 if (!r.complesso) r.complesso = "sconosciuto";
 
-                // filtro personalizzato (Guala, Piobesi, Parti Comuni, SuperAdmin)
                 const passa = filterFn(r);
                 if (!passa) return;
 
-                // Sicurezza per nome nel click
                 const safeNome = (r.nome || "-").replace(/'/g, "\\'");
 
                 html += `
@@ -46,30 +37,24 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                     <td data-label="Lato">${r.lato || "-"}</td>
                     <td data-label="Nome">${r.nome || "-"}</td>
                     <td data-label="Temp">${r.temperatura || "-"}</td>
-
                     <td data-label="Tipo">${tipoConSottotipo(r.tipo, r.sottotipo)}</td>
-
                     <td data-label="Descrizione">${r.descrizione || "-"}</td>
 
-                    <!-- NUOVA COLONNA CHAT (solo se disponibile) -->
-                    <td data-label="Chat">
-                        ${
-                            chatAvailable
-                            ? `<div class="chat-icon"
-                                   title="Apri chat"
-                                   onclick="openChat('${r.id}', '${safeNome}')">
-                                   💬
-                               </div>`
-                            : "-"
-                        }
-                    </td>
-
-                    <!-- COLONNA AZIONI ORIGINALE -->
                     <td data-label="Azioni">
-                        <div style="display:flex;">
+                        <div style="display:flex; gap:6px;">
+
+                            <!-- RISOLVI -->
                             <div class="action-btn btn-green"
                                  onclick="risolviSegnalazione('${r.id}')">✔</div>
 
+                            <!-- CHAT ICON SEMPRE VISIBILE -->
+                            <div class="chat-icon"
+                                 title="Apri chat"
+                                 onclick="openChat('${r.id}', '${safeNome}')">
+                                💬
+                            </div>
+
+                            <!-- ELIMINA (solo superadmin) -->
                             ${
                                 superadmin
                                 ? `<div class="action-btn btn-red"
@@ -120,7 +105,7 @@ function eliminaSegnalazione(id) {
 
 
 /* ========================================================
-   FORMATTATORE DATA
+   FORMATTA DATA
 ======================================================== */
 function formatDate(ts) {
     if (!ts) return "-";
@@ -135,34 +120,30 @@ function formatDate(ts) {
 
 
 /* ========================================================
-   GESTIONE TIPO + SOTTOTIPO
+   TIPO + SOTTOTIPO
 ======================================================== */
 function tipoConSottotipo(tipo, sottotipo) {
-
     if (!sottotipo) return tipo;
-
     return `${tipo} – <span class="sottotipo">${sottotipo}</span>`;
 }
 
 
 /* ========================================================
-   CHAT POPUP – SOLO UI (STEP 1)
+   CHAT – SAFE OVUNQUE
 ======================================================== */
 
 let currentChatSegnalazioneId = null;
 
 function openChat(id, nome) {
 
-    console.log("[CHAT] openChat", id, nome);
-
     const popup    = document.getElementById("chatPopup");
     const titleEl  = document.getElementById("chatTitle");
     const msgBox   = document.getElementById("chatMessages");
     const inputEl  = document.getElementById("chatInput");
 
-    // SE NON ESISTONO → CHAT NON SUPPORTATA IN QUESTA DASHBOARD
+    // SE NON ESISTE LA CHAT → SIAMO IN PIUOBESI/PARTICOMUNI/SUPERADMIN
     if (!popup || !titleEl || !msgBox || !inputEl) {
-        console.warn("[CHAT] Popup non presente → chat disabilitata.");
+        alert("La chat è disponibile solo per il pannello Guala.");
         return;
     }
 
@@ -183,15 +164,12 @@ function closeChat() {
 }
 
 function sendChatMessage() {
-    const inputEl = document.getElementById("chatInput");
     const msgBox  = document.getElementById("chatMessages");
+    const inputEl = document.getElementById("chatInput");
 
-    if (!inputEl || !msgBox) {
-        console.warn("[CHAT] Struttura chat non trovata.");
-        return;
-    }
+    if (!msgBox || !inputEl) return;
 
-    const text = (inputEl.value || "").trim();
+    const text = inputEl.value.trim();
     if (!text) return;
 
     const now = new Date().toLocaleString("it-IT");
