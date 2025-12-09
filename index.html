@@ -187,6 +187,157 @@ textarea { height: 90px; resize: none; }
   display:none;
   z-index:9999;
 }
+
+/* Pulsante CHAT SEGNALAZIONE (mobile style, non invasivo) */
+#btnChatSegnalazione {
+  display: none;
+  margin: 0 auto 1rem auto;
+  padding: 0.7rem 1rem;
+  max-width: 260px;
+  border-radius: 999px;
+  border: 1px solid #cc0000;
+  background: #ffffff;
+  color: #cc0000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  cursor: pointer;
+}
+
+/* ===============================
+   CHAT MOBILE – STILE APP/WHATSAPP
+================================= */
+
+.chatMobileOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.chatMobileWindow {
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  max-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatMobileHeader {
+  background: #cc0000;
+  color: #fff;
+  padding: 0.7rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#chatMobileTitle {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.chatMobileClose {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chatMobileMessages {
+  flex: 1;
+  padding: 0.7rem;
+  overflow-y: auto;
+  background: #e5ddd5;
+}
+
+.chatMobileBubble {
+  max-width: 78%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.9rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.chatMobileUser {
+  align-self: flex-end;
+  margin-left: auto;
+  background: #dcf8c6;
+}
+
+.chatMobileAdmin {
+  align-self: flex-start;
+  margin-right: auto;
+  background: #ffffff;
+}
+
+.chatMobileText {
+  margin-bottom: 0.15rem;
+}
+
+.chatMobileTime {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  text-align: right;
+}
+
+/* highlight leggero per nuovi messaggi */
+.chatMobileHighlight {
+  animation: chatHighlightPulse 0.6s;
+}
+
+@keyframes chatHighlightPulse {
+  0% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50% { box-shadow: 0 0 10px rgba(204,0,0,0.5); }
+  100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+}
+
+.chatMobileInputRow {
+  display: flex;
+  padding: 0.55rem;
+  gap: 0.5rem;
+  background: #f0f0f0;
+  border-top: 1px solid #ddd;
+}
+
+.chatMobileInput {
+  flex: 1;
+  min-height: 44px;
+  max-height: 90px;
+  border-radius: 1rem;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.7rem;
+  resize: none;
+  font-family: system-ui, sans-serif;
+}
+
+.chatMobileSend {
+  border-radius: 999px;
+  border: none;
+  background: #25d366;
+  color: #fff;
+  padding: 0 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chatMobileSend:active {
+  transform: scale(0.97);
+}
+
+.chatMobileSystem {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #555;
+  margin: 0.4rem 0;
+}
 </style>
 
 <!-- FIREBASE -->
@@ -211,6 +362,11 @@ const db = firebase.firestore();
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
 <h2>Piazza Guala • Via Piobesi</h2>
+
+<!-- Pulsante chat per segnalazione attiva (mostrato solo se esiste) -->
+<button id="btnChatSegnalazione" onclick="apriChatSegnalazione()">
+  💬 Apri chat per la segnalazione attiva
+</button>
 
 <div class="container"></div>
 
@@ -290,6 +446,29 @@ const db = firebase.firestore();
     <h3 id="confermaTesto"></h3>
     <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
     <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
+  </div>
+</div>
+
+<!-- ===============================
+     CHAT MOBILE FULLSCREEN
+================================= -->
+<div id="chatMobile" class="chatMobileOverlay">
+  <div class="chatMobileWindow">
+
+    <div class="chatMobileHeader">
+      <span id="chatMobileTitle">Chat segnalazione</span>
+      <button class="chatMobileClose" onclick="chiudiChatSegnalazione(false)">Chiudi</button>
+    </div>
+
+    <div id="chatMobileMessages" class="chatMobileMessages">
+      <!-- messaggi renderizzati via JS -->
+    </div>
+
+    <div class="chatMobileInputRow">
+      <textarea id="chatMobileInput" class="chatMobileInput" placeholder="Scrivi un messaggio..."></textarea>
+      <button class="chatMobileSend" onclick="inviaMessaggioChatMobile()">Invia</button>
+    </div>
+
   </div>
 </div>
 
@@ -494,13 +673,19 @@ Object.keys(condominio).forEach(scala => {
 });
 
 /* ============================================
-   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
+   LOGICA MODALI E INVIO (IDENTICA + CHAT)
 ============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
 let pianoSel = "";
 let latoSel = "";
+
+/* Chat mobile – variabili globali */
+let currentChatSegnalazioneId = null;
+let chatUnsubscribe = null;
+let chatStatoUnsubscribe = null;
+let lastChatSize = 0;
 
 function apri(scala, piano, lato, nome, elem){
   elementoSelezionato = elem;
@@ -556,6 +741,32 @@ function confermaInvio(){
   document.getElementById("modalConferma").style.display = "flex";
 }
 
+/* Salva info chat in localStorage */
+function salvaChatSegnalazione(idSegnalazione) {
+  try {
+    localStorage.setItem("chatSegnalazioneId", idSegnalazione);
+    const label = `${scalaSel} • ${pianoSel} • ${latoSel} • ${nominativo}`;
+    localStorage.setItem("chatSegnalazioneLabel", label);
+  } catch (e) {
+    console.log("localStorage non disponibile", e);
+  }
+}
+
+/* Aggiorna visibilità pulsante chat */
+function aggiornaStatoChatUI() {
+  const btn = document.getElementById("btnChatSegnalazione");
+  if (!btn) return;
+
+  let id = null;
+  try {
+    id = localStorage.getItem("chatSegnalazioneId");
+  } catch (e) {
+    id = null;
+  }
+  btn.style.display = id ? "block" : "none";
+}
+
+/* Invio segnalazione – aggiunta gestione chat */
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
@@ -608,17 +819,199 @@ function inviaSegnalazioneFinale() {
       priorita: priorita,
       stato: "attiva",
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then((docRef) => {
+      // collega chat a questa segnalazione
+      salvaChatSegnalazione(docRef.id);
+      aggiornaStatoChatUI();
+
+      chiudiConferma();
+      chiudiModal();
+
+      document.getElementById("tempInput").value = "";
+      document.getElementById("descrizioneInput").value = "";
+      document.getElementById("tipoInput").value = "altro";
+      document.getElementById("selectPartiComuni").value = "";
+      document.getElementById("selectPartiComuniWrapper").style.display = "none";
+
+      alert("Segnalazione inviata. Puoi aprire la chat dedicata con il pulsante in alto.");
+  })
+  .catch(err => {
+      console.error("Errore invio segnalazione:", err);
+      alert("Errore durante l'invio della segnalazione.");
   });
-
-  chiudiConferma();
-  chiudiModal();
-
-  document.getElementById("tempInput").value = "";
-  document.getElementById("descrizioneInput").value = "";
-  document.getElementById("tipoInput").value = "altro";
-  document.getElementById("selectPartiComuni").value = "";
-  document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
+
+/* ============================================
+   CHAT MOBILE – LOGICA COMPLETA
+============================================ */
+
+function apriChatSegnalazione() {
+  let id = null;
+  let label = "";
+  try {
+    id = localStorage.getItem("chatSegnalazioneId");
+    label = localStorage.getItem("chatSegnalazioneLabel") || "";
+  } catch (e) {
+    id = null;
+  }
+
+  if (!id) {
+    alert("Nessuna chat attiva per una segnalazione.");
+    aggiornaStatoChatUI();
+    return;
+  }
+
+  currentChatSegnalazioneId = id;
+  lastChatSize = 0;
+
+  const overlay = document.getElementById("chatMobile");
+  const msgBox  = document.getElementById("chatMobileMessages");
+  const titleEl = document.getElementById("chatMobileTitle");
+
+  if (!overlay || !msgBox || !titleEl) return;
+
+  titleEl.innerText = label ? `Chat segnalazione – ${label}` : "Chat segnalazione";
+  msgBox.innerHTML = `<p class="chatMobileSystem">Caricamento messaggi...</p>`;
+  overlay.style.display = "flex";
+
+  // Listener messaggi chat
+  if (chatUnsubscribe) chatUnsubscribe();
+  chatUnsubscribe = db.collection("segnalazioni")
+    .doc(id)
+    .collection("chat")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snapshot) => {
+      msgBox.innerHTML = "";
+
+      snapshot.forEach((doc) => {
+        const msg = doc.data();
+        renderChatMobileMessage(msg, msgBox);
+      });
+
+      // notif leggera solo su nuovi messaggi rispetto all'ultima dimensione
+      if (lastChatSize !== 0 && snapshot.size > lastChatSize) {
+        const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        const lastMsg = lastDoc.data();
+        if (lastMsg.mittente !== "utente") {
+          if (navigator.vibrate) {
+            navigator.vibrate(60);
+          }
+          const lastBubble = msgBox.lastElementChild;
+          if (lastBubble) {
+            lastBubble.classList.add("chatMobileHighlight");
+            setTimeout(() => lastBubble.classList.remove("chatMobileHighlight"), 600);
+          }
+        }
+      }
+      lastChatSize = snapshot.size;
+
+      msgBox.scrollTop = msgBox.scrollHeight;
+    });
+
+  // Listener stato segnalazione (chiusura automatica se risolta)
+  if (chatStatoUnsubscribe) chatStatoUnsubscribe();
+  chatStatoUnsubscribe = db.collection("segnalazioni")
+    .doc(id)
+    .onSnapshot((doc) => {
+      const data = doc.data();
+      if (!data) return;
+      if (data.stato && data.stato !== "attiva") {
+        // segnalazione chiusa
+        chiudiChatSegnalazione(true);
+      }
+    });
+}
+
+function chiudiChatSegnalazione(daRisoluzione) {
+  const overlay = document.getElementById("chatMobile");
+  const msgBox  = document.getElementById("chatMobileMessages");
+  if (overlay) overlay.style.display = "none";
+  if (msgBox) msgBox.innerHTML = "";
+
+  if (chatUnsubscribe) {
+    chatUnsubscribe();
+    chatUnsubscribe = null;
+  }
+  if (chatStatoUnsubscribe) {
+    chatStatoUnsubscribe();
+    chatStatoUnsubscribe = null;
+  }
+
+  currentChatSegnalazioneId = null;
+  lastChatSize = 0;
+
+  if (daRisoluzione) {
+    try {
+      localStorage.removeItem("chatSegnalazioneId");
+      localStorage.removeItem("chatSegnalazioneLabel");
+    } catch (e) {}
+    aggiornaStatoChatUI();
+    alert("La segnalazione è stata chiusa dall'amministratore. La chat è terminata.");
+  }
+}
+
+function inviaMessaggioChatMobile() {
+  const input = document.getElementById("chatMobileInput");
+  if (!input) return;
+
+  const text = (input.value || "").trim();
+  if (!text) return;
+
+  if (!currentChatSegnalazioneId) {
+    alert("Nessuna chat attiva.");
+    return;
+  }
+
+  db.collection("segnalazioni")
+    .doc(currentChatSegnalazioneId)
+    .collection("chat")
+    .add({
+      testo: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      mittente: "utente"
+    })
+    .then(() => {
+      input.value = "";
+    })
+    .catch((err) => {
+      console.error("Errore invio messaggio chat:", err);
+      alert("Errore durante l'invio del messaggio.");
+    });
+}
+
+function renderChatMobileMessage(msg, container) {
+  const isUser = msg.mittente === "utente";
+
+  const bubble = document.createElement("div");
+  bubble.className = "chatMobileBubble " + (isUser ? "chatMobileUser" : "chatMobileAdmin");
+
+  const textDiv = document.createElement("div");
+  textDiv.className = "chatMobileText";
+  textDiv.textContent = msg.testo || "";
+
+  const timeDiv = document.createElement("div");
+  timeDiv.className = "chatMobileTime";
+
+  if (msg.timestamp && msg.timestamp.toDate) {
+    const d = msg.timestamp.toDate();
+    timeDiv.textContent = d.toLocaleTimeString("it-IT", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } else {
+    timeDiv.textContent = "";
+  }
+
+  bubble.appendChild(textDiv);
+  bubble.appendChild(timeDiv);
+  container.appendChild(bubble);
+}
+
+/* All'avvio, aggiorna stato pulsante chat se esiste segnalazione in corso */
+window.addEventListener("load", () => {
+  aggiornaStatoChatUI();
+});
 </script>
 
 <!-- ===============================
