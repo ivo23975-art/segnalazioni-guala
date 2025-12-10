@@ -17,130 +17,289 @@
   --border: #cc0000;
   --shadow: 0 4px 14px rgba(0,0,0,0.12);
   --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
+
   --t-blue: #0077ff;
   --t-yellow: #ffcc00;
   --t-red: #d50000;
 }
 
-body { background: var(--bg); margin: 0; padding: 1rem; font-family: system-ui, sans-serif; }
-h1,h2 { text-align:center; margin:0; }
-h1 { font-size:1.7rem; font-weight:800; margin-bottom:.2rem; }
-h2 { font-size:1.1rem; font-weight:600; margin-bottom:1.5rem; }
+body {
+  background: var(--bg);
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
+h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 
 .container {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
-@media(max-width:900px){ .container{grid-template-columns:1fr;} }
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 
 .scalaBox {
-  background:white; padding:1rem; border-radius:1rem;
-  box-shadow:var(--shadow); max-height:87vh; overflow-y:auto;
-}
-.scalaTitle{ text-align:center; font-size:1.4rem; font-weight:bold; margin-bottom:1rem; }
-
-.pianoBox{
-  background:#fff; border:1px solid #e3e3e3; padding:1rem;
-  border-radius:.9rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(0,0,0,.07);
-}
-.pianoTop{ font-weight:bold; margin-bottom:.8rem; font-size:1rem;
-  display:flex; justify-content:space-between; align-items:center;
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  max-height: 87vh;
+  overflow-y: auto;
 }
 
-.chatPianoIcon{ font-size:20px; cursor:pointer; transition:.2s; }
-.chatPianoIcon:hover{ transform:scale(1.2); }
+.scalaTitle {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.pianoBox {
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+  padding: 1rem;
+  border-radius: .9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+.pianoTop {
+  font-weight: bold;
+  margin-bottom: .8rem;
+  font-size: 1rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.chatPianoIcon {
+  font-size: 20px;
+  cursor:pointer;
+  margin-left:8px;
+  transition:.2s;
+}
+.chatPianoIcon:hover { transform:scale(1.2); }
 
 .cards {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:.6rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .6rem;
 }
 
 .card {
-  background:var(--card-bg); border:2px solid var(--border);
-  border-radius:1rem; padding:.6rem; text-align:center;
-  cursor:pointer; font-weight:bold; box-shadow:var(--shadow);
-  transition:.15s ease;
-}
-.card:hover { transform:translateY(-3px); box-shadow:var(--shadow-strong); }
-
-.tempBox{
-  font-size:.85rem; margin-top:3px;
-  display:flex; justify-content:center; gap:4px; align-items:center;
-}
-.tempDot{ width:12px; height:12px; border-radius:50%; }
-.t-blue{ background:var(--t-blue);} .t-yellow{ background:var(--t-yellow);} .t-red{ background:var(--t-red); }
-
-.alert-red{ animation:redBlink 1s infinite; background:#ff0000!important; color:white; }
-.alert-orange{ animation:orangeBlink 1.4s infinite; background:#ff8800!important; color:white; }
-.alert-yellow{ animation:yellowBlink 1.8s infinite; }
-.alert-green{ background:#00b454!important; color:white; }
-
-@keyframes redBlink{0%,100%{background:#b00000;}50%{background:#ff4444;}}
-@keyframes orangeBlink{0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
-@keyframes yellowBlink{0%,100%{background:#d4bf00;}50%{background:#fff455;}}
-
-/* ===================== CHAT POPUP ===================== */
-.chat-overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,.7);
-  backdrop-filter:blur(4px); display:none;
-  align-items:center; justify-content:center; z-index:9999;
-}
-.chat-window{
-  width:380px; max-height:80vh; background:#111; border-radius:14px;
-  padding:15px; display:flex; flex-direction:column;
-  box-shadow:0 0 20px #00aaff80; border:1px solid #00aaff55;
-}
-#chatTitle{ color:#fff; font-size:1.2rem; text-align:center; margin-bottom:10px; }
-
-.chat-messages{
-  flex:1; overflow-y:auto; padding:10px; background:#0f0f0f;
-  border-radius:10px; margin-bottom:10px;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: .6rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: var(--shadow);
+  transition: .15s ease;
 }
 
-.chat-bubble{ max-width:80%; padding:8px 12px; border-radius:12px;
-  margin-bottom:8px; font-size:.9rem; display:flex; flex-direction:column;
-}
-.chat-user{ background:#1e3a5f; color:#b9d8ff; align-self:flex-start; }
-.chat-admin{ background:#145f32; color:#d6ffd6; align-self:flex-end; }
-.bubble-text{ margin-bottom:3px; }
-.bubble-time{ font-size:.75rem; opacity:.6; text-align:right; }
-
-.chat-input{
-  width:100%; min-height:60px; background:#222; color:#fff;
-  border:none; border-radius:8px; padding:10px; resize:none;
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-strong);
 }
 
-.chat-buttons{ display:flex; justify-content:space-between; gap:10px; }
-.chat-send,.chat-close{
-  flex:1; padding:10px; border:none; border-radius:8px;
-  font-weight:bold; color:#fff; cursor:pointer;
+.tempBox {
+  font-size: .85rem;
+  margin-top: 3px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
 }
-.chat-send{ background:#0066ff; } .chat-close{ background:#444; }
-.chat-send:hover{ background:#1a80ff; } .chat-close:hover{ background:#666; }
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
+.t-blue { background: var(--t-blue); }
+.t-yellow { background: var(--t-yellow); }
+.t-red { background: var(--t-red); }
 
-/* ===================== MODALI ===================== */
-.modal{
-  position:fixed; inset:0; background:rgba(0,0,0,.45);
-  display:none; align-items:center; justify-content:center;
+/* PRIORITÀ */
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation: yellowBlink 1.8s infinite;}
+.alert-green { background:#00b454!important; color:white;}
+
+@keyframes redBlink { 0%,100%{background:#b00000;} 50%{background:#ff4444;} }
+@keyframes orangeBlink { 0%,100%{background:#cc6a00;} 50%{background:#ff9c22;} }
+@keyframes yellowBlink { 0%,100%{background:#d4bf00;} 50%{background:#fff455;} }
+
+/* CHAT POPUP originale stile Guala */
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.70);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999 !important;
 }
-.modal-content{
-  background:white; padding:1rem; width:92%;
-  max-width:420px; border-radius:1rem;
+
+.chat-window {
+  width: 380px;
+  max-height: 80vh;
+  background: #111;
+  border-radius: 14px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px #00aaff80;
+  border: 1px solid #00aaff55;
 }
-input,select,textarea{
-  width:100%; padding:.6rem; margin-top:.4rem;
-  border:1px solid #ccc; border-radius:.6rem;
+
+#chatTitle {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-align: center;
 }
-textarea{ height:90px; resize:none; }
-.btn{
-  margin-top:.8rem; padding:.8rem; width:100%;
-  background:var(--primary); color:white; border:none;
-  font-weight:bold; border-radius:.6rem; cursor:pointer;
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background: #0f0f0f;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
-.btnClose{ background:#ccc; }
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-user {
+  background: #1e3a5f;
+  color: #b9d8ff;
+  align-self: flex-start;
+}
+
+.chat-admin {
+  background: #145f32;
+  color: #d6ffd6;
+  align-self: flex-end;
+}
+
+.bubble-text { margin-bottom: 3px; }
+.bubble-time { font-size: 0.75rem; opacity: 0.6; text-align:right; }
+
+.chat-input {
+  width: 100%;
+  min-height: 60px;
+  background: #222;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px;
+  resize: none;
+  outline: none;
+}
+
+.chat-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chat-send, .chat-close {
+  flex: 1;
+  padding: 10px;
+  background: #0066ff;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.chat-close { background:#444; }
+.chat-send:hover { background:#1a80ff; }
+.chat-close:hover { background:#666; }
+
+/* MODALI */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 1rem;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 1rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: .6rem;
+  margin-top: .4rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+}
+textarea { height: 90px; resize: none; }
+
+.btn {
+  margin-top: .8rem;
+  padding: .8rem;
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+.btnClose {
+  margin-top: .6rem;
+  padding: .8rem;
+  width: 100%;
+  background: #ccc;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+/* INSTALL PWA */
+#installPWA {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  padding: 14px 20px;
+  font-size: 15px;
+  background:#cc0000;
+  color:white;
+  border:none;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  cursor:pointer;
+  display:none;
+  z-index:9999;
+}
 </style>
-<!-- ===================== FIREBASE ===================== -->
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
@@ -156,8 +315,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
-
 </head>
+
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
@@ -165,10 +324,10 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- ===================== POPUP CHAT ===================== -->
+<!-- CHAT POPUP -->
 <div id="chatPopup" class="chat-overlay">
   <div class="chat-window">
-    <h2 id="chatTitle">Chat</h2>
+    <h2 id="chatTitle">Chat segnalazione</h2>
     <div id="chatMessages" class="chat-messages"></div>
     <textarea id="chatInput" class="chat-input" placeholder="Scrivi un messaggio..."></textarea>
     <div class="chat-buttons">
@@ -178,8 +337,7 @@ const db = firebase.firestore();
   </div>
 </div>
 
-
-<!-- ===================== MODALI ===================== -->
+<!-- MODALI -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
     <h3 id="modalTitle"></h3>
@@ -205,7 +363,7 @@ const db = firebase.firestore();
       </optgroup>
 
       <optgroup label="🟡 MEDIA URGENZA">
-        <option value="serramenti">Serramenti</option>
+        <option value="serramenti">Serramentista</option>
         <option value="antincendio">Manutenzione antincendio</option>
       </optgroup>
 
@@ -225,8 +383,9 @@ const db = firebase.firestore();
       <select id="selectPartiComuni">
         <option value="">— Seleziona —</option>
         <option value="Luci cortile">Luci cortile</option>
-        <option value="Cancello Automatico">Cancello Automatico</option>
-        <option value="Cancello Pedonale">Cancello Pedonale</option>
+        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio</option>
+        <option value="Cancello Pedonale">Cancello pedonale</option>
         <option value="Cortile">Cortile</option>
         <option value="Aree verdi">Aree verdi</option>
         <option value="Box interrati">Box interrati</option>
@@ -253,124 +412,25 @@ const db = firebase.firestore();
 </div>
 
 <script>
-/* ===================== LETTURA ?complesso= ===================== */
-const complessoSelezionato =
-  new URLSearchParams(location.search).get("complesso");
-
-const scaleGuala = ["SCALA 131","SCALA 131 BIS","SCALA 133"];
-const scalePiobesi = ["SCALA 6","SCALA 8","SCALA 10"];
-
-function scalaAppartiene(scala){
-  if(!complessoSelezionato) return true;
-  if(complessoSelezionato==="guala") return scaleGuala.includes(scala);
-  if(complessoSelezionato==="piobesi") return scalePiobesi.includes(scala);
-  return true;
+/* ============================================
+   ICONA PIANO → SOLO INFORMATIVA
+============================================ */
+function apriChatPiano(scala,piano){
+  alert("Per aprire la chat devi prima inviare una segnalazione dalla tua unità.");
 }
 
-
-/* ===================== DEFINIZIONE CONDOMINIO ===================== */
-const condominio = {   /* <<< INVARIATO — COPIATO DAL TUO >>> */ };
-
-
-/* ===================== GENERA CARD ===================== */
-const container = document.querySelector(".container");
-
-Object.keys(condominio).forEach(scala => {
-
-  if (!scalaAppartiene(scala)) return;
-
-  const box = document.createElement("div");
-  box.className = "scalaBox";
-  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
-
-  const piani = condominio[scala].piani;
-
-  Object.keys(piani)
-    .filter(p => !isNaN(p))
-    .sort((a,b)=>b-a)
-    .forEach(piano => {
-
-      const dati = piani[piano];
-
-      let html = `
-        <div class="pianoBox">
-
-          <div class="pianoTop">
-            ${piano}° piano
-            <span class="chatPianoIcon" onclick="chatPianoNotice()">💬</span>
-          </div>
-
-          <div class="cards">
-
-            <div class="card"
-              onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-              ${dati.dx}
-              <div class="tempBox">
-                <span class="tempDot t-blue"></span>
-                <span class="tempVal">—°C</span>
-              </div>
-            </div>
-
-            <div class="card"
-              onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-              ${dati.sx}
-              <div class="tempBox">
-                <span class="tempDot t-blue"></span>
-                <span class="tempVal">—°C</span>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-
-      box.innerHTML += html;
-    });
-
-  /* PORTICO */
-  if (piani.portico && piani.portico.length){
-    let html = `
-    <div class="pianoBox">
-
-      <div class="pianoTop">
-        Livello strada
-        <span class="chatPianoIcon" onclick="chatPianoNotice()">💬</span>
-      </div>
-
-      <div class="cards">
-    `;
-
-    piani.portico.forEach(nome=>{
-      html += `
-        <div class="card"
-          onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
-          ${nome}
-          <div class="tempBox">
-            <span class="tempDot t-blue"></span>
-            <span class="tempVal">—°C</span>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `</div></div>`;
-    box.innerHTML += html;
-  }
-
-  container.appendChild(box);
-});
-
-
-/* ===================== VARIABILI SEGNALAZIONE ===================== */
+/* ============================================
+   VARIABILI SEGNALAZIONE
+============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
 let pianoSel = "";
 let latoSel = "";
 
-
-/* ===================== APERTURA MODALE ===================== */
+/* ============================================
+   APERTURA SEGNALAZIONE
+============================================ */
 function apri(scala,piano,lato,nome,elem){
   elementoSelezionato = elem;
   nominativo = nome;
@@ -380,36 +440,37 @@ function apri(scala,piano,lato,nome,elem){
 
   document.getElementById("modalTitle").innerText =
     `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  document.getElementById("modalSegnalazione").style.display="flex";
+  document.getElementById("modalSegnalazione").style.display = "flex";
 }
 
 function chiudiModal(){
-  document.getElementById("modalSegnalazione").style.display="none";
+  document.getElementById("modalSegnalazione").style.display = "none";
 }
+
 function chiudiConferma(){
-  document.getElementById("modalConferma").style.display="none";
+  document.getElementById("modalConferma").style.display = "none";
 }
 
-
-/* ===================== PARTI COMUNI ===================== */
 function gestisciPartiComuni(){
-  const t = document.getElementById("tipoInput").value;
-  const w = document.getElementById("selectPartiComuniWrapper");
-  w.style.display = t==="particomuni" ? "block" : "none";
-  if(t!=="particomuni") document.getElementById("selectPartiComuni").value="";
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  wrapper.style.display = tipo==="particomuni" ? "block" : "none";
+  if(tipo!=="particomuni") document.getElementById("selectPartiComuni").value="";
 }
 
-
-/* ===================== CONFERMA INVIO ===================== */
+/* ============================================
+   CONFERMA SEGNALAZIONE
+============================================ */
 function confermaInvio(){
   const tipo = document.getElementById("tipoInput").value;
 
   if(tipo==="particomuni"){
-    const s = document.getElementById("selectPartiComuni").value;
-    if(s==="") return alert("Seleziona la parte comune.");
-    if(document.getElementById("descrizioneInput").value.trim()==="")
-      return alert("La descrizione è obbligatoria.");
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if(sotto===""){ alert("Seleziona la parte comune."); return; }
+    if(document.getElementById("descrizioneInput").value.trim()===""){
+      alert("La descrizione è obbligatoria."); return;
+    }
   }
 
   document.getElementById("confermaTesto").innerText =
@@ -418,8 +479,9 @@ function confermaInvio(){
   document.getElementById("modalConferma").style.display="flex";
 }
 
-
-/* ===================== INVIO SEGNALAZIONE ===================== */
+/* ============================================
+   INVIO SEGNALAZIONE → CHAT DOMANDA (SI/NO)
+============================================ */
 function inviaSegnalazioneFinale(){
 
   const tipo = document.getElementById("tipoInput").value;
@@ -429,22 +491,21 @@ function inviaSegnalazioneFinale(){
 
   let priorita="VERDE";
   if(["118","112","115"].includes(tipo)) priorita="ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
-    priorita="ARANCIONE";
-  else if(["serramenti","antincendio","particomuni"].includes(tipo))
-    priorita="GIALLO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita="ARANCIONE";
+  else if(tipo==="particomuni" || ["serramenti","antincendio"].includes(tipo)) priorita="GIALLO";
 
   /* Colore card */
   elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
-  let css="alert-green";
-  if(priorita==="ROSSO") css="alert-red";
-  else if(priorita==="ARANCIONE") css="alert-orange";
-  else if(priorita==="GIALLO") css="alert-yellow";
-  elementoSelezionato.classList.add(css);
+  elementoSelezionato.classList.add(
+    priorita==="ROSSO" ? "alert-red" :
+    priorita==="ARANCIONE" ? "alert-orange" :
+    priorita==="GIALLO" ? "alert-yellow" :
+    "alert-green"
+  );
 
-  /* Temperatura */
   const dot = elementoSelezionato.querySelector(".tempDot");
   const val = elementoSelezionato.querySelector(".tempVal");
+
   if(temp!=="ND"){
     if(temp>=28) dot.className="tempDot t-red";
     else if(temp>=24) dot.className="tempDot t-yellow";
@@ -466,37 +527,34 @@ function inviaSegnalazioneFinale(){
     stato: "attiva",
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   })
-  .then((docRef)=>{
+  .then(docRef => {
 
     chiudiConferma();
     chiudiModal();
 
-    /* Reset */
     document.getElementById("tempInput").value="";
     document.getElementById("descrizioneInput").value="";
     document.getElementById("tipoInput").value="altro";
     document.getElementById("selectPartiComuni").value="";
     document.getElementById("selectPartiComuniWrapper").style.display="none";
 
+    /* DOMANDA CHAT */
     setTimeout(()=>{
       if(confirm(`Vuoi aprire la chat per questa segnalazione, ${nominativo}?`)){
         apriChatApp(docRef.id, nominativo);
       }
-    },300);
+    },200);
 
   })
-  .catch(err=>{ console.error(err); alert("Errore durante l'invio."); });
-
+  .catch(err=>{
+    console.error(err);
+    alert("Errore durante l'invio.");
+  });
 }
 
-
-/* ===================== CHAT ICONA (info) ===================== */
-function chatPianoNotice(){
-  alert("Apri la chat da una segnalazione attiva della tua unità.");
-}
-
-
-/* ===================== CHAT — APERTURA POPUP ===================== */
+/* ============================================
+   CHAT POPUP APP
+============================================ */
 let currentChatSegnalazioneId = null;
 let unsubscribeChatListener = null;
 
@@ -505,12 +563,12 @@ function apriChatApp(idSegnalazione, nome){
   currentChatSegnalazioneId = idSegnalazione;
 
   const popup = document.getElementById("chatPopup");
-  const msgBox = document.getElementById("chatMessages");
   const title = document.getElementById("chatTitle");
+  const msgBox = document.getElementById("chatMessages");
 
-  popup.style.display="flex";
-  title.innerText = `Chat – ${nome}`;
-  msgBox.innerHTML = `<p style="color:#999; font-size:.85rem;">Chat collegata alla segnalazione ${idSegnalazione}</p>`;
+  popup.style.display = "flex";
+  title.innerText = `Chat con amministrazione – ${nome}`;
+  msgBox.innerHTML = `<p class="chat-system">Chat collegata alla segnalazione: ${idSegnalazione}</p>`;
 
   if(unsubscribeChatListener) unsubscribeChatListener();
 
@@ -519,30 +577,27 @@ function apriChatApp(idSegnalazione, nome){
       .doc(idSegnalazione)
       .collection("chat")
       .orderBy("timestamp","asc")
-      .onSnapshot(snap=>{
+      .onSnapshot(snapshot=>{
         msgBox.innerHTML="";
-        snap.forEach(doc=>{
+        snapshot.forEach(doc=>{
           renderMsgApp(doc.data(), msgBox);
         });
         msgBox.scrollTop = msgBox.scrollHeight;
       });
 }
 
-
-/* ===================== RENDER MESSAGGIO ===================== */
 function renderMsgApp(msg, container){
   const isUser = msg.mittente==="utente";
 
   const bubble = document.createElement("div");
-  bubble.className = "chat-bubble " + (isUser?"chat-user":"chat-admin");
+  bubble.className = "chat-bubble " + (isUser ? "chat-user" : "chat-admin");
 
   const t = document.createElement("div");
-  t.className="bubble-text";
+  t.className = "bubble-text";
   t.innerText = msg.testo;
 
   const time = document.createElement("div");
-  time.className="bubble-time";
-
+  time.className = "bubble-time";
   if(msg.timestamp && msg.timestamp.toDate){
     time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
   }
@@ -552,15 +607,16 @@ function renderMsgApp(msg, container){
   container.appendChild(bubble);
 }
 
-
-/* ===================== INVIO MESSAGGIO ===================== */
 function sendChatMessageApp(){
 
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
-
   if(!text) return;
-  if(!currentChatSegnalazioneId) return;
+
+  if(!currentChatSegnalazioneId){
+    alert("Nessuna chat attiva.");
+    return;
+  }
 
   db.collection("segnalazioni")
     .doc(currentChatSegnalazioneId)
@@ -570,64 +626,54 @@ function sendChatMessageApp(){
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       mittente: "utente"
     })
-    .then(()=> input.value="" )
+    .then(()=>{
+      input.value="";
+    })
     .catch(err=>{
       console.error(err);
       alert("Errore invio messaggio.");
     });
 }
 
-
-/* ===================== CHIUDI CHAT ===================== */
 function closeChatApp(){
-  const popup = document.getElementById("chatPopup");
-  popup.style.display="none";
+  document.getElementById("chatPopup").style.display="none";
 
   if(unsubscribeChatListener){
     unsubscribeChatListener();
     unsubscribeChatListener=null;
   }
-  currentChatSegnalazioneId=null;
-}
-</script>
-<!-- ================================
-     SERVICE WORKER
-================================ -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
-    .catch(err => console.log("SW error:", err));
+
+  currentChatSegnalazioneId = null;
 }
 </script>
 
-<!-- ================================
-     PWA – INSTALLA APP
-================================ -->
+<!-- SERVICE WORKER -->
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err=>console.log("SW error:", err));
+}
+</script>
+
+<!-- INSTALLA APP -->
 <script>
 let deferredPrompt;
-
-/* Creo il bottone install */
-const btnInstall = document.createElement("button");
-btnInstall.id = "installPWA";
-btnInstall.innerText = "📲 Installa App";
-
-btnInstall.style.display = "none";
+const btnInstall=document.createElement("button");
+btnInstall.id="installPWA";
+btnInstall.innerText="📲 Installa App";
 document.body.appendChild(btnInstall);
 
-/* Quando l’app è installabile */
-window.addEventListener("beforeinstallprompt", (e) => {
+window.addEventListener("beforeinstallprompt",(e)=>{
   e.preventDefault();
-  deferredPrompt = e;
-  btnInstall.style.display = "block";
+  deferredPrompt=e;
+  btnInstall.style.display="block";
 });
 
-/* Click sul bottone INSTALLA */
-btnInstall.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-  btnInstall.style.display = "none";
+btnInstall.addEventListener("click",async()=>{
+  btnInstall.style.display="none";
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
-  deferredPrompt = null;
+  deferredPrompt=null;
 });
 </script>
 
