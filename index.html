@@ -5,13 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc0000">
 
 <style>
-/* ============================
-   VARIABILI
-============================ */
 :root {
   --primary: #cc0000;
   --bg: #f3f4f6;
@@ -19,15 +17,14 @@
   --border: #cc0000;
   --shadow: 0 4px 14px rgba(0,0,0,0.12);
   --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
-
   --t-blue: #0077ff;
   --t-yellow: #ffcc00;
   --t-red: #d50000;
 }
 
-/* ============================
-   BASE
-============================ */
+/* ==========================================================
+   BASE UI
+==========================================================*/
 body {
   background: var(--bg);
   margin: 0;
@@ -39,22 +36,19 @@ h1, h2 {
   text-align: center;
   margin: 0;
 }
-
 h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
 h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 
+/* ==========================================================
+   CONTAINER + CARDS
+==========================================================*/
 .container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
-@media (max-width: 900px) {
-  .container { grid-template-columns: 1fr; }
-}
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 
-/* ============================
-   SCALA
-============================ */
 .scalaBox {
   background: white;
   padding: 1rem;
@@ -71,9 +65,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   margin-bottom: 1rem;
 }
 
-/* ============================
-   BOX PIANO
-============================ */
 .pianoBox {
   background: #ffffff;
   border: 1px solid #e3e3e3;
@@ -83,7 +74,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
-/* Riga piano + icone */
+/* Riga “Piano + icone chat” */
 .pianoTop {
   font-weight: bold;
   margin-bottom: .8rem;
@@ -93,40 +84,33 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   align-items:center;
 }
 
-/* ============================
-   ICONE CHAT (POS 1)
-============================ */
-.chatIconCard {
-    font-size: 22px;
-    cursor: pointer;
-    margin-left: 10px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-weight: bold;
-    color: white;
-    transition: .2s;
-    box-shadow: 0 0 10px #0004;
+/* ICONA CHAT (SEMRE VISIBILE) */
+.chatPianoIcon, .chatCardIcon {
+  font-size: 20px;
+  cursor:pointer;
+  margin-left:8px;
+  transition:.2s;
+  padding:4px 6px;
+  border-radius:6px;
+  font-weight:bold;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.chatIconCard:hover {
-    transform: scale(1.12);
+/* COLORAZIONI ICONE PER NUMERO MESSAGGI */
+.chat-blue   { background:#0077ff; color:white; }
+.chat-yellow { background:#ffcc00; color:black; }
+.chat-orange { background:#ff8800; color:white; }
+.chat-red    { background:#d50000; color:white; animation: pulseRed 1s infinite; }
+
+@keyframes pulseRed {
+  0% { transform:scale(1); }
+  50% { transform:scale(1.15); }
+ 100% { transform:scale(1); }
 }
 
-/* colori */
-.chat-blue    { background:#0077ff; }
-.chat-yellow  { background:#ffcc00; color:black; }
-.chat-orange  { background:#ff8800; }
-.chat-red     { background:#cc0000; animation:redBlink 1s infinite; }
-
-/* lampi rossi */
-@keyframes redBlink {
-  0%,100%{background:#900;}
-  50%{background:#ff2222;}
-}
-
-/* ============================
-   CARD
-============================ */
+/* Cards appartamenti */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -134,7 +118,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 }
 
 .card {
-  position: relative;
   background: var(--card-bg);
   border: 2px solid var(--border);
   border-radius: 1rem;
@@ -144,6 +127,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   font-weight: bold;
   box-shadow: var(--shadow);
   transition: .15s ease;
+  position:relative;
 }
 
 .card:hover {
@@ -151,7 +135,16 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: var(--shadow-strong);
 }
 
-/* temp */
+/* ICONA CHAT SU OGNI CARD */
+.chatCardIcon {
+  position:absolute;
+  top:-10px;
+  right:-10px;
+  width:32px;
+  height:32px;
+}
+
+/* Temperature */
 .tempBox {
   font-size: .85rem;
   margin-top: 3px;
@@ -160,104 +153,93 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   gap: 4px;
   align-items: center;
 }
-
-.tempDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
 .t-blue { background: var(--t-blue); }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
-/* ============================
-   POPUP CHAT (stile WhatsApp)
-============================ */
-.chat-overlay {
+/* Stati segnalazione */
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation: yellowBlink 1.8s infinite;}
+.alert-green { background:#00b454!important; color:white;}
+
+@keyframes redBlink {
+  0%,100%{background:#b00000;}
+  50%{background:#ff4444;}
+}
+@keyframes orangeBlink {
+  0%,100%{background:#cc6a00;}
+  50%{background:#ff9c22;}
+}
+@keyframes yellowBlink {
+  0%,100%{background:#d4bf00;}
+  50%{background:#fff455;}
+}
+
+/* MODALI */
+.modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.70);
+  inset: 0;
+  background: rgba(0,0,0,.45);
   display: none;
-  align-items: center;
   justify-content: center;
-  z-index: 9999;
+  align-items: center;
 }
 
-.chat-window {
-  width: 380px;
-  max-height: 80vh;
-  background: #111;
-  border-radius: 14px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 0 20px #00aaff80;
-  border: 1px solid #00aaff55;
+.modal-content {
+  background: white;
+  padding: 1rem;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 1rem;
 }
 
-#chatTitle {
-  color: #fff;
-  text-align:center;
-  margin-bottom:10px;
+input, select, textarea {
+  width: 100%;
+  padding: .6rem;
+  margin-top: .4rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+}
+textarea { height: 90px; resize:none; }
+
+.btn {
+  margin-top: .8rem;
+  padding: .8rem;
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border-radius: .6rem;
+  cursor: pointer;
 }
 
-.chat-messages {
-  flex: 1;
-  background:#0f0f0f;
-  border-radius:10px;
-  padding:10px;
-  overflow-y:auto;
+.btnClose {
+  margin-top: .6rem;
+  padding: .8rem;
+  width: 100%;
+  background: #ccc;
+  border-radius: .6rem;
+  cursor: pointer;
 }
 
-.chat-bubble {
-  max-width:80%;
-  padding:8px 12px;
-  border-radius:12px;
-  margin-bottom:8px;
-  font-size:0.9rem;
-  display:flex;
-  flex-direction:column;
-}
-
-.chat-user  { background:#1e3a5f; color:#b9d8ff; align-self:flex-start; }
-.chat-admin { background:#145f32; color:#d6ffd6; align-self:flex-end; }
-
-.bubble-time { font-size:0.75rem; opacity:.6; text-align:right; }
-
-.chat-input {
-  min-height:60px;
-  background:#222;
-  border:none;
-  color:#fff;
-  padding:10px;
-  border-radius:8px;
-  margin-top:8px;
-}
-
-.chat-buttons {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-.chat-send, .chat-close {
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#0066ff;
+/* PWA install button */
+#installPWA {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  padding: 14px 20px;
+  font-size: 15px;
+  background:#cc0000;
   color:white;
+  border:none;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
   cursor:pointer;
-}
-
-/* sola lettura */
-.chat-readonly {
-  opacity: 0.5;
-  pointer-events:none;
+  display:none;
+  z-index:9999;
 }
 </style>
 
@@ -266,16 +248,18 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-firebase.initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
   authDomain: "segnalazioni-guala.firebaseapp.com",
   projectId: "segnalazioni-guala",
   storageBucket: "segnalazioni-guala.firebasestorage.app",
   messagingSenderId: "118462666966",
   appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
-});
+};
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
+
 </head>
 
 <body>
@@ -284,227 +268,482 @@ const db = firebase.firestore();
 <h2>Piazza Guala • Via Piobesi</h2>
 
 <div class="container"></div>
-
-<!-- CHAT POPUP -->
-<div id="chatPopup" class="chat-overlay">
-  <div class="chat-window">
-
-    <h2 id="chatTitle"></h2>
-
-    <div id="chatMessages" class="chat-messages"></div>
-
-    <textarea id="chatInput" class="chat-input"
-              placeholder="Scrivi un messaggio..."></textarea>
-
-    <div class="chat-buttons">
-      <button id="btnSend" class="chat-send" onclick="sendChatMessageApp()">Invia</button>
-      <button class="chat-close" onclick="closeChatApp()">Chiudi</button>
-    </div>
-
-  </div>
-</div>
-
+<!-- ============================================================
+     PARAMETRO ?complesso=
+============================================================ -->
 <script>
-/* -----------------------------------------------------
-   ID UTENTE UNICO AUTOMATICO:
-   "SCALA-PIANO-LATO-NOME"
------------------------------------------------------ */
-function genUserID(scala,piano,lato,nome){
-    return `${scala}-${piano}-${lato}-${nome}`.replace(/\s+/g,"_");
-}
+const complessoSelezionato =
+  new URLSearchParams(location.search).get("complesso");
 
-/* -----------------------------------------------------
-   LOGICA GENERAZIONE CARD + ICONA CHAT
------------------------------------------------------ */
-const condominio = {
-  "SCALA 131": { piani:{9:{dx:"BARBA / RIPANDELLI",sx:"BORDIGNON"},8:{dx:"BROCCARDO",sx:"ROMEO / VALENTINO"}} },
-  "SCALA 131 BIS": { piani:{9:{dx:"ROETTI",sx:"COLPO / TOMASSO"}} },
-  "SCALA 133": { piani:{9:{dx:"MONACO",sx:"P. MERLIN / C. RAPETTI"}} }
-};
+const scaleGuala   = ["SCALA 131","SCALA 131 BIS","SCALA 133"];
+const scalePiobesi = ["SCALA 6","SCALA 8","SCALA 10"];
 
-const container = document.querySelector(".container");
-
-Object.keys(condominio).forEach(scala=>{
-  const box = document.createElement("div");
-  box.className="scalaBox";
-  box.innerHTML=`<div class="scalaTitle">${scala}</div>`;
-
-  const piani = condominio[scala].piani;
-
-  Object.keys(piani).sort((a,b)=>b-a).forEach(piano=>{
-      const dati = piani[piano];
-
-      /* ICONA CHAT PER OGNI CARD */
-      let pianoTopHTML = `
-        <div class="pianoTop">
-            ${piano}° piano
-            <div>
-              <span id="chatIcon-${genUserID(scala,piano,'DX',dati.dx)}"
-                    class="chatIconCard chat-blue"
-                    onclick="openChatFromCard('${scala}', '${piano}', 'DX', '${dati.dx}')">
-                    💬
-              </span>
-
-              <span id="chatIcon-${genUserID(scala,piano,'SX',dati.sx)}"
-                    class="chatIconCard chat-blue"
-                    onclick="openChatFromCard('${scala}', '${piano}', 'SX', '${dati.sx}')">
-                    💬
-              </span>
-            </div>
-        </div>
-      `;
-
-      let html = `
-        <div class="pianoBox">
-          ${pianoTopHTML}
-          <div class="cards">
-            <div class="card"
-                 onclick="openSegnalazione('${scala}','${piano}','DX','${dati.dx}', this)">
-                ${dati.dx}
-                <div class="tempBox">
-                  <span class="tempDot t-blue"></span>
-                  <span class="tempVal">—°C</span>
-                </div>
-            </div>
-
-            <div class="card"
-                 onclick="openSegnalazione('${scala}','${piano}','SX','${dati.sx}', this)">
-                ${dati.sx}
-                <div class="tempBox">
-                  <span class="tempDot t-blue"></span>
-                  <span class="tempVal">—°C</span>
-                </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      box.innerHTML += html;
-  });
-
-  container.appendChild(box);
-});
-
-/* -----------------------------------------------------
-   CHAT LOGICHE COMPLETE
------------------------------------------------------ */
-
-let currentChatUserID = null;
-let unsubscribeChat = null;
-
-/* -------- Apre chat da icona -------- */
-function openChatFromCard(scala,piano,lato,nome){
-    const idUser = genUserID(scala,piano,lato,nome);
-    currentChatUserID = idUser;
-    showChat();
-}
-
-/* -------- Mostra popup chat -------- */
-function showChat(){
-    document.getElementById("chatPopup").style.display="flex";
-    document.getElementById("chatTitle").innerText = `Chat`;
-
-    const box = document.getElementById("chatMessages");
-    box.innerHTML = "";
-
-    if(unsubscribeChat) unsubscribeChat();
-
-    unsubscribeChat =
-        db.collection("chat")
-          .doc(currentChatUserID)
-          .collection("msg")
-          .orderBy("timestamp","asc")
-          .onSnapshot(snap=>{
-              box.innerHTML="";
-              let count=0;
-
-              snap.forEach(doc=>{
-                const m = doc.data();
-                renderChatMsg(m, box);
-                if(m.mittente==="admin" && !m.letta) count++;
-              });
-
-              updateChatIconColor(currentChatUserID,count);
-
-              box.scrollTop = box.scrollHeight;
-          });
-
-    markAsRead(currentChatUserID);
-}
-
-/* -------- Messaggi -------- */
-function renderChatMsg(msg, box){
-    const div = document.createElement("div");
-    div.className = "chat-bubble " + (msg.mittente==="utente"?"chat-user":"chat-admin");
-
-    const t = document.createElement("div");
-    t.innerText = msg.testo;
-
-    const time = document.createElement("div");
-    time.className="bubble-time";
-
-    if(msg.timestamp?.toDate)
-      time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-
-    div.appendChild(t);
-    div.appendChild(time);
-
-    box.appendChild(div);
-}
-
-/* -------- Invia messaggio -------- */
-function sendChatMessageApp(){
-    const input = document.getElementById("chatInput");
-    let txt = input.value.trim();
-    if(!txt) return;
-
-    db.collection("chat")
-      .doc(currentChatUserID)
-      .collection("msg")
-      .add({
-          testo: txt,
-          mittente:"utente",
-          letta:false,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-    input.value="";
-}
-
-/* -------- Marca letti -------- */
-function markAsRead(id){
-    db.collection("chat")
-      .doc(id)
-      .collection("msg")
-      .where("mittente","==","admin")
-      .where("letta","==",false)
-      .get()
-      .then(q=>{
-         q.forEach(doc=>{
-            doc.ref.update({letta:true});
-         });
-      });
-}
-
-/* -------- Aggiorna colore icona -------- */
-function updateChatIconColor(idUser, count){
-    const icon = document.getElementById("chatIcon-"+idUser);
-    if(!icon) return;
-
-    icon.classList.remove("chat-blue","chat-yellow","chat-orange","chat-red");
-
-    if(count===0) icon.classList.add("chat-blue");
-    else if(count===1 || count===2) icon.classList.add("chat-yellow");
-    else if(count===3) icon.classList.add("chat-orange");
-    else if(count>=4) icon.classList.add("chat-red");
-}
-
-/* -------- Chiudi chat -------- */
-function closeChatApp(){
-    document.getElementById("chatPopup").style.display="none";
-    if(unsubscribeChat) unsubscribeChat();
+function scalaAppartiene(scala){
+  if(!complessoSelezionato) return true;
+  if(complessoSelezionato==="guala") return scaleGuala.includes(scala);
+  if(complessoSelezionato==="piobesi") return scalePiobesi.includes(scala);
+  return true;
 }
 </script>
 
-</body>
-</html>
+<!-- ============================================================
+     DEFINIZIONE CONDOMINIO (identico al tuo)
+============================================================ -->
+<script>
+const condominio = {
+  "SCALA 131": {
+    piani:{
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
+    }
+  },
+  "SCALA 131 BIS": {
+    piani:{
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
+    }
+  },
+  "SCALA 133": {
+    piani:{
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]
+    }
+  },
+
+  "SCALA 6": {
+    piani:{
+      9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+      8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+      7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+      6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+      5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+      4:{dx:"GERVASI/RACCO", sx:"PLATANIA"},
+      3:{dx:"DR ING E PERRETTI/DELL ALBA C", sx:"MAMELI/CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 8": {
+    piani:{
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 10": {
+    piani:{
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  }
+};
+</script>
+
+<!-- ============================================================
+     GENERAZIONE CARD + CHAT BADGES (SEMPRE VISIBILI)
+============================================================ -->
+<script>
+
+const container = document.querySelector(".container");
+
+/* 🔥 funzione: calcolo colore badge in base a numero messaggi */
+function chatBadgeColor(n){
+  if(n===0) return "chat-blue";
+  if(n<=2) return "chat-yellow";
+  if(n<=3) return "chat-orange";
+  return "chat-red"; // 4+ messaggi → rosso pulsante
+}
+
+/* 🔥 mappa per mantenere aggiornamenti realtime */
+const listenersChat = {};
+
+Object.keys(condominio).forEach(scala => {
+
+  if (!scalaAppartiene(scala)) return;
+
+  const box = document.createElement("div");
+  box.className = "scalaBox";
+  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
+
+  const piani = condominio[scala].piani;
+
+  Object.keys(piani)
+    .filter(p=>!isNaN(p))
+    .sort((a,b)=>b-a)
+    .forEach(piano => {
+
+      const dati = piani[piano];
+
+      let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">
+          ${piano}° piano
+        </div>
+
+        <div class="cards">
+
+          <!-- CARD DX -->
+          <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)" id="card-${scala}-${piano}-DX">
+            <div class="chatCardIcon chat-blue" id="badge-${scala}-${piano}-DX">💬</div>
+            ${dati.dx}
+            <div class="tempBox">
+              <span class="tempDot t-blue"></span>
+              <span class="tempVal">—°C</span>
+            </div>
+          </div>
+
+          <!-- CARD SX -->
+          <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)" id="card-${scala}-${piano}-SX">
+            <div class="chatCardIcon chat-blue" id="badge-${scala}-${piano}-SX">💬</div>
+            ${dati.sx}
+            <div class="tempBox">
+              <span class="tempDot t-blue"></span>
+              <span class="tempVal">—°C</span>
+            </div>
+          </div>
+
+        </div>
+      </div>`;
+
+      box.innerHTML += html;
+
+      /* =====================================================
+           AGGANCIO REALTIME CHAT → OGNI CARD
+         ===================================================== */
+
+      ["DX","SX"].forEach(lato=>{
+        const idChat = `${scala}-${piano}-${lato}-${dati[lato.toLowerCase()]}`;
+
+        listenersChat[idChat] =
+          db.collection("chat_counter")
+            .doc(idChat)
+            .onSnapshot(doc=>{
+              const badge = document.getElementById(`badge-${scala}-${piano}-${lato}`);
+              if(!badge) return;
+
+              let n = 0;
+              if(doc.exists && doc.data().messaggi) n = doc.data().messaggi;
+
+              badge.className = "chatCardIcon " + chatBadgeColor(n);
+            });
+
+      });
+
+    });
+
+  container.appendChild(box);
+
+});
+</script>
+
+<!-- ============================================================
+     MODALI + LOGICA INVIO SEGNALAZIONE (identica, senza chat)
+============================================================ -->
+<script>
+
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
+
+function apri(scala,piano,lato,nome,elem){
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display="flex";
+}
+
+function chiudiModal(){ document.getElementById("modalSegnalazione").style.display="none"; }
+function chiudiConferma(){ document.getElementById("modalConferma").style.display="none"; }
+
+function gestisciPartiComuni(){
+  const tipo=document.getElementById("tipoInput").value;
+  const wrap=document.getElementById("selectPartiComuniWrapper");
+  if(tipo==="particomuni") wrap.style.display="block";
+  else{
+    wrap.style.display="none";
+    document.getElementById("selectPartiComuni").value="";
+  }
+}
+
+function confermaInvio(){
+  const t=document.getElementById("tipoInput").value;
+
+  if(t==="particomuni"){
+    if(document.getElementById("selectPartiComuni").value===""){
+      alert("Seleziona la parte comune.");
+      return;
+    }
+    if(document.getElementById("descrizioneInput").value.trim()===""){
+      alert("La descrizione è obbligatoria.");
+      return;
+    }
+  }
+
+  document.getElementById("confermaTesto").innerText =
+    `Confermi la segnalazione per:\n${nominativo}`;
+  document.getElementById("modalConferma").style.display="flex";
+}
+
+function inviaSegnalazioneFinale(){
+
+  const tipo = document.getElementById("tipoInput").value;
+  const sotto = document.getElementById("selectPartiComuni").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
+
+  /* PRIORITÀ */
+  let priorita="VERDE";
+  if(["118","112","115"].includes(tipo)) priorita="ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita="ARANCIONE";
+  else if(["serramenti","antincendio","particomuni"].includes(tipo)) priorita="GIALLO";
+
+  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
+
+  let css="alert-green";
+  if(priorita==="ROSSO") css="alert-red";
+  else if(priorita==="ARANCIONE") css="alert-orange";
+  else if(priorita==="GIALLO") css="alert-yellow";
+
+  elementoSelezionato.classList.add(css);
+
+  /* TEMPERATURA */
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+  if(temp!=="ND"){
+    if(temp>=28) dot.className="tempDot t-red";
+    else if(temp>=24) dot.className="tempDot t-yellow";
+    else dot.className="tempDot t-blue";
+    val.innerText = temp+"°C";
+  }
+
+  /* CREA SEGNALAZIONE */
+  db.collection("segnalazioni").add({
+    scala:scalaSel,
+    piano:pianoSel,
+    lato:latoSel,
+    nome:nominativo,
+    temperatura:temp,
+    descrizione:desc,
+    tipo: tipo==="particomuni" ? "Parti comuni" : tipo,
+    sottotipo:sotto,
+    complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi":"guala",
+    priorita:priorita,
+    stato:"attiva",
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  /* RESET */
+  chiudiConferma();
+  chiudiModal();
+  document.getElementById("tempInput").value="";
+  document.getElementById("descrizioneInput").value="";
+  document.getElementById("tipoInput").value="altro";
+  document.getElementById("selectPartiComuni").value="";
+  document.getElementById("selectPartiComuniWrapper").style.display="none";
+}
+</script>
+<!-- ============================================================
+     CHAT POPUP (APP) + LOGICA COMPLETA
+============================================================ -->
+<script>
+
+let currentChatId = null;
+let unsubscribeChat = null;
+
+/* ============================================================
+   APERTURA CHAT DA ICONA CARD
+============================================================ */
+function apriChatDaCard(scala, piano, lato, nome){
+
+  // ID chat standardizzato
+  const chatId = `${scala}-${piano}-${lato}-${nome}`;
+
+  currentChatId = chatId;
+
+  const popup  = document.getElementById("chatPopup");
+  const title  = document.getElementById("chatTitle");
+  const msgBox = document.getElementById("chatMessages");
+
+  popup.style.display = "flex";
+  title.innerText = `Chat • ${nome}`;
+  msgBox.innerHTML = `<p class="chat-system">Chat collegata a ${scala} • ${piano} • ${lato}</p>`;
+
+  // DISATTIVA LISTENER PRECEDENTE
+  if(unsubscribeChat) unsubscribeChat();
+
+  // LISTENER REALTIME CHAT
+  unsubscribeChat = db.collection("chat")
+    .doc(chatId)
+    .collection("messaggi")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(snapshot => {
+
+      msgBox.innerHTML = "";
+
+      let unread = 0;
+
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+
+        renderChatMessageAPP(msg, msgBox);
+
+        if(msg.mittente === "admin" && !msg.letta) unread++;
+      });
+
+      // SCROLL BASSO
+      msgBox.scrollTop = msgBox.scrollHeight;
+
+      // AGGIORNA CONTATORE MESSAGGI PER LA CARD
+      db.collection("chat_counter").doc(chatId).set({
+        messaggi: snapshot.size
+      }, { merge:true });
+
+    });
+
+}
+
+/* ============================================================
+   RENDER MESSAGGIO APP (utente ↔ admin)
+============================================================ */
+function renderChatMessageAPP(msg, container){
+
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble " + (msg.mittente === "utente" ? "chat-user" : "chat-admin");
+
+  const t = document.createElement("div");
+  t.className = "bubble-text";
+  t.innerText = msg.testo;
+
+  const time = document.createElement("div");
+  time.className = "bubble-time";
+
+  if(msg.timestamp && msg.timestamp.toDate){
+    time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  bubble.appendChild(t);
+  bubble.appendChild(time);
+  container.appendChild(bubble);
+}
+
+/* ============================================================
+   INVIO MESSAGGIO (UTENTE)
+============================================================ */
+function sendChatMessageApp(){
+
+  if(!currentChatId) return;
+
+  const input = document.getElementById("chatInput");
+  const text  = input.value.trim();
+  if(!text) return;
+
+  const chatRef = db.collection("chat").doc(currentChatId);
+
+  chatRef.collection("messaggi").add({
+    testo: text,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    mittente: "utente",
+    letta: false
+  });
+
+  // aggiorna counter locale
+  db.collection("chat_counter").doc(currentChatId).update({
+    messaggi: firebase.firestore.FieldValue.increment(1)
+  });
+
+  input.value = "";
+}
+
+/* ============================================================
+   CHIUSURA CHAT
+============================================================ */
+function closeChatApp(){
+  const popup = document.getElementById("chatPopup");
+  popup.style.display = "none";
+
+  if(unsubscribeChat){
+    unsubscribeChat();
+    unsubscribeChat = null;
+  }
+
+  currentChatId = null;
+}
+
+/* ============================================================
+   BLOCCO CHAT QUANDO ADMIN RISOLVE SEGNALAZIONE
+============================================================ */
+function bloccaChat(chatId){
+
+  db.collection("chat")
+    .doc(chatId)
+    .set({ chiusa:true }, { merge:true });
+
+}
+
+/* ============================================================
+   VERIFICA BLOCCO CHAT PRIMA DI INVIARE
+============================================================ */
+async function checkChatBloccata(chatId){
+
+  const doc = await db.collection("chat").doc(chatId).get();
+  if(!doc.exists) return false;
+  return doc.data().chiusa === true;
+}
+
+</script>
