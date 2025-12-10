@@ -604,3 +604,42 @@ function sendChatMessage(){
   input.value = "";
 }
 </script>
+<!-- ===============================
+     SERVICE WORKER
+================================= -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
+}
+</script>
+
+<!-- ===============================
+     PULSANTE INSTALLA APP (PWA)
+================================= -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+</script>
+
+</body>
+</html>
+
+  
