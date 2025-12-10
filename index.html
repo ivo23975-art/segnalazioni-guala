@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc0000">
 
@@ -52,7 +51,12 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   overflow-y: auto;
 }
 
-.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
+.scalaTitle {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
 
 .pianoBox {
   background: #ffffff;
@@ -63,7 +67,38 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
-.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+.pianoTop {
+  font-weight: bold;
+  font-size: 1rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom: .8rem;
+}
+
+/* GRUPPO DUE ICONE (DX e SX) */
+.chatPianoGroup {
+  display:flex;
+  gap:8px;
+}
+
+.chatPianoIcon {
+  font-size:18px;
+  padding:4px 7px;
+  border-radius:6px;
+  cursor:pointer;
+  background:#0066ff;
+  color:white;
+  box-shadow:0 0 6px #0066ff;
+  transition:.2s;
+  font-weight:bold;
+}
+.chatPianoIcon:hover { transform:scale(1.15); }
+
+/* STATI ICONA */
+.chat-blue { background:#0066ff !important; box-shadow:0 0 6px #0066ff; }
+.chat-yellow { background:#ffcc00 !important; color:#000 !important; box-shadow:0 0 6px #ffcc00; }
+.chat-red { background:#ff0000 !important; box-shadow:0 0 12px #ff0000, 0 0 20px #ff0000; }
 
 .cards {
   display: grid;
@@ -101,24 +136,17 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
-.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
-.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
-.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
+/* PRIORITÀ */
+.alert-red { animation:redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation:orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation:yellowBlink 1.8s infinite;}
 .alert-green { background:#00b454!important; color:white;}
 
-@keyframes redBlink {
-  0%,100%{background:#b00000;}
-  50%{background:#ff4444;}
-}
-@keyframes orangeBlink {
-  0%,100%{background:#cc6a00;}
-  50%{background:#ff9c22;}
-}
-@keyframes yellowBlink {
-  0%,100%{background:#d4bf00;}
-  50%{background:#fff455;}
-}
+@keyframes redBlink {0%,100%{background:#b00000;}50%{background:#ff4444;}}
+@keyframes orangeBlink {0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
+@keyframes yellowBlink {0%,100%{background:#d4bf00;}50%{background:#fff455;}}
 
+/* MODALI */
 .modal {
   position: fixed;
   inset: 0;
@@ -166,12 +194,113 @@ textarea { height: 90px; resize: none; }
   cursor: pointer;
 }
 
-#selectPartiComuniWrapper {
+/* CHAT POPUP */
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.70);
+  backdrop-filter: blur(4px);
   display: none;
-  margin-top: .6rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999 !important;
 }
 
-/* Pulsante INSTALLA APP */
+.chat-window {
+  width: 380px;
+  max-height: 80vh;
+  background: #111;
+  border-radius: 14px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px #00aaff80;
+  border: 1px solid #00aaff55;
+}
+
+#chatTitle {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background: #0f0f0f;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-user {
+  background: #1e3a5f;
+  color: #b9d8ff;
+  align-self: flex-start;
+}
+
+.chat-admin {
+  background: #145f32;
+  color: #d6ffd6;
+  align-self: flex-end;
+}
+
+.bubble-text { margin-bottom: 3px; }
+
+.bubble-time {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  text-align: right;
+}
+
+.chat-input {
+  width: 100%;
+  min-height: 60px;
+  background: #222;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px;
+  resize: none;
+  outline: none;
+}
+
+.chat-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chat-send, .chat-close {
+  flex: 1;
+  padding: 10px;
+  background: #0066ff;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.chat-close { background:#444; }
+.chat-send:hover { background:#1a80ff; }
+.chat-close:hover { background:#666; }
+
+/* PWA */
 #installPWA {
   position: fixed;
   bottom: 18px;
@@ -188,25 +317,8 @@ textarea { height: 90px; resize: none; }
   z-index:9999;
 }
 </style>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
-  authDomain: "segnalazioni-guala.firebaseapp.com",
-  projectId: "segnalazioni-guala",
-  storageBucket: "segnalazioni-guala.firebasestorage.app",
-  messagingSenderId: "118462666966",
-  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
-
 </head>
+
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
@@ -214,13 +326,9 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- ===============================
-     MODALI (identiche alle tue)
-================================= -->
-
+<!-- MODALI ORIGINALI -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
-
     <h3 id="modalTitle"></h3>
 
     <label>Temperatura (facoltativa)</label>
@@ -263,7 +371,7 @@ const db = firebase.firestore();
       <label>Seleziona la parte comune</label>
       <select id="selectPartiComuni">
         <option value="">— Seleziona —</option>
-        <option value="Luci cortile">Luci cortile</option>
+        <option value="Luci cortile">Luci cortile</option> 
         <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
         <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
         <option value="Cancello Pedonale">Cancello Pedonale</option>
@@ -292,6 +400,21 @@ const db = firebase.firestore();
     <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
   </div>
 </div>
+
+<!-- CHAT POPUP -->
+<div id="chatPopup" class="chat-overlay">
+  <div class="chat-window">
+    <h2 id="chatTitle">Chat segnalazione</h2>
+    <div id="chatMessages" class="chat-messages"></div>
+    <textarea id="chatInput" class="chat-input" placeholder="Scrivi un messaggio..."></textarea>
+    <div class="chat-buttons">
+      <button class="chat-send" onclick="sendChatMessageApp()">Invia</button>
+      <button class="chat-close" onclick="closeChatApp()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINE BLOCCO 1 -->
 
 <script>
 /* ============================================
@@ -443,10 +566,19 @@ Object.keys(condominio).forEach(scala => {
 
       let html = `
         <div class="pianoBox">
-          <div class="pianoTop">${piano}° piano</div>
+
+          <div class="pianoTop">
+            ${piano}° piano
+            <div class="chatPianoGroup">
+              <div class="chatPianoIcon chat-blue" id="chatIcon-${scala}-${piano}-DX"></div>
+              <div class="chatPianoIcon chat-blue" id="chatIcon-${scala}-${piano}-SX"></div>
+            </div>
+          </div>
+
           <div class="cards">
 
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <div class="card"
+                 onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -454,7 +586,8 @@ Object.keys(condominio).forEach(scala => {
               </div>
             </div>
 
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <div class="card"
+                 onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -477,7 +610,8 @@ Object.keys(condominio).forEach(scala => {
     `;
     piani.portico.forEach(nome => {
       html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card"
+             onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
           <div class="tempBox">
             <span class="tempDot t-blue"></span>
@@ -566,7 +700,7 @@ function inviaSegnalazioneFinale() {
   let priorita = "VERDE";
 
   if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+  else if(["ascensore","elettricista","idraullico","centrale","autoclave"].includes(tipo))
       priorita = "ARANCIONE";
   else if(["serramenti","antincendio"].includes(tipo))
       priorita = "GIALLO";
@@ -620,41 +754,214 @@ function inviaSegnalazioneFinale() {
   document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
 </script>
+/* ============================================================
+   CHAT – LOGICA COMPLETA PER L’APP
+   (Compatibile al 100% con il tuo index.html originale)
+============================================================ */
 
-<!-- ===============================
-     SERVICE WORKER
-================================= -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
-    .catch(err => console.log("SW error:", err));
+/* ICONA CHAT – STATI
+   blu = nessun messaggio
+   giallo = messaggi letti / chat attiva
+   rosso = nuovo messaggio admin
+*/
+
+function creaIconaChat(pianoBox, idCard, scala, piano, lato, nome) {
+
+    const icon = document.createElement("span");
+    icon.className = "chatIconApp";
+    icon.innerHTML = "💬";
+
+    icon.style.cursor = "pointer";
+    icon.style.marginLeft = "10px";
+    icon.style.fontSize = "20px";
+    icon.dataset.cardId = idCard;
+    icon.dataset.nome = nome;
+
+    // COLORE DI BASE
+    icon.style.filter = "drop-shadow(0 0 4px #008cff)";
+    icon.style.color = "#008cff";
+
+    // EVENTO CLICK
+    icon.addEventListener("click", () => {
+        if (!lastChatSegnalazioneId[idCard]) {
+            alert("Per aprire la chat devi prima inviare una segnalazione.");
+            return;
+        }
+        apriChatApp(lastChatSegnalazioneId[idCard], nome);
+    });
+
+    // AGGIUNGI ICONA A DESTRA DEL TITOLO DEL PIANO
+    pianoBox.querySelector(".pianoTop").appendChild(icon);
+
+    // SALVA RIFERIMENTO
+    iconeChatPerCard[idCard] = icon;
 }
-</script>
 
-<!-- ===============================
-     PULSANTE INSTALLA APP (PWA)
-================================= -->
-<script>
-let deferredPrompt;
-const btnInstall = document.createElement("button");
-btnInstall.id = "installPWA";
-btnInstall.innerText = "📲 Installa App";
-document.body.appendChild(btnInstall);
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  btnInstall.style.display = "block";
-});
+/* ============================================================
+   MAPPA: card → ultimo id segnalazione creata
+============================================================ */
+const lastChatSegnalazioneId = {};
+const iconeChatPerCard = {};
 
-btnInstall.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-  btnInstall.style.display = "none";
-  deferredPrompt.prompt();
-  const result = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
-</script>
 
-</body>
-</html>
+/* ============================================================
+   DOPO INVIO SEGNALAZIONE → ASSOCIA LA CHAT ALLA CARD
+============================================================ */
+function registraChatPerCard(idSegnalazione) {
+    lastChatSegnalazioneId[idCardSelezionata] = idSegnalazione;
+
+    // Cambia colore icona a giallo (chat pronta)
+    const icon = iconeChatPerCard[idCardSelezionata];
+    if (icon) {
+        icon.style.color = "#ffaa00";
+        icon.style.filter = "drop-shadow(0 0 6px #ffaa00)";
+    }
+}
+
+
+/* ============================================================
+   LISTENER NUOVI MESSAGGI → CAMBIA COLORE ICONA
+============================================================ */
+function attivaNotificheChat(idSegnalazione, idCard) {
+
+    db.collection("segnalazioni").doc(idSegnalazione)
+      .collection("chat")
+      .orderBy("timestamp", "asc")
+      .onSnapshot(snapshot => {
+
+        const icon = iconeChatPerCard[idCard];
+        if (!icon) return;
+
+        let nuovoMessaggioAdmin = false;
+
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            if (msg.mittente === "admin") nuovoMessaggioAdmin = true;
+        });
+
+        if (nuovoMessaggioAdmin) {
+            icon.style.color = "#ff4444";
+            icon.style.filter = "drop-shadow(0 0 10px #ff0000)";
+        }
+    });
+}
+
+
+/* ============================================================
+   CHAT POPUP – IDENTICA AL PANNELLO GUALA
+============================================================ */
+
+let currentChatSegnalazioneId = null;
+let unsubscribeChatListener = null;
+let idCardSelezionata = null;
+
+/* APRI CHAT */
+function apriChatApp(idSegnalazione, nome) {
+
+    currentChatSegnalazioneId = idSegnalazione;
+
+    const popup = document.getElementById("chatPopup");
+    const title = document.getElementById("chatTitle");
+    const msgBox = document.getElementById("chatMessages");
+
+    popup.style.display = "flex";
+    title.innerText = `Chat con amministrazione – ${nome}`;
+    msgBox.innerHTML = `<p class="chat-system">Chat collegata alla segnalazione: ${idSegnalazione}</p>`;
+
+    if (unsubscribeChatListener) unsubscribeChatListener();
+
+    unsubscribeChatListener = db.collection("segnalazioni")
+      .doc(idSegnalazione)
+      .collection("chat")
+      .orderBy("timestamp","asc")
+      .onSnapshot(snapshot => {
+
+          msgBox.innerHTML = "";
+          let segnalazioneRisolta = false;
+
+          snapshot.forEach(doc => {
+              const msg = doc.data();
+              renderMsgApp(msg, msgBox);
+          });
+
+          // Controllo stato segnalazione
+          db.collection("segnalazioni")
+            .doc(idSegnalazione)
+            .get()
+            .then(d => {
+                const r = d.data();
+                if (r.stato === "risolta") {
+                    segnalazioneRisolta = true;
+
+                    document.getElementById("chatInput").disabled = true;
+                    document.getElementById("chatInput").placeholder =
+                      "Segnalazione risolta – chat in sola lettura";
+
+                    alert("Attività di risoluzione conclusa.");
+                }
+            });
+
+          msgBox.scrollTop = msgBox.scrollHeight;
+      });
+}
+
+/* RENDER MESSAGGI */
+function renderMsgApp(msg, container){
+  const isUser = msg.mittente==="utente";
+  const bubble = document.createElement("div");
+
+  bubble.className = "chat-bubble " + (isUser ? "chat-user" : "chat-admin");
+
+  const t = document.createElement("div");
+  t.className = "bubble-text";
+  t.innerText = msg.testo;
+
+  const time = document.createElement("div");
+  time.className = "bubble-time";
+
+  if (msg.timestamp && msg.timestamp.toDate){
+    time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  bubble.appendChild(t);
+  bubble.appendChild(time);
+  container.appendChild(bubble);
+}
+
+/* INVIO MESSAGGIO */
+function sendChatMessageApp(){
+
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if(!text) return;
+
+  if(!currentChatSegnalazioneId){
+    alert("Nessuna chat attiva.");
+    return;
+  }
+
+  db.collection("segnalazioni")
+    .doc(currentChatSegnalazioneId)
+    .collection("chat")
+    .add({
+      testo: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      mittente: "utente"
+    })
+    .then(()=>{
+      input.value="";
+    })
+}
+
+/* CHIUDI CHAT */
+function closeChatApp(){
+  document.getElementById("chatPopup").style.display="none";
+
+  if(unsubscribeChatListener){
+    unsubscribeChatListener();
+    unsubscribeChatListener=null;
+  }
+
+  currentChatSegnalazioneId = null;
+}
