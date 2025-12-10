@@ -20,11 +20,14 @@
   --t-blue: #0077ff;
   --t-yellow: #ffcc00;
   --t-red: #d50000;
+
+  /* CHAT COLORS */
+  --chat-blue: #0066ff;
+  --chat-yellow: #ffcc00;
+  --chat-orange: #ff8800;
+  --chat-red: #ff0022;
 }
 
-/* ==========================================================
-   BASE UI
-==========================================================*/
 body {
   background: var(--bg);
   margin: 0;
@@ -39,9 +42,6 @@ h1, h2 {
 h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
 h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 
-/* ==========================================================
-   CONTAINER + CARDS
-==========================================================*/
 .container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -58,12 +58,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   overflow-y: auto;
 }
 
-.scalaTitle {
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
+.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
 
 .pianoBox {
   background: #ffffff;
@@ -74,43 +69,8 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
-/* Riga “Piano + icone chat” */
-.pianoTop {
-  font-weight: bold;
-  margin-bottom: .8rem;
-  font-size: 1rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
 
-/* ICONA CHAT (SEMRE VISIBILE) */
-.chatPianoIcon, .chatCardIcon {
-  font-size: 20px;
-  cursor:pointer;
-  margin-left:8px;
-  transition:.2s;
-  padding:4px 6px;
-  border-radius:6px;
-  font-weight:bold;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* COLORAZIONI ICONE PER NUMERO MESSAGGI */
-.chat-blue   { background:#0077ff; color:white; }
-.chat-yellow { background:#ffcc00; color:black; }
-.chat-orange { background:#ff8800; color:white; }
-.chat-red    { background:#d50000; color:white; animation: pulseRed 1s infinite; }
-
-@keyframes pulseRed {
-  0% { transform:scale(1); }
-  50% { transform:scale(1.15); }
- 100% { transform:scale(1); }
-}
-
-/* Cards appartamenti */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -118,6 +78,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 }
 
 .card {
+  position: relative; /* NECESSARIO PER ICONA CHAT */
   background: var(--card-bg);
   border: 2px solid var(--border);
   border-radius: 1rem;
@@ -127,7 +88,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   font-weight: bold;
   box-shadow: var(--shadow);
   transition: .15s ease;
-  position:relative;
 }
 
 .card:hover {
@@ -135,16 +95,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: var(--shadow-strong);
 }
 
-/* ICONA CHAT SU OGNI CARD */
-.chatCardIcon {
-  position:absolute;
-  top:-10px;
-  right:-10px;
-  width:32px;
-  height:32px;
-}
-
-/* Temperature */
 .tempBox {
   font-size: .85rem;
   margin-top: 3px;
@@ -158,10 +108,69 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
-/* Stati segnalazione */
+/* ============================
+   ICONA CHAT WOW 3D + BADGE
+============================ */
+.chatIcon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 42px;
+  height: 42px;
+  background: var(--chat-blue);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.35),
+    inset 0 2px 4px rgba(255,255,255,.4),
+    inset 0 -3px 6px rgba(0,0,0,.2);
+  transition: transform .15s ease;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.chatIcon img {
+  width: 22px;
+  filter: invert(100%);
+}
+
+.chatIcon:hover {
+  transform: scale(1.08);
+}
+
+/* BADGE NUMERO */
+.chatBadge {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  background: #000;
+  color: white;
+  padding: 2px 7px;
+  font-size: 13px;
+  border-radius: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+
+/* COLORI BADGE */
+.badge-0   { background: #0077ff; }
+.badge-1   { background: #ffcc00; }
+.badge-2   { background: #ffcc00; }
+.badge-3   { background: #ff8800; }
+.badge-4p  { background: #ff0022; animation: pulseRed 1s infinite; }
+
+@keyframes pulseRed {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.15); }
+}
+/* ============================
+   MODALI (INVARIATE)
+============================ */
 .alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
 .alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
-.alert-yellow { animation: yellowBlink 1.8s infinite;}
+.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
 .alert-green { background:#00b454!important; color:white;}
 
 @keyframes redBlink {
@@ -177,7 +186,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   50%{background:#fff455;}
 }
 
-/* MODALI */
 .modal {
   position: fixed;
   inset: 0;
@@ -185,6 +193,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 99999;
 }
 
 .modal-content {
@@ -195,52 +204,87 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   border-radius: 1rem;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: .6rem;
-  margin-top: .4rem;
-  border: 1px solid #ccc;
-  border-radius: .6rem;
-}
-textarea { height: 90px; resize:none; }
+/* ============================
+   CHAT WINDOW (COME GUALA)
+============================ */
 
-.btn {
-  margin-top: .8rem;
-  padding: .8rem;
-  width: 100%;
-  border: none;
+.chatWindow {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 58vh;
+  background: white;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -3px 18px rgba(0,0,0,0.25);
+  display: none;
+  flex-direction: column;
+  z-index: 99999;
+}
+
+.chatHeader {
+  padding: 14px;
   background: var(--primary);
   color: white;
   font-weight: bold;
-  border-radius: .6rem;
+  border-radius: 18px 18px 0 0;
+  text-align: center;
+}
+
+.chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.chatInputBox {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.chatInputBox input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.chatInputBox button {
+  margin-left: 8px;
+  background: var(--primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
 }
 
-.btnClose {
-  margin-top: .6rem;
-  padding: .8rem;
-  width: 100%;
-  background: #ccc;
-  border-radius: .6rem;
-  cursor: pointer;
+.msgUser {
+  background: #d8ecff;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin: 6px 0;
+  max-width: 78%;
+  align-self: flex-end;
 }
 
-/* PWA install button */
-#installPWA {
-  position: fixed;
-  bottom: 18px;
-  right: 18px;
-  padding: 14px 20px;
-  font-size: 15px;
-  background:#cc0000;
-  color:white;
-  border:none;
-  border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
-  cursor:pointer;
-  display:none;
-  z-index:9999;
+.msgAdmin {
+  background: #e8e8e8;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin: 6px 0;
+  max-width: 78%;
+  align-self: flex-start;
 }
+
+.msgInfo {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #777;
+  margin: 8px 0;
+}
+
 </style>
 
 <!-- FIREBASE -->
@@ -261,38 +305,130 @@ const db = firebase.firestore();
 </script>
 
 </head>
-
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
 <h2>Piazza Guala • Via Piobesi</h2>
 
+<!-- CHAT WINDOW -->
+<div id="chatWindow" class="chatWindow">
+  <div id="chatHeader" class="chatHeader">Chat</div>
+  <div id="chatMessages" class="chatMessages"></div>
+
+  <div id="chatInputBox" class="chatInputBox">
+    <input id="chatInput" placeholder="Scrivi un messaggio...">
+    <button onclick="sendChatMessage()">Invia</button>
+  </div>
+</div>
+
 <div class="container"></div>
-<!-- ============================================================
-     PARAMETRO ?complesso=
-============================================================ -->
+<!-- ===============================
+     MODALE SEGNALAZIONE (ORIGINALE)
+================================= -->
+<div class="modal" id="modalSegnalazione">
+  <div class="modal-content">
+
+    <h3 id="modalTitle"></h3>
+
+    <label>Temperatura (facoltativa)</label>
+    <input type="number" id="tempInput" placeholder="es: 23">
+
+    <label style="margin-top:10px;">Tipo di intervento</label>
+    <select id="tipoInput" onchange="gestisciPartiComuni()">
+
+      <optgroup label="🔴 EMERGENZA">
+        <option value="118">118 – Emergenza sanitaria</option>
+        <option value="112">112 – Forze dell’ordine</option>
+        <option value="115">115 – Vigili del fuoco</option>
+      </optgroup>
+
+      <optgroup label="🟠 ALTA URGENZA">
+        <option value="ascensore">Ascensore</option>
+        <option value="elettricista">Elettricista</option>
+        <option value="idraulico">Idraulico</option>
+        <option value="centrale">Centrale termica</option>
+        <option value="autoclave">Autoclave</option>
+      </optgroup>
+
+      <optgroup label="🟡 MEDIA URGENZA">
+        <option value="serramenti">Serramentista</option>
+        <option value="antincendio">Manutenzione antincendio</option>
+      </optgroup>
+
+      <optgroup label="🟢 PUÒ ATTENDERE">
+        <option value="pulizie">Pulizie</option>
+        <option value="altro">Altro</option>
+      </optgroup>
+
+      <optgroup label="🟡 PARTI COMUNI">
+        <option value="particomuni">Segnala PARTI COMUNI</option>
+      </optgroup>
+
+    </select>
+
+    <div id="selectPartiComuniWrapper">
+      <label>Seleziona la parte comune</label>
+      <select id="selectPartiComuni">
+        <option value="">— Seleziona —</option>
+        <option value="Luci cortile">Luci cortile</option>
+        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
+        <option value="Cancello Pedonale">Cancello Pedonale</option>
+        <option value="Cortile">Cortile</option>
+        <option value="Aree verdi">Aree verdi</option>
+        <option value="Box interrati">Box interrati</option>
+        <option value="Garage">Serrande garage</option>
+        <option value="Vano scale">Vano scale</option>
+        <option value="Locale contatori">Locale contatori</option>
+      </select>
+    </div>
+
+    <label style="margin-top:12px;">Descrizione</label>
+    <textarea id="descrizioneInput" placeholder="Descrizione dettagliata"></textarea>
+
+    <button class="btn" onclick="confermaInvio()">Procedi</button>
+    <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
+
+  </div>
+</div>
+
+<div class="modal" id="modalConferma">
+  <div class="modal-content">
+    <h3 id="confermaTesto"></h3>
+    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
+    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
+  </div>
+</div>
+
+
+<!-- ===============================
+     COSTRUZIONE CARD + ICONE CHAT
+================================= -->
 <script>
 const complessoSelezionato =
   new URLSearchParams(location.search).get("complesso");
 
-const scaleGuala   = ["SCALA 131","SCALA 131 BIS","SCALA 133"];
-const scalePiobesi = ["SCALA 6","SCALA 8","SCALA 10"];
+const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
+const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
 
-function scalaAppartiene(scala){
-  if(!complessoSelezionato) return true;
-  if(complessoSelezionato==="guala") return scaleGuala.includes(scala);
-  if(complessoSelezionato==="piobesi") return scalePiobesi.includes(scala);
+function scalaAppartiene(scala) {
+  if (!complessoSelezionato) return true;
+
+  if (complessoSelezionato === "guala")
+    return scaleGuala.includes(scala);
+
+  if (complessoSelezionato === "piobesi")
+    return scalePiobesi.includes(scala);
+
   return true;
 }
-</script>
 
-<!-- ============================================================
-     DEFINIZIONE CONDOMINIO (identico al tuo)
-============================================================ -->
-<script>
+/* ============================================
+   DEFINIZIONE MAPPA CONDOMINIO (ORIGINALE)
+============================================ */
 const condominio = {
   "SCALA 131": {
-    piani:{
+    piani: {
       9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
       8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
       7:{dx:"GERMANO", sx:"GERMANO"},
@@ -308,8 +444,10 @@ const condominio = {
       ]
     }
   },
+
+  /* SCALA 131 BIS */
   "SCALA 131 BIS": {
-    piani:{
+    piani: {
       9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
       8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
       7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
@@ -325,6 +463,8 @@ const condominio = {
       ]
     }
   },
+
+  /* SCALA 133 */
   "SCALA 133": {
     piani:{
       9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
@@ -336,12 +476,15 @@ const condominio = {
       3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
       2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
       1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
-      portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
     }
   },
 
+  /* SCALA 6 */
   "SCALA 6": {
-    piani:{
+    piani: {
       9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
       8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
       7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
@@ -355,8 +498,9 @@ const condominio = {
     }
   },
 
+  /* SCALA 8 */
   "SCALA 8": {
-    piani:{
+    piani: {
       9:{dx:"URBINATI", sx:"GASTONE"},
       8:{dx:"FILIPPI", sx:"BLANDA"},
       7:{dx:"ROCCUZZO", sx:"TENORE"},
@@ -370,8 +514,9 @@ const condominio = {
     }
   },
 
+  /* SCALA 10 */
   "SCALA 10": {
-    piani:{
+    piani: {
       9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
       8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
       7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
@@ -384,26 +529,13 @@ const condominio = {
       portico:[]
     }
   }
+
 };
-</script>
 
-<!-- ============================================================
-     GENERAZIONE CARD + CHAT BADGES (SEMPRE VISIBILI)
-============================================================ -->
-<script>
-
+/* ===============================
+   GENERAZIONE CARD + CHAT ICON
+=============================== */
 const container = document.querySelector(".container");
-
-/* 🔥 funzione: calcolo colore badge in base a numero messaggi */
-function chatBadgeColor(n){
-  if(n===0) return "chat-blue";
-  if(n<=2) return "chat-yellow";
-  if(n<=3) return "chat-orange";
-  return "chat-red"; // 4+ messaggi → rosso pulsante
-}
-
-/* 🔥 mappa per mantenere aggiornamenti realtime */
-const listenersChat = {};
 
 Object.keys(condominio).forEach(scala => {
 
@@ -412,82 +544,294 @@ Object.keys(condominio).forEach(scala => {
   const box = document.createElement("div");
   box.className = "scalaBox";
   box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
-
   const piani = condominio[scala].piani;
 
   Object.keys(piani)
-    .filter(p=>!isNaN(p))
-    .sort((a,b)=>b-a)
+    .filter(p => !isNaN(p))         // solo numeri (piani veri)
+    .sort((a,b)=>b-a)              // dal più alto
     .forEach(piano => {
 
       const dati = piani[piano];
 
       let html = `
-      <div class="pianoBox">
-        <div class="pianoTop">
-          ${piano}° piano
-        </div>
+        <div class="pianoBox">
+          <div class="pianoTop">${piano}° piano</div>
+          <div class="cards">
 
-        <div class="cards">
+            <!-- CARD DX -->
+            <div class="card"
+              onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)"
+              data-scala="${scala}"
+              data-piano="${piano}"
+              data-lato="DX"
+              data-nome="${dati.dx}">
 
-          <!-- CARD DX -->
-          <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)" id="card-${scala}-${piano}-DX">
-            <div class="chatCardIcon chat-blue" id="badge-${scala}-${piano}-DX">💬</div>
-            ${dati.dx}
-            <div class="tempBox">
-              <span class="tempDot t-blue"></span>
-              <span class="tempVal">—°C</span>
+              ${dati.dx}
+
+              <!-- ICONA CHAT – SEMPRE PRESENTE -->
+              <div class="chatIcon" onclick="openChatFromIcon(event, '${scala}', '${piano}', 'DX', '${dati.dx}')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1380/1380338.png">
+                <div class="chatBadge badge-0">0</div>
+              </div>
+
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
             </div>
-          </div>
 
-          <!-- CARD SX -->
-          <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)" id="card-${scala}-${piano}-SX">
-            <div class="chatCardIcon chat-blue" id="badge-${scala}-${piano}-SX">💬</div>
-            ${dati.sx}
-            <div class="tempBox">
-              <span class="tempDot t-blue"></span>
-              <span class="tempVal">—°C</span>
+            <!-- CARD SX -->
+            <div class="card"
+              onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)"
+              data-scala="${scala}"
+              data-piano="${piano}"
+              data-lato="SX"
+              data-nome="${dati.sx}">
+
+              ${dati.sx}
+
+              <!-- ICONA CHAT -->
+              <div class="chatIcon" onclick="openChatFromIcon(event, '${scala}', '${piano}', 'SX', '${dati.sx}')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1380/1380338.png">
+                <div class="chatBadge badge-0">0</div>
+              </div>
+
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
             </div>
-          </div>
 
+          </div>
         </div>
-      </div>`;
+      `;
 
       box.innerHTML += html;
-
-      /* =====================================================
-           AGGANCIO REALTIME CHAT → OGNI CARD
-         ===================================================== */
-
-      ["DX","SX"].forEach(lato=>{
-        const idChat = `${scala}-${piano}-${lato}-${dati[lato.toLowerCase()]}`;
-
-        listenersChat[idChat] =
-          db.collection("chat_counter")
-            .doc(idChat)
-            .onSnapshot(doc=>{
-              const badge = document.getElementById(`badge-${scala}-${piano}-${lato}`);
-              if(!badge) return;
-
-              let n = 0;
-              if(doc.exists && doc.data().messaggi) n = doc.data().messaggi;
-
-              badge.className = "chatCardIcon " + chatBadgeColor(n);
-            });
-
-      });
-
     });
 
+  /* PORTICO */
+  if (piani.portico && piani.portico.length > 0){
+    let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">Livello strada</div>
+        <div class="cards">
+    `;
+
+    piani.portico.forEach(nome => {
+      html += `
+        <div class="card"
+          onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)"
+          data-scala="${scala}"
+          data-piano="PORTICO"
+          data-lato="NEGOZIO"
+          data-nome="${nome}">
+
+          ${nome}
+
+          <!-- ICONA CHAT -->
+          <div class="chatIcon" onclick="openChatFromIcon(event, '${scala}', 'PORTICO', 'NEGOZIO', '${nome}')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1380/1380338.png">
+            <div class="chatBadge badge-0">0</div>
+          </div>
+
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
   container.appendChild(box);
-
 });
-</script>
 
-<!-- ============================================================
-     MODALI + LOGICA INVIO SEGNALAZIONE (identica, senza chat)
-============================================================ -->
-<script>
+
+/* =============================================================
+   CHAT LOGIC — CREAZIONE ID UNICO (SCALA-PIANO-LATO-NOME)
+============================================================= */
+function buildChatId(scala, piano, lato, nome){
+  return `${scala}-${piano}-${lato}-${nome}`.replace(/\s+/g, "");
+}
+
+
+
+/* =============================================================
+   APERTURA CHAT DA ICONA (BLOCCA CLICK SULLA CARD)
+============================================================= */
+function openChatFromIcon(event, scala, piano, lato, nome) {
+  event.stopPropagation();  
+  openChat(scala, piano, lato, nome);
+}
+
+
+
+/* =============================================================
+   APERTURA CHAT COMPLETA
+============================================================= */
+let currentChatId = null;
+let unsubscribeChat = null;
+let chatClosed = false;
+
+function openChat(scala, piano, lato, nome){
+
+  currentChatId = buildChatId(scala, piano, lato, nome);
+  chatClosed = false;
+
+  document.getElementById("chatHeader").innerText =
+    `${scala} – ${piano} – ${lato} – ${nome}`;
+
+  document.getElementById("chatWindow").style.display = "flex";
+
+  loadChatMessages(currentChatId);
+}
+
+
+
+/* =============================================================
+   CARICA MESSAGGI + LISTENER REALTIME
+============================================================= */
+function loadChatMessages(chatId){
+
+  const chatMessagesEl = document.getElementById("chatMessages");
+  chatMessagesEl.innerHTML = "";
+
+  if (unsubscribeChat) unsubscribeChat();
+
+  unsubscribeChat = db.collection("chat")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("timestamp")
+    .onSnapshot(snap => {
+
+      chatMessagesEl.innerHTML = "";
+
+      snap.forEach(doc => {
+        const msg = doc.data();
+
+        let div = document.createElement("div");
+
+        if (msg.system){
+          div.className = "msgInfo";
+          div.innerText = msg.text;
+        }
+        else if (msg.sender === "utente"){
+          div.className = "msgUser";
+          div.innerText = msg.text;
+        }
+        else{
+          div.className = "msgAdmin";
+          div.innerText = msg.text;
+        }
+
+        chatMessagesEl.appendChild(div);
+      });
+
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+      updateBadgeCount(chatId, snap.size);
+    });
+
+}
+/* =============================================================
+   INVIO MESSAGGIO CHAT (UTENTE)
+============================================================= */
+function sendChatMessage(){
+
+  if (chatClosed){
+    alert("La segnalazione è stata chiusa dall’amministrazione.\nLa chat è sola lettura.");
+    return;
+  }
+
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  db.collection("chat")
+    .doc(currentChatId)
+    .collection("messages")
+    .add({
+      sender: "utente",
+      text: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  input.value = "";
+}
+
+
+
+/* =============================================================
+   AGGIORNA BADGE MESSAGGI NON LETTI SU OGNI ICONA
+============================================================= */
+function updateBadgeCount(chatId, count){
+
+  document.querySelectorAll(".card").forEach(card => {
+
+    const scala = card.dataset.scala;
+    const piano = card.dataset.piano;
+    const lato  = card.dataset.lato;
+    const nome  = card.dataset.nome;
+
+    const id = buildChatId(scala, piano, lato, nome);
+
+    if (id !== chatId) return;
+
+    const badge = card.querySelector(".chatBadge");
+    const icon  = card.querySelector(".chatIcon");
+
+    badge.innerText = count;
+
+    /* LOGICA COLORI BADGE */
+    if (count === 0){
+      badge.className = "chatBadge badge-0";
+      icon.style.background = "var(--chat-blue)";
+    }
+    else if (count === 1 || count === 2){
+      badge.className = "chatBadge badge-1";
+      icon.style.background = "var(--chat-yellow)";
+    }
+    else if (count === 3){
+      badge.className = "chatBadge badge-3";
+      icon.style.background = "var(--chat-orange)";
+    }
+    else {
+      badge.className = "chatBadge badge-4p";
+      icon.style.background = "var(--chat-red)";
+    }
+  });
+
+}
+
+
+
+/* =============================================================
+   LOGICA CHAT CHIUSA (ADMIN RISOLVE)
+============================================================= */
+db.collection("segnalazioni")
+  .where("stato","==","risolta")
+  .onSnapshot(s => {
+
+    s.forEach(doc => {
+      const seg = doc.data();
+      const id  = buildChatId(seg.scala, seg.piano, seg.lato, seg.nome);
+
+      if (currentChatId === id){
+        chatClosed = true;
+        document.getElementById("chatInput").disabled = true;
+      }
+    });
+
+  });
+
+
+
+/* =============================================================
+   MODALI ORIGINALI — INVARIATE
+============================================================= */
 
 let elementoSelezionato = null;
 let nominativo = "";
@@ -495,7 +839,7 @@ let scalaSel = "";
 let pianoSel = "";
 let latoSel = "";
 
-function apri(scala,piano,lato,nome,elem){
+function apri(scala, piano, lato, nome, elem){
   elementoSelezionato = elem;
   nominativo = nome;
   scalaSel = scala;
@@ -505,31 +849,39 @@ function apri(scala,piano,lato,nome,elem){
   document.getElementById("modalTitle").innerText =
     `${scala} • ${piano} • ${lato} • ${nome}`;
 
-  document.getElementById("modalSegnalazione").style.display="flex";
+  document.getElementById("modalSegnalazione").style.display = "flex";
 }
 
-function chiudiModal(){ document.getElementById("modalSegnalazione").style.display="none"; }
-function chiudiConferma(){ document.getElementById("modalConferma").style.display="none"; }
+function chiudiModal(){
+  document.getElementById("modalSegnalazione").style.display = "none";
+}
 
-function gestisciPartiComuni(){
-  const tipo=document.getElementById("tipoInput").value;
-  const wrap=document.getElementById("selectPartiComuniWrapper");
-  if(tipo==="particomuni") wrap.style.display="block";
-  else{
-    wrap.style.display="none";
-    document.getElementById("selectPartiComuni").value="";
+function chiudiConferma(){
+  document.getElementById("modalConferma").style.display = "none";
+}
+
+function gestisciPartiComuni() {
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
   }
 }
 
 function confermaInvio(){
-  const t=document.getElementById("tipoInput").value;
+  const tipo = document.getElementById("tipoInput").value;
 
-  if(t==="particomuni"){
-    if(document.getElementById("selectPartiComuni").value===""){
+  if (tipo === "particomuni") {
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if (sotto === "") {
       alert("Seleziona la parte comune.");
       return;
     }
-    if(document.getElementById("descrizioneInput").value.trim()===""){
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
       alert("La descrizione è obbligatoria.");
       return;
     }
@@ -537,213 +889,120 @@ function confermaInvio(){
 
   document.getElementById("confermaTesto").innerText =
     `Confermi la segnalazione per:\n${nominativo}`;
-  document.getElementById("modalConferma").style.display="flex";
+
+  document.getElementById("modalConferma").style.display = "flex";
 }
 
-function inviaSegnalazioneFinale(){
+
+/* =============================================================
+   INVIO SEGNALAZIONE + APERTURA CHAT SE NON ESISTE
+============================================================= */
+function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
   const sotto = document.getElementById("selectPartiComuni").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
 
-  /* PRIORITÀ */
-  let priorita="VERDE";
-  if(["118","112","115"].includes(tipo)) priorita="ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita="ARANCIONE";
-  else if(["serramenti","antincendio","particomuni"].includes(tipo)) priorita="GIALLO";
+  let priorita = "VERDE";
 
-  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+      priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo))
+      priorita = "GIALLO";
+  else if(tipo === "particomuni")
+      priorita = "GIALLO";
 
-  let css="alert-green";
-  if(priorita==="ROSSO") css="alert-red";
-  else if(priorita==="ARANCIONE") css="alert-orange";
-  else if(priorita==="GIALLO") css="alert-yellow";
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
 
   elementoSelezionato.classList.add(css);
 
-  /* TEMPERATURA */
   const dot = elementoSelezionato.querySelector(".tempDot");
   const val = elementoSelezionato.querySelector(".tempVal");
-  if(temp!=="ND"){
-    if(temp>=28) dot.className="tempDot t-red";
-    else if(temp>=24) dot.className="tempDot t-yellow";
-    else dot.className="tempDot t-blue";
-    val.innerText = temp+"°C";
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
   }
 
   /* CREA SEGNALAZIONE */
   db.collection("segnalazioni").add({
-    scala:scalaSel,
-    piano:pianoSel,
-    lato:latoSel,
-    nome:nominativo,
-    temperatura:temp,
-    descrizione:desc,
-    tipo: tipo==="particomuni" ? "Parti comuni" : tipo,
-    sottotipo:sotto,
-    complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi":"guala",
-    priorita:priorita,
-    stato:"attiva",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      descrizione: desc,
+      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+      sottotipo: sotto,
+      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+      priorita: priorita,
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  /* RESET */
+  /* CREA CHAT SE NON ESISTE */
+  const chatId = buildChatId(scalaSel, pianoSel, latoSel, nominativo);
+
+  db.collection("chat").doc(chatId).set({
+    created: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+
   chiudiConferma();
   chiudiModal();
-  document.getElementById("tempInput").value="";
-  document.getElementById("descrizioneInput").value="";
-  document.getElementById("tipoInput").value="altro";
-  document.getElementById("selectPartiComuni").value="";
-  document.getElementById("selectPartiComuniWrapper").style.display="none";
+
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+  document.getElementById("selectPartiComuni").value = "";
+  document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
+
+
+
+/* =============================================================
+   SERVICE WORKER
+============================================================= */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
+}
+
+
+
+/* =============================================================
+   PWA INSTALL BUTTON
+============================================================= */
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+});
 </script>
-<!-- ============================================================
-     CHAT POPUP (APP) + LOGICA COMPLETA
-============================================================ -->
-<script>
 
-let currentChatId = null;
-let unsubscribeChat = null;
-
-/* ============================================================
-   APERTURA CHAT DA ICONA CARD
-============================================================ */
-function apriChatDaCard(scala, piano, lato, nome){
-
-  // ID chat standardizzato
-  const chatId = `${scala}-${piano}-${lato}-${nome}`;
-
-  currentChatId = chatId;
-
-  const popup  = document.getElementById("chatPopup");
-  const title  = document.getElementById("chatTitle");
-  const msgBox = document.getElementById("chatMessages");
-
-  popup.style.display = "flex";
-  title.innerText = `Chat • ${nome}`;
-  msgBox.innerHTML = `<p class="chat-system">Chat collegata a ${scala} • ${piano} • ${lato}</p>`;
-
-  // DISATTIVA LISTENER PRECEDENTE
-  if(unsubscribeChat) unsubscribeChat();
-
-  // LISTENER REALTIME CHAT
-  unsubscribeChat = db.collection("chat")
-    .doc(chatId)
-    .collection("messaggi")
-    .orderBy("timestamp", "asc")
-    .onSnapshot(snapshot => {
-
-      msgBox.innerHTML = "";
-
-      let unread = 0;
-
-      snapshot.forEach(doc => {
-        const msg = doc.data();
-
-        renderChatMessageAPP(msg, msgBox);
-
-        if(msg.mittente === "admin" && !msg.letta) unread++;
-      });
-
-      // SCROLL BASSO
-      msgBox.scrollTop = msgBox.scrollHeight;
-
-      // AGGIORNA CONTATORE MESSAGGI PER LA CARD
-      db.collection("chat_counter").doc(chatId).set({
-        messaggi: snapshot.size
-      }, { merge:true });
-
-    });
-
-}
-
-/* ============================================================
-   RENDER MESSAGGIO APP (utente ↔ admin)
-============================================================ */
-function renderChatMessageAPP(msg, container){
-
-  const bubble = document.createElement("div");
-  bubble.className = "chat-bubble " + (msg.mittente === "utente" ? "chat-user" : "chat-admin");
-
-  const t = document.createElement("div");
-  t.className = "bubble-text";
-  t.innerText = msg.testo;
-
-  const time = document.createElement("div");
-  time.className = "bubble-time";
-
-  if(msg.timestamp && msg.timestamp.toDate){
-    time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-  }
-
-  bubble.appendChild(t);
-  bubble.appendChild(time);
-  container.appendChild(bubble);
-}
-
-/* ============================================================
-   INVIO MESSAGGIO (UTENTE)
-============================================================ */
-function sendChatMessageApp(){
-
-  if(!currentChatId) return;
-
-  const input = document.getElementById("chatInput");
-  const text  = input.value.trim();
-  if(!text) return;
-
-  const chatRef = db.collection("chat").doc(currentChatId);
-
-  chatRef.collection("messaggi").add({
-    testo: text,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    mittente: "utente",
-    letta: false
-  });
-
-  // aggiorna counter locale
-  db.collection("chat_counter").doc(currentChatId).update({
-    messaggi: firebase.firestore.FieldValue.increment(1)
-  });
-
-  input.value = "";
-}
-
-/* ============================================================
-   CHIUSURA CHAT
-============================================================ */
-function closeChatApp(){
-  const popup = document.getElementById("chatPopup");
-  popup.style.display = "none";
-
-  if(unsubscribeChat){
-    unsubscribeChat();
-    unsubscribeChat = null;
-  }
-
-  currentChatId = null;
-}
-
-/* ============================================================
-   BLOCCO CHAT QUANDO ADMIN RISOLVE SEGNALAZIONE
-============================================================ */
-function bloccaChat(chatId){
-
-  db.collection("chat")
-    .doc(chatId)
-    .set({ chiusa:true }, { merge:true });
-
-}
-
-/* ============================================================
-   VERIFICA BLOCCO CHAT PRIMA DI INVIARE
-============================================================ */
-async function checkChatBloccata(chatId){
-
-  const doc = await db.collection("chat").doc(chatId).get();
-  if(!doc.exists) return false;
-  return doc.data().chiusa === true;
-}
-
-</script>
+</body>
+</html>
