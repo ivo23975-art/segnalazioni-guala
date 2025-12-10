@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc0000">
 
@@ -21,6 +22,7 @@
   --t-red: #d50000;
 }
 
+/* Corpo */
 body {
   background: var(--bg);
   margin: 0;
@@ -28,6 +30,7 @@ body {
   font-family: system-ui, sans-serif;
 }
 
+/* Titoli */
 h1, h2 {
   text-align: center;
   margin: 0;
@@ -35,6 +38,7 @@ h1, h2 {
 h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
 h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 
+/* Griglia container */
 .container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -42,6 +46,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 }
 @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 
+/* Box scala */
 .scalaBox {
   background: white;
   padding: 1rem;
@@ -51,6 +56,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   overflow-y: auto;
 }
 
+/* Titolo scala */
 .scalaTitle {
   text-align: center;
   font-size: 1.4rem;
@@ -58,6 +64,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   margin-bottom: 1rem;
 }
 
+/* Box piano */
 .pianoBox {
   background: #ffffff;
   border: 1px solid #e3e3e3;
@@ -67,45 +74,33 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
+/* Riga piano + icona chat */
 .pianoTop {
   font-weight: bold;
-  font-size: 1rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   margin-bottom: .8rem;
-}
-
-/* GRUPPO DUE ICONE (DX e SX) */
-.chatPianoGroup {
-  display:flex;
-  gap:8px;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .chatPianoIcon {
-  font-size:18px;
-  padding:4px 7px;
-  border-radius:6px;
+  font-size: 20px;
   cursor:pointer;
-  background:#0066ff;
-  color:white;
-  box-shadow:0 0 6px #0066ff;
+  margin-left:8px;
+  color:#0066ff;
   transition:.2s;
-  font-weight:bold;
 }
 .chatPianoIcon:hover { transform:scale(1.15); }
 
-/* STATI ICONA */
-.chat-blue { background:#0066ff !important; box-shadow:0 0 6px #0066ff; }
-.chat-yellow { background:#ffcc00 !important; color:#000 !important; box-shadow:0 0 6px #ffcc00; }
-.chat-red { background:#ff0000 !important; box-shadow:0 0 12px #ff0000, 0 0 20px #ff0000; }
-
+/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: .6rem;
 }
 
+/* Card singola */
 .card {
   background: var(--card-bg);
   border: 2px solid var(--border);
@@ -123,6 +118,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: var(--shadow-strong);
 }
 
+/* Temperatura */
 .tempBox {
   font-size: .85rem;
   margin-top: 3px;
@@ -136,65 +132,26 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
-/* PRIORITÀ */
-.alert-red { animation:redBlink 1s infinite; background:#ff0000!important; color:white;}
-.alert-orange { animation:orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
-.alert-yellow { animation:yellowBlink 1.8s infinite;}
+/* ALERT */
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation: yellowBlink 1.8s infinite;}
 .alert-green { background:#00b454!important; color:white;}
 
-@keyframes redBlink {0%,100%{background:#b00000;}50%{background:#ff4444;}}
-@keyframes orangeBlink {0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
-@keyframes yellowBlink {0%,100%{background:#d4bf00;}50%{background:#fff455;}}
-
-/* MODALI */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  display: none;
-  justify-content: center;
-  align-items: center;
+@keyframes redBlink {
+  0%,100%{background:#b00000;}
+  50%{background:#ff4444;}
+}
+@keyframes orangeBlink {
+  0%,100%{background:#cc6a00;}
+  50%{background:#ff9c22;}
+}
+@keyframes yellowBlink {
+  0%,100%{background:#d4bf00;}
+  50%{background:#fff455;}
 }
 
-.modal-content {
-  background: white;
-  padding: 1rem;
-  width: 92%;
-  max-width: 420px;
-  border-radius: 1rem;
-}
-
-input, select, textarea {
-  width: 100%;
-  padding: .6rem;
-  margin-top: .4rem;
-  border: 1px solid #ccc;
-  border-radius: .6rem;
-}
-textarea { height: 90px; resize: none; }
-
-.btn {
-  margin-top: .8rem;
-  padding: .8rem;
-  width: 100%;
-  border: none;
-  background: var(--primary);
-  color: white;
-  font-weight: bold;
-  border-radius: .6rem;
-  cursor: pointer;
-}
-
-.btnClose {
-  margin-top: .6rem;
-  padding: .8rem;
-  width: 100%;
-  background: #ccc;
-  border-radius: .6rem;
-  cursor: pointer;
-}
-
-/* CHAT POPUP */
+/* POPUP CHAT – stile WhatsApp */
 .chat-overlay {
   position: fixed;
   top: 0;
@@ -260,12 +217,7 @@ textarea { height: 90px; resize: none; }
 }
 
 .bubble-text { margin-bottom: 3px; }
-
-.bubble-time {
-  font-size: 0.75rem;
-  opacity: 0.6;
-  text-align: right;
-}
+.bubble-time { font-size: 0.75rem; opacity: 0.6; text-align:right; }
 
 .chat-input {
   width: 100%;
@@ -300,7 +252,59 @@ textarea { height: 90px; resize: none; }
 .chat-send:hover { background:#1a80ff; }
 .chat-close:hover { background:#666; }
 
-/* PWA */
+/* MODAL SEGNALAZIONE (tuo originale) */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 1rem;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 1rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: .6rem;
+  margin-top: .4rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+}
+textarea { height: 90px; resize: none; }
+
+.btn {
+  margin-top: .8rem;
+  padding: .8rem;
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+.btnClose {
+  margin-top: .6rem;
+  padding: .8rem;
+  width: 100%;
+  background: #ccc;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+#selectPartiComuniWrapper {
+  display: none;
+  margin-top: .6rem;
+}
+
 #installPWA {
   position: fixed;
   bottom: 18px;
@@ -317,6 +321,24 @@ textarea { height: 90px; resize: none; }
   z-index:9999;
 }
 </style>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
+  authDomain: "segnalazioni-guala.firebaseapp.com",
+  projectId: "segnalazioni-guala",
+  storageBucket: "segnalazioni-guala.firebasestorage.app",
+  messagingSenderId: "118462666966",
+  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
 </head>
 
 <body>
@@ -326,9 +348,26 @@ textarea { height: 90px; resize: none; }
 
 <div class="container"></div>
 
-<!-- MODALI ORIGINALI -->
+<!-- POPUP CHAT -->
+<div id="chatPopup" class="chat-overlay">
+  <div class="chat-window">
+    <h2 id="chatTitle">Chat segnalazione</h2>
+    <div id="chatMessages" class="chat-messages"></div>
+    <textarea id="chatInput" class="chat-input" placeholder="Scrivi un messaggio..."></textarea>
+    <div class="chat-buttons">
+      <button class="chat-send" onclick="sendChatMessageApp()">Invia</button>
+      <button class="chat-close" onclick="closeChatApp()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===============================
+     MODALI SEGNALAZIONE (tuo originale)
+================================= -->
+
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
+
     <h3 id="modalTitle"></h3>
 
     <label>Temperatura (facoltativa)</label>
@@ -371,9 +410,9 @@ textarea { height: 90px; resize: none; }
       <label>Seleziona la parte comune</label>
       <select id="selectPartiComuni">
         <option value="">— Seleziona —</option>
-        <option value="Luci cortile">Luci cortile</option> 
-        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
-        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
+        <option value="Luci cortile">Luci cortile</option>
+        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio</option>
         <option value="Cancello Pedonale">Cancello Pedonale</option>
         <option value="Cortile">Cortile</option>
         <option value="Aree verdi">Aree verdi</option>
@@ -401,45 +440,25 @@ textarea { height: 90px; resize: none; }
   </div>
 </div>
 
-<!-- CHAT POPUP -->
-<div id="chatPopup" class="chat-overlay">
-  <div class="chat-window">
-    <h2 id="chatTitle">Chat segnalazione</h2>
-    <div id="chatMessages" class="chat-messages"></div>
-    <textarea id="chatInput" class="chat-input" placeholder="Scrivi un messaggio..."></textarea>
-    <div class="chat-buttons">
-      <button class="chat-send" onclick="sendChatMessageApp()">Invia</button>
-      <button class="chat-close" onclick="closeChatApp()">Chiudi</button>
-    </div>
-  </div>
-</div>
-
-<!-- FINE BLOCCO 1 -->
-
 <script>
 /* ============================================
-   LETTURA PARAM ?complesso=guala/piobesi
+   LETTURA PARAM ?complesso=
 ============================================ */
 const complessoSelezionato =
   new URLSearchParams(location.search).get("complesso");
 
-const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
-const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
+const scaleGuala = ["SCALA 131","SCALA 131 BIS","SCALA 133"];
+const scalePiobesi = ["SCALA 6","SCALA 8","SCALA 10"];
 
-function scalaAppartiene(scala) {
-  if (!complessoSelezionato) return true;
-
-  if (complessoSelezionato === "guala")
-    return scaleGuala.includes(scala);
-
-  if (complessoSelezionato === "piobesi")
-    return scalePiobesi.includes(scala);
-
+function scalaAppartiene(scala){
+  if(!complessoSelezionato) return true;
+  if(complessoSelezionato==="guala") return scaleGuala.includes(scala);
+  if(complessoSelezionato==="piobesi") return scalePiobesi.includes(scala);
   return true;
 }
 
 /* ============================================
-   DEFINIZIONE CONDOMINIO (IDENTICO AL TUO)
+   DEFINIZIONE CONDOMINIO
 ============================================ */
 const condominio = {
   "SCALA 131": {
@@ -539,11 +558,10 @@ const condominio = {
       portico:[]
     }
   }
-
 };
 
 /* ============================================
-   GENERA LE CARD (IDENTICO AL TUO)
+   GENERA LE CARD + ICONA CHAT PIANO
 ============================================ */
 const container = document.querySelector(".container");
 
@@ -566,19 +584,14 @@ Object.keys(condominio).forEach(scala => {
 
       let html = `
         <div class="pianoBox">
-
           <div class="pianoTop">
             ${piano}° piano
-            <div class="chatPianoGroup">
-              <div class="chatPianoIcon chat-blue" id="chatIcon-${scala}-${piano}-DX"></div>
-              <div class="chatPianoIcon chat-blue" id="chatIcon-${scala}-${piano}-SX"></div>
-            </div>
+            <span class="chatPianoIcon" onclick="apriChatPiano('${scala}','${piano}')">💬</span>
           </div>
 
           <div class="cards">
 
-            <div class="card"
-                 onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -586,8 +599,7 @@ Object.keys(condominio).forEach(scala => {
               </div>
             </div>
 
-            <div class="card"
-                 onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -602,16 +614,19 @@ Object.keys(condominio).forEach(scala => {
       box.innerHTML += html;
     });
 
+  /* PORTICO */
   if (piani.portico && piani.portico.length > 0){
     let html = `
       <div class="pianoBox">
-        <div class="pianoTop">Livello strada</div>
+        <div class="pianoTop">
+          Livello strada
+          <span class="chatPianoIcon" onclick="apriChatPiano('${scala}','PORTICO')">💬</span>
+        </div>
         <div class="cards">
     `;
     piani.portico.forEach(nome => {
       html += `
-        <div class="card"
-             onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
           <div class="tempBox">
             <span class="tempDot t-blue"></span>
@@ -628,7 +643,7 @@ Object.keys(condominio).forEach(scala => {
 });
 
 /* ============================================
-   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
+   FUNZIONI SEGNALAZIONE (tue originali)
 ============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
@@ -636,7 +651,7 @@ let scalaSel = "";
 let pianoSel = "";
 let latoSel = "";
 
-function apri(scala, piano, lato, nome, elem){
+function apri(scala,piano,lato,nome,elem){
   elementoSelezionato = elem;
   nominativo = nome;
   scalaSel = scala;
@@ -657,271 +672,185 @@ function chiudiConferma(){
   document.getElementById("modalConferma").style.display = "none";
 }
 
-function gestisciPartiComuni() {
-  const tipo = document.getElementById("tipoInput").value;
-  const wrapper = document.getElementById("selectPartiComuniWrapper");
-
-  if (tipo === "particomuni") {
-    wrapper.style.display = "block";
-  } else {
-    wrapper.style.display = "none";
-    document.getElementById("selectPartiComuni").value = "";
+function gestisciPartiComuni(){
+  const t = document.getElementById("tipoInput").value;
+  const w = document.getElementById("selectPartiComuniWrapper");
+  if(t==="particomuni") w.style.display="block";
+  else{
+    w.style.display="none";
+    document.getElementById("selectPartiComuni").value="";
   }
 }
 
 function confermaInvio(){
   const tipo = document.getElementById("tipoInput").value;
-
-  if (tipo === "particomuni") {
-    const sotto = document.getElementById("selectPartiComuni").value;
-    if (sotto === "") {
-      alert("Seleziona la parte comune.");
-      return;
-    }
-    if (document.getElementById("descrizioneInput").value.trim() === "") {
-      alert("La descrizione è obbligatoria.");
-      return;
+  if(tipo==="particomuni"){
+    const s = document.getElementById("selectPartiComuni").value;
+    if(s===""){ alert("Seleziona la parte comune."); return; }
+    if(document.getElementById("descrizioneInput").value.trim()===""){
+      alert("La descrizione è obbligatoria."); return;
     }
   }
 
   document.getElementById("confermaTesto").innerText =
     `Confermi la segnalazione per:\n${nominativo}`;
-
-  document.getElementById("modalConferma").style.display = "flex";
+  document.getElementById("modalConferma").style.display="flex";
 }
 
-function inviaSegnalazioneFinale() {
+function inviaSegnalazioneFinale(){
 
   const tipo = document.getElementById("tipoInput").value;
   const sotto = document.getElementById("selectPartiComuni").value;
   const temp = document.getElementById("tempInput").value || "ND";
   const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
 
-  let priorita = "VERDE";
+  let priorita="VERDE";
+  if(["118","112","115"].includes(tipo)) priorita="ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita="ARANCIONE";
+  else if(["serramenti","antincendio","particomuni"].includes(tipo)) priorita="GIALLO";
 
-  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if(["ascensore","elettricista","idraullico","centrale","autoclave"].includes(tipo))
-      priorita = "ARANCIONE";
-  else if(["serramenti","antincendio"].includes(tipo))
-      priorita = "GIALLO";
-  else if(tipo === "particomuni")
-      priorita = "GIALLO";
-
-  elementoSelezionato.classList.remove(
-    "alert-red","alert-orange","alert-yellow","alert-green"
-  );
-
-  let css = "alert-green";
-  if (priorita === "ROSSO") css = "alert-red";
-  else if (priorita === "ARANCIONE") css = "alert-orange";
-  else if (priorita === "GIALLO") css = "alert-yellow";
-
+  elementoSelezionato.classList.remove("alert-red","alert-orange","alert-yellow","alert-green");
+  let css="alert-green";
+  if(priorita==="ROSSO") css="alert-red";
+  else if(priorita==="ARANCIONE") css="alert-orange";
+  else if(priorita==="GIALLO") css="alert-yellow";
   elementoSelezionato.classList.add(css);
 
   const dot = elementoSelezionato.querySelector(".tempDot");
   const val = elementoSelezionato.querySelector(".tempVal");
-
-  if (temp !== "ND") {
-    if (temp >= 28) dot.className = "tempDot t-red";
-    else if (temp >= 24) dot.className = "tempDot t-yellow";
-    else dot.className = "tempDot t-blue";
-
-    val.innerText = temp + "°C";
+  if(temp!=="ND"){
+    if(temp>=28) dot.className="tempDot t-red";
+    else if(temp>=24) dot.className="tempDot t-yellow";
+    else dot.className="tempDot t-blue";
+    val.innerText = temp+"°C";
   }
 
   db.collection("segnalazioni").add({
-      scala: scalaSel,
-      piano: pianoSel,
-      lato: latoSel,
-      nome: nominativo,
-      temperatura: temp,
-      descrizione: desc,
-      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
-      sottotipo: sotto,
-      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
-      priorita: priorita,
-      stato: "attiva",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    scala: scalaSel,
+    piano: pianoSel,
+    lato: latoSel,
+    nome: nominativo,
+    temperatura: temp,
+    descrizione: desc,
+    tipo: tipo==="particomuni" ? "Parti comuni" : tipo,
+    sottotipo: sotto,
+    complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+    priorita: priorita,
+    stato: "attiva",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then((docRef)=>{
+
+    chiudiConferma();
+    chiudiModal();
+
+    document.getElementById("tempInput").value="";
+    document.getElementById("descrizioneInput").value="";
+    document.getElementById("tipoInput").value="altro";
+    document.getElementById("selectPartiComuni").value="";
+    document.getElementById("selectPartiComuniWrapper").style.display="none";
+
+    /* DOMANDA CHAT (SI/NO) */
+    setTimeout(()=>{
+      if(confirm(`Vuoi aprire la chat per questa segnalazione, ${nominativo}?`)){
+        apriChatApp(docRef.id, nominativo);
+      }
+    },300);
+
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("Errore durante l'invio.");
   });
-
-  chiudiConferma();
-  chiudiModal();
-
-  document.getElementById("tempInput").value = "";
-  document.getElementById("descrizioneInput").value = "";
-  document.getElementById("tipoInput").value = "altro";
-  document.getElementById("selectPartiComuni").value = "";
-  document.getElementById("selectPartiComuniWrapper").style.display = "none";
-}
-</script>
-/* ============================================================
-   CHAT – LOGICA COMPLETA PER L’APP
-   (Compatibile al 100% con il tuo index.html originale)
-============================================================ */
-
-/* ICONA CHAT – STATI
-   blu = nessun messaggio
-   giallo = messaggi letti / chat attiva
-   rosso = nuovo messaggio admin
-*/
-
-function creaIconaChat(pianoBox, idCard, scala, piano, lato, nome) {
-
-    const icon = document.createElement("span");
-    icon.className = "chatIconApp";
-    icon.innerHTML = "💬";
-
-    icon.style.cursor = "pointer";
-    icon.style.marginLeft = "10px";
-    icon.style.fontSize = "20px";
-    icon.dataset.cardId = idCard;
-    icon.dataset.nome = nome;
-
-    // COLORE DI BASE
-    icon.style.filter = "drop-shadow(0 0 4px #008cff)";
-    icon.style.color = "#008cff";
-
-    // EVENTO CLICK
-    icon.addEventListener("click", () => {
-        if (!lastChatSegnalazioneId[idCard]) {
-            alert("Per aprire la chat devi prima inviare una segnalazione.");
-            return;
-        }
-        apriChatApp(lastChatSegnalazioneId[idCard], nome);
-    });
-
-    // AGGIUNGI ICONA A DESTRA DEL TITOLO DEL PIANO
-    pianoBox.querySelector(".pianoTop").appendChild(icon);
-
-    // SALVA RIFERIMENTO
-    iconeChatPerCard[idCard] = icon;
 }
 
+/* ============================================
+   CHAT PIANO — se esiste segnalazione attiva
+============================================ */
+function apriChatPiano(scala, piano){
 
-/* ============================================================
-   MAPPA: card → ultimo id segnalazione creata
-============================================================ */
-const lastChatSegnalazioneId = {};
-const iconeChatPerCard = {};
+  db.collection("segnalazioni")
+    .where("scala","==",scala)
+    .where("piano","==",piano)
+    .where("stato","==","attiva")
+    .orderBy("timestamp","desc")
+    .limit(1)
+    .get()
+    .then(snap=>{
 
+      if(snap.empty){
+        alert("Nessuna segnalazione attiva presente su questo piano.");
+        return;
+      }
 
-/* ============================================================
-   DOPO INVIO SEGNALAZIONE → ASSOCIA LA CHAT ALLA CARD
-============================================================ */
-function registraChatPerCard(idSegnalazione) {
-    lastChatSegnalazioneId[idCardSelezionata] = idSegnalazione;
+      const seg = snap.docs[0];
+      const dati = seg.data();
 
-    // Cambia colore icona a giallo (chat pronta)
-    const icon = iconeChatPerCard[idCardSelezionata];
-    if (icon) {
-        icon.style.color = "#ffaa00";
-        icon.style.filter = "drop-shadow(0 0 6px #ffaa00)";
-    }
-}
+      apriChatApp(seg.id, dati.nome);
 
-
-/* ============================================================
-   LISTENER NUOVI MESSAGGI → CAMBIA COLORE ICONA
-============================================================ */
-function attivaNotificheChat(idSegnalazione, idCard) {
-
-    db.collection("segnalazioni").doc(idSegnalazione)
-      .collection("chat")
-      .orderBy("timestamp", "asc")
-      .onSnapshot(snapshot => {
-
-        const icon = iconeChatPerCard[idCard];
-        if (!icon) return;
-
-        let nuovoMessaggioAdmin = false;
-
-        snapshot.forEach(doc => {
-            const msg = doc.data();
-            if (msg.mittente === "admin") nuovoMessaggioAdmin = true;
-        });
-
-        if (nuovoMessaggioAdmin) {
-            icon.style.color = "#ff4444";
-            icon.style.filter = "drop-shadow(0 0 10px #ff0000)";
-        }
+    })
+    .catch(err=>{
+      console.error(err);
+      alert("Errore durante la ricerca delle segnalazioni.");
     });
 }
 
 
-/* ============================================================
-   CHAT POPUP – IDENTICA AL PANNELLO GUALA
-============================================================ */
-
+/* ============================================
+   CHAT — APERTURA POPUP
+============================================ */
 let currentChatSegnalazioneId = null;
 let unsubscribeChatListener = null;
-let idCardSelezionata = null;
 
-/* APRI CHAT */
-function apriChatApp(idSegnalazione, nome) {
+function apriChatApp(idSegnalazione, nome){
 
-    currentChatSegnalazioneId = idSegnalazione;
+  currentChatSegnalazioneId = idSegnalazione;
 
-    const popup = document.getElementById("chatPopup");
-    const title = document.getElementById("chatTitle");
-    const msgBox = document.getElementById("chatMessages");
+  const popup = document.getElementById("chatPopup");
+  const title = document.getElementById("chatTitle");
+  const msgBox = document.getElementById("chatMessages");
 
-    popup.style.display = "flex";
-    title.innerText = `Chat con amministrazione – ${nome}`;
-    msgBox.innerHTML = `<p class="chat-system">Chat collegata alla segnalazione: ${idSegnalazione}</p>`;
+  popup.style.display="flex";
+  title.innerText = `Chat con amministrazione – ${nome}`;
+  msgBox.innerHTML = `<p class="chat-system">Chat collegata alla segnalazione: ${idSegnalazione}</p>`;
 
-    if (unsubscribeChatListener) unsubscribeChatListener();
+  if(unsubscribeChatListener) unsubscribeChatListener();
 
-    unsubscribeChatListener = db.collection("segnalazioni")
+  unsubscribeChatListener =
+    db.collection("segnalazioni")
       .doc(idSegnalazione)
       .collection("chat")
       .orderBy("timestamp","asc")
-      .onSnapshot(snapshot => {
-
-          msgBox.innerHTML = "";
-          let segnalazioneRisolta = false;
-
-          snapshot.forEach(doc => {
-              const msg = doc.data();
-              renderMsgApp(msg, msgBox);
-          });
-
-          // Controllo stato segnalazione
-          db.collection("segnalazioni")
-            .doc(idSegnalazione)
-            .get()
-            .then(d => {
-                const r = d.data();
-                if (r.stato === "risolta") {
-                    segnalazioneRisolta = true;
-
-                    document.getElementById("chatInput").disabled = true;
-                    document.getElementById("chatInput").placeholder =
-                      "Segnalazione risolta – chat in sola lettura";
-
-                    alert("Attività di risoluzione conclusa.");
-                }
-            });
-
-          msgBox.scrollTop = msgBox.scrollHeight;
+      .onSnapshot((snap)=>{
+        msgBox.innerHTML="";
+        snap.forEach((doc)=>{
+          const msg = doc.data();
+          renderMsgApp(msg,msgBox);
+        });
+        msgBox.scrollTop = msgBox.scrollHeight;
       });
 }
 
-/* RENDER MESSAGGI */
+/* ============================================
+   RENDER MESSAGGI CHAT LATO APP
+============================================ */
 function renderMsgApp(msg, container){
   const isUser = msg.mittente==="utente";
-  const bubble = document.createElement("div");
 
-  bubble.className = "chat-bubble " + (isUser ? "chat-user" : "chat-admin");
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble " + (isUser?"chat-user":"chat-admin");
 
   const t = document.createElement("div");
-  t.className = "bubble-text";
+  t.className="bubble-text";
   t.innerText = msg.testo;
 
   const time = document.createElement("div");
-  time.className = "bubble-time";
-
-  if (msg.timestamp && msg.timestamp.toDate){
-    time.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  time.className="bubble-time";
+  if(msg.timestamp && msg.timestamp.toDate){
+    time.innerText = msg.timestamp.toDate().toLocaleTimeString(
+      "it-IT",
+      {hour:"2-digit",minute:"2-digit"}
+    );
   }
 
   bubble.appendChild(t);
@@ -929,17 +858,15 @@ function renderMsgApp(msg, container){
   container.appendChild(bubble);
 }
 
-/* INVIO MESSAGGIO */
+/* ============================================
+   INVIO MESSAGGIO CHAT
+============================================ */
 function sendChatMessageApp(){
 
   const input = document.getElementById("chatInput");
   const text = input.value.trim();
   if(!text) return;
-
-  if(!currentChatSegnalazioneId){
-    alert("Nessuna chat attiva.");
-    return;
-  }
+  if(!currentChatSegnalazioneId) return;
 
   db.collection("segnalazioni")
     .doc(currentChatSegnalazioneId)
@@ -952,16 +879,54 @@ function sendChatMessageApp(){
     .then(()=>{
       input.value="";
     })
+    .catch(err=>{
+      console.error(err);
+      alert("Errore invio messaggio.");
+    });
 }
 
-/* CHIUDI CHAT */
 function closeChatApp(){
-  document.getElementById("chatPopup").style.display="none";
+  const popup = document.getElementById("chatPopup");
+  popup.style.display="none";
 
   if(unsubscribeChatListener){
     unsubscribeChatListener();
     unsubscribeChatListener=null;
   }
-
-  currentChatSegnalazioneId = null;
+  currentChatSegnalazioneId=null;
 }
+</script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
+}
+</script>
+
+<!-- PWA INSTALL -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+</script>
+
+</body>
+</html>
