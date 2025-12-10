@@ -1,486 +1,111 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Segnalazioni Condominio Piazza Guala</title>
+    <meta charset="UTF-8">
+    <title>Guala – Segnalazioni attive</title>
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#cc0000">
+    <link rel="stylesheet" href="dashboard.css">
 
-<style>
-/* ========================== */
-/*   TUA GRAFICA ORIGINALE    */
-/* ========================== */
-:root {
-  --primary: #cc0000;
-  --bg: #f3f4f6;
-  --card-bg: #f7f7f7;
-  --border: #cc0000;
-  --shadow: 0 4px 14px rgba(0,0,0,0.12);
-  --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
-  --t-blue: #0077ff;
-  --t-yellow: #ffcc00;
-  --t-red: #d50000;
-}
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-body {
-  background: var(--bg);
-  margin: 0;
-  padding: 1rem;
-  font-family: system-ui, sans-serif;
-}
+    <!-- CONFIG FIREBASE -->
+    <script src="firebase-config.js"></script>
 
-h1, h2 {
-  text-align: center;
-  margin: 0;
-}
-h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
-h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+    <!-- SISTEMA LOGIN ADMIN -->
+    <script src="admin-auth.js"></script>
 
-.container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    <!-- LOGICA DASHBOARD (VERRÀ AGGIORNATA) -->
+    <script src="dashboard.js"></script>
 
-.scalaBox {
-  background: white;
-  padding: 1rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  max-height: 87vh;
-  overflow-y: auto;
-}
+    <style>
+        .logout-btn {
+            position: fixed;
+            top: 12px;
+            right: 20px;
+            background: #ff4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: .2s;
+            z-index: 9999;
+        }
 
-.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
-
-.pianoBox {
-  background: #ffffff;
-  border: 1px solid #e3e3e3;
-  padding: 1rem;
-  border-radius: .9rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,.07);
-  position: relative;
-}
-
-/* ICONA CHAT A DESTRA DEL TITOLO PIANO */
-.pianoTop {
-  font-weight: bold;
-  margin-bottom: .8rem;
-  font-size: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chatIcon {
-  font-size: 1.4rem;
-  cursor: pointer;
-  user-select: none;
-  transition: .25s;
-}
-
-.chatIcon.no-msg { color: #999; }
-.chatIcon.with-msg {
-  color: #0077ff;
-  text-shadow: 0 0 6px #0077ff;
-  animation: pulseChat 1.3s infinite;
-}
-
-@keyframes pulseChat {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.18); }
-  100% { transform: scale(1); }
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: .6rem;
-}
-
-.card {
-  background: var(--card-bg);
-  border: 2px solid var(--border);
-  border-radius: 1rem;
-  padding: .6rem;
-  text-align: center;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: var(--shadow);
-  transition: .15s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-strong);
-}
-
-.tempBox {
-  font-size: .85rem;
-  margin-top: 3px;
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  align-items: center;
-}
-.tempDot { width: 12px; height: 12px; border-radius: 50%; }
-.t-blue { background: var(--t-blue); }
-.t-yellow { background: var(--t-yellow); }
-.t-red { background: var(--t-red); }
-
-.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
-.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
-.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
-.alert-green { background:#00b454!important; color:white;}
-
-@keyframes redBlink {
-  0%,100%{background:#b00000;}
-  50%{background:#ff4444;}
-}
-@keyframes orangeBlink {
-  0%,100%{background:#cc6a00;}
-  50%{background:#ff9c22;}
-}
-@keyframes yellowBlink {
-  0%,100%{background:#d4bf00;}
-  50%{background:#fff455;}
-}
-
-/* MODAL CHAT */
-#chatModalOverlay {
-  position: fixed;
-  inset: 0;
-  display: none;
-  background: rgba(0,0,0,0.45);
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-}
-
-#chatModal {
-  width: 92%;
-  max-width: 420px;
-  background: white;
-  border-radius: 1rem;
-  padding: 1rem;
-}
-
-#chatMessages {
-  background: #f7f7f7;
-  height: 260px;
-  overflow-y: auto;
-  border-radius: .6rem;
-  border: 1px solid #ddd;
-  padding: .6rem;
-  margin-bottom: .6rem;
-}
-
-.msg-admin {
-  background: #ffffff;
-  padding: .4rem .7rem;
-  border-radius: .7rem;
-  margin-bottom: .3rem;
-  max-width: 70%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-.msg-user {
-  background: #dcf8c6;
-  padding: .4rem .7rem;
-  border-radius: .7rem;
-  margin-bottom: .3rem;
-  max-width: 70%;
-  margin-left: auto;
-  text-align: right;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-#chatInput {
-  width: 100%;
-  height: 60px;
-  border: 1px solid #ddd;
-  border-radius: .6rem;
-}
-
-</style>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
-  authDomain: "segnalazioni-guala.firebaseapp.com",
-  projectId: "segnalazioni-guala",
-  storageBucket: "segnalazioni-guala.firebasestorage.app",
-  messagingSenderId: "118462666966",
-  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
+        .logout-btn:hover {
+            background: #ff0000;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>APP DEDICATA ALLE SEGNALAZIONI</h1>
-<h2>Piazza Guala • Via Piobesi</h2>
+<a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="container"></div>
+<div class="header">Guala – Segnalazioni attive</div>
 
-<!-- -------------------------- -->
-<!--      CHAT - MODALE        -->
-<!-- -------------------------- -->
-<div id="chatModalOverlay">
-  <div id="chatModal">
-      <h3 id="chatTitle"></h3>
-      <div id="chatMessages"></div>
-      <textarea id="chatInput" placeholder="Scrivi un messaggio..."></textarea>
-      <button onclick="sendChatMsg()">INVIA</button>
-      <button onclick="closeChat()">CHIUDI</button>
-  </div>
+<div class="content">
+
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+</table>
+
 </div>
 
+<!-- ===================================================
+     POPUP CHAT – STRUTTURA UFFICIALE COMPATIBILE
+=================================================== -->
+
+<div id="chatPopup" class="chat-overlay" style="display:none;">
+    <div class="chat-window">
+
+        <h2 id="chatTitle">Chat segnalazione</h2>
+
+        <div id="chatMessages" class="chat-messages"></div>
+
+        <textarea id="chatInput" class="chat-input"
+                  placeholder="Scrivi un messaggio..."></textarea>
+
+        <div class="chat-buttons">
+            <button class="chat-send" onclick="sendChatMessage()">Invia</button>
+            <button class="chat-close" onclick="closeChat()">Chiudi</button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ===================================================
+     AVVIO PAGINA
+=================================================== -->
 <script>
+    requireRole("guala");
 
-/* ================================
-   STESSA LOGICA DELLE TUE CARD
-================================ */
-let elementoSelezionato = null;
-let nominativo = "";
-let scalaSel = "";
-let pianoSel = "";
-let latoSel = "";
-let chatSegnalazioneId = null;
-
-/* ================================
-   GENERAZIONE CONDOMINIO (TUO)
-================================ */
-const complessoSelezionato =
-  new URLSearchParams(location.search).get("complesso");
-
-const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
-const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
-
-function scalaAppartiene(scala) {
-  if (!complessoSelezionato) return true;
-  if (complessoSelezionato === "guala") return scaleGuala.includes(scala);
-  if (complessoSelezionato === "piobesi") return scalePiobesi.includes(scala);
-  return true;
-}
-
-/* ================================
-   DEFINIZIONE TUA ORIGINALE
-================================ */
-const condominio = { /* INVARIATO — IDENTICO AL TUO */ };
-
-/* ================================
-   GENERA CARD (TUO ORIGINALE)
-================================ */
-const container = document.querySelector(".container");
-
-Object.keys(condominio).forEach(scala => {
-  if (!scalaAppartiene(scala)) return;
-
-  const box = document.createElement("div");
-  box.className = "scalaBox";
-  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
-
-  const piani = condominio[scala].piani;
-
-  Object.keys(piani)
-    .filter(p => !isNaN(p))
-    .sort((a,b)=>b-a)
-    .forEach(piano => {
-
-      const dati = piani[piano];
-
-      const pianoDiv = document.createElement("div");
-      pianoDiv.className = "pianoBox";
-
-      pianoDiv.innerHTML = `
-        <div class="pianoTop">
-            ${piano}° piano
-            <span class="chatIcon no-msg" onclick="openChatIcon(event,'${scala}','${piano}')">💬</span>
-        </div>
-
-        <div class="cards">
-
-          <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-            ${dati.dx}
-            <div class="tempBox">
-              <span class="tempDot t-blue"></span>
-              <span class="tempVal">—°C</span>
-            </div>
-          </div>
-
-          <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-            ${dati.sx}
-            <div class="tempBox">
-              <span class="tempDot t-blue"></span>
-              <span class="tempVal">—°C</span>
-            </div>
-          </div>
-
-        </div>
-      `;
-
-      box.appendChild(pianoDiv);
-    });
-
-  container.appendChild(box);
-});
-
-/* ================================
-   LOGICA TUA MODAL SEGNAZIONE
-================================ */
-function apri(scala, piano, lato, nome, elem){
-  elementoSelezionato = elem;
-  nominativo = nome;
-  scalaSel = scala;
-  pianoSel = piano;
-  latoSel = lato;
-
-  document.getElementById("modalTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  document.getElementById("modalSegnalazione").style.display = "flex";
-}
-
-function chiudiModal(){
-  document.getElementById("modalSegnalazione").style.display = "none";
-}
-function chiudiConferma(){
-  document.getElementById("modalConferma").style.display = "none";
-}
-
-/* ================================
-   INVIO SEGNALAZIONE + CHAT
-================================ */
-function inviaSegnalazioneFinale() {
-
-  const tipo = document.getElementById("tipoInput").value;
-  const sotto = document.getElementById("selectPartiComuni").value;
-  const temp = document.getElementById("tempInput").value || "ND";
-  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
-
-  let priorita = "VERDE";
-
-  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "ARANCIONE";
-  else if(["serramenti","antincendio"].includes(tipo)) priorita = "GIALLO";
-  else if(tipo === "particomuni") priorita = "GIALLO";
-
-  db.collection("segnalazioni").add({
-      scala: scalaSel,
-      piano: pianoSel,
-      lato: latoSel,
-      nome: nominativo,
-      temperatura: temp,
-      descrizione: desc,
-      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
-      sottotipo: sotto,
-      complesso: scalePiobesi.includes(scalaSel) ? "piobesi" : "guala",
-      priorita: priorita,
-      stato: "attiva",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  })
-  .then((docRef)=>{
-
-      chatSegnalazioneId = docRef.id;
-
-      chiudiModal();
-      chiudiConferma();
-
-      /* popup: vuoi aprire la chat? */
-      if (confirm(`${nominativo}, vuoi aprire la chat per questa segnalazione?`)) {
-        apriChat(docRef.id, nominativo);
-      }
-  });
-}
-
-/* ================================
-   CHAT — ICONA SU PIANO
-================================ */
-function openChatIcon(ev,scala,piano){
-  ev.stopPropagation();
-
-  db.collection("segnalazioni")
-    .where("scala","==",scala)
-    .where("piano","==",piano)
-    .where("nome","==",nominativo)
-    .where("stato","==","attiva")
-    .limit(1)
-    .get()
-    .then(q => {
-      if (q.empty){ alert("Nessuna segnalazione attiva per aprire la chat."); return; }
-      const doc = q.docs[0];
-      apriChat(doc.id, nominativo);
-    });
-}
-
-/* ================================
-   CHAT — MODALE
-================================ */
-let chatUnsub = null;
-
-function apriChat(id,nome){
-  chatSegnalazioneId = id;
-
-  document.getElementById("chatTitle").innerText =
-     `Chat — ${nome}`;
-
-  document.getElementById("chatMessages").innerHTML =
-     `<p style="text-align:center;opacity:.6;">Caricamento...</p>`;
-
-  document.getElementById("chatModalOverlay").style.display = "flex";
-
-  if (chatUnsub) chatUnsub();
-
-  chatUnsub = db.collection("segnalazioni")
-    .doc(id)
-    .collection("chat")
-    .orderBy("timestamp","asc")
-    .onSnapshot(snap=>{
-      const box = document.getElementById("chatMessages");
-      box.innerHTML = "";
-      snap.forEach(d=>{
-        const m = d.data();
-        const div = document.createElement("div");
-        div.className = m.mittente==="utente" ? "msg-user" : "msg-admin";
-        div.innerHTML = `<div>${m.testo}</div>`;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    });
-}
-
-function closeChat(){
-  document.getElementById("chatModalOverlay").style.display = "none";
-}
-
-function sendChatMsg(){
-  const text = document.getElementById("chatInput").value.trim();
-  if (!text) return;
-
-  document.getElementById("chatInput").value = "";
-
-  db.collection("segnalazioni")
-    .doc(chatSegnalazioneId)
-    .collection("chat")
-    .add({
-      testo: text,
-      mittente: "utente",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
+    loadSegnalazioni(
+        r =>
+            r.stato === "attiva" &&
+            r.complesso === "guala"
+    );
 </script>
+
 </body>
 </html>
