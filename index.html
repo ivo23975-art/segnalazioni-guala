@@ -2,9 +2,9 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
-
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc0000">
 
@@ -71,18 +71,20 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   justify-content:space-between;
 }
 
+/* icona chat DX */
 .pianoTop .chatIconContainer {
   display:flex;
   gap:8px;
 }
 
+/* icona chat SX sopra card SX */
 .card-wrapper {
   position: relative;
 }
 
 .chatIconSX {
   position: absolute;
-  top: -22px;
+  top: -20px;
   right: -6px;
   background: white;
   border-radius: 50%;
@@ -93,6 +95,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   z-index: 20;
 }
 
+/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -129,6 +132,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
+/* Stati segnalazione */
 .alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
 .alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
 .alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
@@ -147,6 +151,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   50%{background:#fff455;}
 }
 
+/* CHAT POPUP */
 #chatPopup {
   position: fixed;
   inset:0;
@@ -189,7 +194,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   margin-bottom:8px;
   max-width:80%;
 }
-
 .chat-user { background:#d2e3ff; align-self:flex-start; }
 .chat-admin { background:#d4ffd9; align-self:flex-end; }
 
@@ -239,6 +243,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
+
 </head>
 <body>
 
@@ -258,12 +263,15 @@ const db = firebase.firestore();
     </div>
   </div>
 </div>
-
 <script>
-const complessoSelezionato = new URLSearchParams(location.search).get("complesso");
+/* ============================================
+   PARAMETRO ?complesso
+============================================ */
+const complessoSelezionato =
+  new URLSearchParams(location.search).get("complesso");
 
-const scaleGuala = ["SCALA 131","SCALA 131 BIS","SCALA 133"];
-const scalePiobesi = ["SCALA 6","SCALA 8","SCALA 10"];
+const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
+const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
 
 function scalaAppartiene(scala) {
   if (!complessoSelezionato) return true;
@@ -272,182 +280,110 @@ function scalaAppartiene(scala) {
   return true;
 }
 
-async function findSegnalazione(scala,piano,lato,nome){
-  const snap = await db.collection("segnalazioni")
-    .where("scala","==",scala)
-    .where("piano","==",piano)
-    .where("lato","==",lato)
-    .where("nome","==",nome)
-    .where("stato","==","attiva")
-    .orderBy("timestamp","desc")
-    .limit(1)
-    .get();
-
-  if (snap.empty) return null;
-  return { id: snap.docs[0].id, data: snap.docs[0].data() };
-}
-
-let currentChatId = null;
-let unsubscribeChat = null;
-
-async function openChatFromCard(scala,piano,lato,nome){
-
-  const seg = await findSegnalazione(scala,piano,lato,nome);
-
-  if (!seg){
-    alert("Nessuna segnalazione attiva per questa unità.");
-    return;
-  }
-
-  currentChatId = seg.id;
-
-  document.getElementById("chatTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  const popup = document.getElementById("chatPopup");
-  const list = document.getElementById("chatMessages");
-  const input = document.getElementById("chatInput");
-
-  popup.style.display = "flex";
-  list.innerHTML = "";
-
-  if (unsubscribeChat) unsubscribeChat();
-
-  unsubscribeChat = db.collection("segnalazioni")
-    .doc(currentChatId)
-    .collection("chat")
-    .orderBy("timestamp","asc")
-    .onSnapshot((snap)=>{
-      list.innerHTML = "";
-      snap.forEach(doc=>{
-        const d = doc.data();
-        const div = document.createElement("div");
-        div.className = "chat-bubble " + 
-          (d.mittente==="admin"?"chat-admin":"chat-user");
-
-        const t = d.timestamp?.toDate?.()
-          ? d.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
-          : "";
-
-        div.innerHTML = `<div>${d.testo}</div>
-        <div style="font-size:.7rem;opacity:.6;text-align:right;">${t}</div>`;
-
-        list.appendChild(div);
-      });
-      list.scrollTop = list.scrollHeight;
-    });
-}
-
-function closeChat(){
-  document.getElementById("chatPopup").style.display="none";
-  if (unsubscribeChat) unsubscribeChat();
-  unsubscribeChat=null;
-  currentChatId=null;
-}
-
-async function sendUserMessage(){
-  if (!currentChatId) return;
-  const inp = document.getElementById("chatInput");
-  const text = inp.value.trim();
-  if (!text) return;
-  inp.value="";
-
-  await db.collection("segnalazioni")
-    .doc(currentChatId)
-    .collection("chat")
-    .add({
-      testo:text,
-      mittente:"utente",
-      timestamp:firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
+/* ============================================
+   CONDOMINIO (TUO ORIGINALE INTEGRO)
+============================================ */
 
 const condominio = {
-  "SCALA 131":{
-    piani:{
-      9:{dx:"BARBA / RIPANDELLI",sx:"BORDIGNON"},
-      8:{dx:"BROCCARDO",sx:"ROMEO / VALENTINO"},
-      7:{dx:"GERMANO",sx:"GERMANO"},
-      6:{dx:"NASELLI / DE REGIBUS",sx:"RAGAZZONE / CUGNO"},
-      5:{dx:"SALVO",sx:"GARBARDINO"},
-      4:{dx:"VIRANDO",sx:"BRUNETTI"},
-      3:{dx:"TREBIAN / MINIUSSI",sx:"BROCARDO / VAGNONE"},
-      2:{dx:"MANCA / FOTI",sx:"MILEO / RAIMONDI"},
-      1:{dx:"FERRERO / PEROSINO",sx:"AUTOMOBILE CLUB TORINO"},
-      portico:["SARA ASSICURAZIONI (131/A)","VIA DELLE FIRME OUTLET (131/C)"]
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
     }
   },
-  "SCALA 131 BIS":{
-    piani:{
-      9:{dx:"ROETTI",sx:"COLPO / TOMASSO"},
-      8:{dx:"BOSIO / ANERDI",sx:"CAMPODONICO"},
-      7:{dx:"BEFFA / GAGLIANO",sx:"SACCO / ARENGA"},
-      6:{dx:"ZANNINI",sx:"IANNIELLO / BACCAGLINI"},
-      5:{dx:"NEGRÒ / DE MARTINI",sx:"MONTAGNINO"},
-      4:{dx:"D’ADAMO",sx:"MARTINETTO / BELLUCCIO"},
-      3:{dx:"BOGGIO LOTTO",sx:"IMPEDOVO"},
-      2:{dx:"CURCI / HADJ AHMED",sx:"BACCAGLINI"},
-      1:{dx:"CAUDA / BASSINO",sx:"CAUDA / GALLINO"},
-      portico:["MODERN MAX STYLE (131BIS/A)","IL REGNO DEL CAFFÈ (131BIS/C)"]
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
     }
   },
-  "SCALA 133":{
+  "SCALA 133": {
     piani:{
-      9:{dx:"MONACO",sx:"P. MERLIN / C. RAPETTI"},
-      8:{dx:"CONTI / CARDACI",sx:"ANERDI / BOSIO"},
-      7:{dx:"ANSINI / ARPAIA",sx:"LOTITO"},
-      6:{dx:"RACCA",sx:"SPADAFORA / BERTELLI"},
-      5:{dx:"PUGLIA / LA ROSA",sx:"BILOTTA / BERRUTO"},
-      4:{dx:"MODEO / OTTONE",sx:"MOSAGNA / MINATO"},
-      3:{dx:"CANGIANO / CORDERO",sx:"LA IACONA / PEDULLÀ"},
-      2:{dx:"BALOCCO",sx:"BRUNETTI / REY"},
-      1:{dx:"AQUILINO / DI PUMPO",sx:"PARPAGLIONE / BERTERO"},
-      portico:["L’ARTE DELL’AGO – SARTORIA (133/A)"]
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
     }
   },
-  "SCALA 6":{
-    piani:{
-      9:{dx:"MERULLA I",sx:"MERULLA/ARDU"},
-      8:{dx:"MASSOLA/OSELLA",sx:"CIVERA/CASTROTA"},
-      7:{dx:"BORCA/GERMANO G",sx:"ONIDA M A"},
-      6:{dx:"BREGA F TITA/ARESE",sx:"BREGA-PENNINI/VALENTINI"},
-      5:{dx:"MENDOGNI/BOTTA",sx:"GATTONI/CAPPELLARO"},
-      4:{dx:"GERVASI/RACCO",sx:"PLATANIA"},
-      3:{dx:"DR ING E PERRETTI/DELL ALBA C",sx:"MAMELI/CANTINO"},
-      2:{dx:"ACI B.F.",sx:"ACI B.F."},
-      1:{dx:"ACI B.F.",sx:"ACI B.F."},
+  "SCALA 6": {
+    piani: {
+      9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+      8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+      7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+      6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+      5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+      4:{dx:"GERVASI/RACCO", sx:"PLATANIA"},
+      3:{dx:"DR ING E PERRETTI/DELL ALBA C", sx:"MAMELI/CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   },
-  "SCALA 8":{
-    piani:{
-      9:{dx:"URBINATI",sx:"GASTONE"},
-      8:{dx:"FILIPPI",sx:"BLANDA"},
-      7:{dx:"ROCCUZZO",sx:"TENORE"},
-      6:{dx:"GIARRUSSO",sx:"DE MAGLIANIS"},
-      5:{dx:"RUTIGLIANO",sx:"ZAGAROLI"},
-      4:{dx:"CROVELLA",sx:"GATTONI"},
-      3:{dx:"CARACI/PATANE",sx:"Studio Legale QUERCIA"},
-      2:{dx:"ACI B.F.",sx:"ACI B.F."},
-      1:{dx:"ACI B.F.",sx:"ACI B.F."},
+  "SCALA 8": {
+    piani: {
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   },
-  "SCALA 10":{
-    piani:{
-      9:{dx:"VENTILII / LELII",sx:"DI FILIPPO / CARMANDO"},
-      8:{dx:"DESSANTI / ACCORNERO",sx:"DELLA ROCCA / MIGNONE"},
-      7:{dx:"PICCABLOTTO / CORTINOVIS",sx:"CASTELLO / CARAVETTA"},
-      6:{dx:"SPADA / VISCA",sx:"RESTO"},
-      5:{dx:"PROIETTI / MATTONE",sx:"FINI / BRONTE"},
-      4:{dx:"MARTINETTO / PORPORATO",sx:"GAGLIANO / MARUGGI"},
-      3:{dx:"QUERCIA",sx:"MIRREZA / HASSANI"},
-      2:{dx:"ACI B.F.",sx:"ACI B.F."},
-      1:{dx:"ACI B.F.",sx:"ACI B.F."},
+  "SCALA 10": {
+    piani: {
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
       portico:[]
     }
   }
 };
+
+/* ============================================
+   GENERA CARD + CHAT ICON
+============================================ */
+
+const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
 
@@ -460,61 +396,348 @@ Object.keys(condominio).forEach(scala => {
   const piani = condominio[scala].piani;
 
   Object.keys(piani)
-    .filter(p => !isNaN(p))
+    .filter(p=>!isNaN(p))
     .sort((a,b)=>b-a)
     .forEach(piano => {
 
       const dati = piani[piano];
 
       let html = `
-        <div class="pianoBox">
-          <div class="pianoTop">
-            <span>${piano}° piano</span>
-            <span class="chatIconContainer">
-              <span class="chatLauncher"
-                onclick="openChatFromCard('${scala}','${piano}','DX','${dati.dx}')">💬</span>
-            </span>
-          </div>
-
-          <div class="cards">
-
-            <div class="card-wrapper">
-              <span class="chatIconSX"
-                onclick="openChatFromCard('${scala}','${piano}','SX','${dati.sx}')">💬</span>
-
-              <div class="card"
-                onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-                ${dati.dx}
-                <div class="tempBox">
-                  <span class="tempDot t-blue"></span>
-                  <span class="tempVal">—°C</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-wrapper">
-              <div class="card"
-                onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-                ${dati.sx}
-                <div class="tempBox">
-                  <span class="tempDot t-blue"></span>
-                  <span class="tempVal">—°C</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+      <div class="pianoBox">
+        <div class="pianoTop">
+          <span>${piano}° piano</span>
+          <span class="chatIconContainer">
+            <span class="chatLauncher" onclick="openChatFromCard('${scala}','${piano}','DX','${dati.dx}')">💬</span>
+          </span>
         </div>
-      `;
 
+        <div class="cards">
+
+          <div class="card-wrapper">
+            <span class="chatIconSX" onclick="openChatFromCard('${scala}','${piano}','DX','${dati.dx}')">💬</span>
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              ${dati.dx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-wrapper">
+            <span class="chatIconSX" onclick="openChatFromCard('${scala}','${piano}','SX','${dati.sx}')">💬</span>
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              ${dati.sx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>`;
       box.innerHTML += html;
     });
 
+  if (piani.portico && piani.portico.length > 0){
+    let html = `
+    <div class="pianoBox">
+      <div class="pianoTop"><span>Livello strada</span></div>
+      <div class="cards">`;
+
+    piani.portico.forEach(nome=>{
+      html += `
+      <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        ${nome}
+        <div class="tempBox">
+          <span class="tempDot t-blue"></span>
+          <span class="tempVal">—°C</span>
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
   container.appendChild(box);
 });
+/* ============================================
+   CHAT – LOGICA UTENTE
+============================================ */
 
-/* RESTO DEL CODICE DI SEGNALAZIONE (TUTTO INVARIATO) */
+let currentChatId = null;
+let currentChatReadOnly = false;
+let unsubscribeChat = null;
 
+/* Cerca l'ultima segnalazione attiva per l'unità */
+async function findSegnalazione(scala, piano, lato, nome) {
+  const snap = await db.collection("segnalazioni")
+    .where("scala", "==", scala)
+    .where("piano", "==", piano)
+    .where("lato", "==", lato)
+    .where("nome", "==", nome)
+    .orderBy("timestamp", "desc")
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, data: snap.docs[0].data() };
+}
+
+/* Apertura chat da icona sulla card */
+async function openChatFromCard(scala, piano, lato, nome) {
+  const seg = await findSegnalazione(scala, piano, lato, nome);
+
+  if (!seg) {
+    alert("Nessuna segnalazione attiva per questa unità.");
+    return;
+  }
+
+  currentChatId = seg.id;
+  currentChatReadOnly = seg.data.stato !== "attiva";
+
+  const popup = document.getElementById("chatPopup");
+  const box   = document.getElementById("chatMessages");
+  const input = document.getElementById("chatInput");
+
+  document.getElementById("chatTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  popup.style.display = "flex";
+  box.innerHTML = "";
+  input.value = "";
+
+  if (currentChatReadOnly) {
+    input.disabled = true;
+    input.placeholder = "Segnalazione chiusa – chat in sola lettura";
+  } else {
+    input.disabled = false;
+    input.placeholder = "Scrivi un messaggio…";
+  }
+
+  if (unsubscribeChat) unsubscribeChat();
+
+  unsubscribeChat = db.collection("segnalazioni")
+    .doc(currentChatId)
+    .collection("chat")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(snap => {
+      box.innerHTML = "";
+
+      snap.forEach(doc => {
+        const msg = doc.data();
+        const div = document.createElement("div");
+
+        div.className = "chat-bubble " +
+          (msg.mittente === "admin" ? "chat-admin" : "chat-user");
+
+        const ora = msg.timestamp && msg.timestamp.toDate
+          ? msg.timestamp.toDate().toLocaleTimeString("it-IT", {hour:"2-digit", minute:"2-digit"})
+          : "";
+
+        div.innerHTML = `
+          <div>${msg.testo}</div>
+          <div style="font-size:.7rem; text-align:right; opacity:.6;">${ora}</div>
+        `;
+
+        box.appendChild(div);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+/* Invio messaggio utente */
+async function sendUserMessage() {
+  if (!currentChatId) return;
+  if (currentChatReadOnly) {
+    alert("Segnalazione chiusa: non puoi più inviare messaggi.");
+    return;
+  }
+
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = "";
+
+  await db.collection("segnalazioni")
+    .doc(currentChatId)
+    .collection("chat")
+    .add({
+      testo: text,
+      mittente: "utente",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
+/* Chiudi chat */
+function closeChat() {
+  document.getElementById("chatPopup").style.display = "none";
+  if (unsubscribeChat) unsubscribeChat();
+  unsubscribeChat = null;
+  currentChatId = null;
+  currentChatReadOnly = false;
+}
+
+/* ============================================
+   LOGICA MODALI (TUO ORIGINALE INTEGRO)
+============================================ */
+
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
+
+function apri(scala, piano, lato, nome, elem) {
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = piano === "PORTICO" ? "NEGOZIO" : lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${latoSel} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display = "flex";
+}
+
+function chiudiModal() {
+  document.getElementById("modalSegnalazione").style.display = "none";
+}
+
+function chiudiConferma() {
+  document.getElementById("modalConferma").style.display = "none";
+}
+
+function gestisciPartiComuni() {
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
+  }
+}
+
+function confermaInvio() {
+  const tipo = document.getElementById("tipoInput").value;
+
+  if (tipo === "particomuni") {
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if (!sotto) {
+      alert("Seleziona la parte comune.");
+      return;
+    }
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
+      alert("La descrizione è obbligatoria.");
+      return;
+    }
+  }
+
+  document.getElementById("confermaTesto").innerText =
+    `Confermi la segnalazione per:\n${nominativo}`;
+
+  document.getElementById("modalConferma").style.display = "flex";
+}
+
+function inviaSegnalazioneFinale() {
+
+  const tipo = document.getElementById("tipoInput").value;
+  const sotto = document.getElementById("selectPartiComuni").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
+
+  let priorita = "VERDE";
+
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo)) priorita = "GIALLO";
+  else if(tipo === "particomuni") priorita = "GIALLO";
+
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
+
+  elementoSelezionato.classList.add(css);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+  db.collection("segnalazioni").add({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      descrizione: desc,
+      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+      sottotipo: sotto,
+      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+      priorita: priorita,
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  chiudiConferma();
+  chiudiModal();
+
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+  document.getElementById("selectPartiComuni").value = "";
+  document.getElementById("selectPartiComuniWrapper").style.display = "none";
+}
 </script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
+}
+</script>
+
+<!-- INSTALLA APP -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+</script>
+
 </body>
 </html>
