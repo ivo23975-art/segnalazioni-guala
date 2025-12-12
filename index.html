@@ -63,7 +63,20 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
-.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+.pianoTop {
+  font-weight: bold;
+  margin-bottom: .8rem;
+  font-size: 1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+/* contenitore icone chat a destra della riga piano */
+.pianoTop .chatIconContainer {
+  display:flex;
+  gap:8px;
+}
 
 .cards {
   display: grid;
@@ -126,6 +139,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 .modal-content {
@@ -187,6 +201,91 @@ textarea { height: 90px; resize: none; }
   display:none;
   z-index:9999;
 }
+
+/* CHAT POPUP */
+#chatPopup {
+  position: fixed;
+  inset:0;
+  background: rgba(0,0,0,0.65);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index: 10000;
+}
+
+.chat-window {
+  width: 92%;
+  max-width: 420px;
+  background:white;
+  border-radius:14px;
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  max-height:85vh;
+}
+
+#chatTitle {
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.chat-messages {
+  flex:1;
+  overflow-y:auto;
+  background:#f3f3f3;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.chat-bubble {
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  max-width:80%;
+}
+
+.chat-user {
+  background:#d2e3ff;
+  align-self:flex-start;
+}
+
+.chat-admin {
+  background:#d4ffd9;
+  align-self:flex-end;
+}
+
+#chatInput {
+  width:100%;
+  min-height:55px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  padding:8px;
+}
+
+.chat-buttons {
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+}
+
+.chat-btn {
+  flex:1;
+  margin:3px;
+  padding:10px;
+  border:none;
+  color:white;
+  background:#cc0000;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+/* icone chat nella riga piano */
+.chatLauncher {
+  font-size:22px;
+  cursor:pointer;
+}
 </style>
 
 <!-- FIREBASE -->
@@ -214,10 +313,7 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- ===============================
-     MODALI (identiche alle tue)
-================================= -->
-
+<!-- MODALE SEGNALAZIONE -->
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
 
@@ -293,6 +389,18 @@ const db = firebase.firestore();
   </div>
 </div>
 
+<!-- POPUP CHAT -->
+<div id="chatPopup">
+  <div class="chat-window">
+    <h3 id="chatTitle"></h3>
+    <div id="chatMessages" class="chat-messages"></div>
+    <textarea id="chatInput" placeholder="Scrivi un messaggio..."></textarea>
+    <div class="chat-buttons">
+      <button class="chat-btn" onclick="sendUserMessage()">Invia</button>
+      <button class="chat-btn" style="background:#444;" onclick="closeChat()">Chiudi</button>
+    </div>
+  </div>
+</div>
 <script>
 /* ============================================
    LETTURA PARAM ?complesso=guala/piobesi
@@ -305,13 +413,8 @@ const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
 
 function scalaAppartiene(scala) {
   if (!complessoSelezionato) return true;
-
-  if (complessoSelezionato === "guala")
-    return scaleGuala.includes(scala);
-
-  if (complessoSelezionato === "piobesi")
-    return scalePiobesi.includes(scala);
-
+  if (complessoSelezionato === "guala") return scaleGuala.includes(scala);
+  if (complessoSelezionato === "piobesi") return scalePiobesi.includes(scala);
   return true;
 }
 
@@ -416,11 +519,10 @@ const condominio = {
       portico:[]
     }
   }
-
 };
 
 /* ============================================
-   GENERA LE CARD (IDENTICO AL TUO)
+   GENERA CARDS (STRUTTURA ORIGINALE + CHAT ICON)
 ============================================ */
 const container = document.querySelector(".container");
 
@@ -443,10 +545,19 @@ Object.keys(condominio).forEach(scala => {
 
       let html = `
         <div class="pianoBox">
-          <div class="pianoTop">${piano}° piano</div>
+          <div class="pianoTop">
+            <span>${piano}° piano</span>
+            <span class="chatIconContainer">
+              <span class="chatLauncher"
+                    onclick="openChatFromCard('${scala}','${piano}','DX','${dati.dx}')">💬</span>
+              <span class="chatLauncher"
+                    onclick="openChatFromCard('${scala}','${piano}','SX','${dati.sx}')">💬</span>
+            </span>
+          </div>
           <div class="cards">
 
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <div class="card"
+                 onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
               ${dati.dx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -454,7 +565,8 @@ Object.keys(condominio).forEach(scala => {
               </div>
             </div>
 
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <div class="card"
+                 onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
               ${dati.sx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -472,12 +584,15 @@ Object.keys(condominio).forEach(scala => {
   if (piani.portico && piani.portico.length > 0){
     let html = `
       <div class="pianoBox">
-        <div class="pianoTop">Livello strada</div>
+        <div class="pianoTop">
+          <span>Livello strada</span>
+        </div>
         <div class="cards">
     `;
     piani.portico.forEach(nome => {
       html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card"
+             onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
           ${nome}
           <div class="tempBox">
             <span class="tempDot t-blue"></span>
@@ -494,7 +609,120 @@ Object.keys(condominio).forEach(scala => {
 });
 
 /* ============================================
-   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
+   CHAT – LOGICA UTENTE
+============================================ */
+
+let currentChatId = null;
+let currentChatReadOnly = false;
+let unsubscribeChat = null;
+
+/* Cerca l'ultima segnalazione per quella unità */
+async function findSegnalazione(scala, piano, lato, nome) {
+  const snap = await db.collection("segnalazioni")
+    .where("scala","==",scala)
+    .where("piano","==",piano)
+    .where("lato","==",lato)
+    .where("nome","==",nome)
+    .orderBy("timestamp","desc")
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return { id: doc.id, data: doc.data() };
+}
+
+/* click su icona 💬 */
+async function openChatFromCard(scala, piano, lato, nome) {
+
+  const res = await findSegnalazione(scala, piano, lato, nome);
+  if (!res) {
+    alert("Nessuna segnalazione presente per questa unità.");
+    return;
+  }
+
+  const seg = res.data;
+  currentChatId = res.id;
+  currentChatReadOnly = seg.stato && seg.stato !== "attiva";
+
+  document.getElementById("chatTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  const popup = document.getElementById("chatPopup");
+  const box   = document.getElementById("chatMessages");
+  const input = document.getElementById("chatInput");
+  popup.style.display = "flex";
+  box.innerHTML = "";
+  input.value = "";
+
+  if (currentChatReadOnly) {
+    input.disabled = true;
+    input.placeholder = "Segnalazione chiusa: chat in sola lettura";
+  } else {
+    input.disabled = false;
+    input.placeholder = "Scrivi un messaggio...";
+  }
+
+  if (unsubscribeChat) unsubscribeChat();
+
+  unsubscribeChat = db.collection("segnalazioni")
+    .doc(currentChatId)
+    .collection("chat")
+    .orderBy("timestamp","asc")
+    .onSnapshot((snap) => {
+      box.innerHTML = "";
+      snap.forEach(m => {
+        const d = m.data();
+        const div = document.createElement("div");
+        div.className = "chat-bubble " +
+          (d.mittente === "admin" ? "chat-admin" : "chat-user");
+
+        const time = d.timestamp && d.timestamp.toDate
+          ? d.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
+          : "";
+
+        div.innerHTML = `
+          <div>${d.testo}</div>
+          <div style="font-size:0.7rem;opacity:.6;text-align:right;">${time}</div>
+        `;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+async function sendUserMessage() {
+  if (!currentChatId) return;
+  if (currentChatReadOnly) {
+    alert("Segnalazione chiusa: non puoi più inviare messaggi.");
+    return;
+  }
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+
+  await db.collection("segnalazioni")
+    .doc(currentChatId)
+    .collection("chat")
+    .add({
+      testo: text,
+      mittente: "utente",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
+function closeChat() {
+  const popup = document.getElementById("chatPopup");
+  popup.style.display = "none";
+  if (unsubscribeChat) unsubscribeChat();
+  unsubscribeChat = null;
+  currentChatId = null;
+  currentChatReadOnly = false;
+}
+
+/* ============================================
+   LOGICA MODALI E INVIO (TUA ORIGINALE)
 ============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
@@ -507,10 +735,10 @@ function apri(scala, piano, lato, nome, elem){
   nominativo = nome;
   scalaSel = scala;
   pianoSel = piano;
-  latoSel = lato;
+  latoSel = piano === "PORTICO" ? "NEGOZIO" : lato;
 
   document.getElementById("modalTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
+    `${scala} • ${piano} • ${latoSel} • ${nome}`;
 
   document.getElementById("modalSegnalazione").style.display = "flex";
 }
@@ -620,7 +848,6 @@ function inviaSegnalazioneFinale() {
   document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
 </script>
-
 <!-- ===============================
      SERVICE WORKER
 ================================= -->
@@ -651,7 +878,7 @@ btnInstall.addEventListener("click", async () => {
   if (!deferredPrompt) return;
   btnInstall.style.display = "none";
   deferredPrompt.prompt();
-  const result = await deferredPrompt.userChoice;
+  await deferredPrompt.userChoice;
   deferredPrompt = null;
 });
 </script>
