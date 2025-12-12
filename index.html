@@ -10,57 +10,69 @@
 
 <style>
 :root {
-  --primary:#cc0000; --bg:#f3f4f6; --card-bg:#f7f7f7;
-  --border:#cc0000; --shadow:0 4px 14px rgba(0,0,0,.12);
-  --shadow-strong:0 6px 22px rgba(204,0,0,.45);
-  --t-blue:#0077ff; --t-yellow:#ffcc00; --t-red:#d50000;
+  --primary:#cc0000;
+  --bg:#f3f4f6;
+  --card-bg:#f7f7f7;
+  --border:#cc0000;
+  --shadow:0 4px 14px rgba(0,0,0,0.12);
+  --shadow-strong:0 6px 22px rgba(204,0,0,0.45);
+  --t-blue:#0077ff;
+  --t-yellow:#ffcc00;
+  --t-red:#d50000;
 }
 
-body{background:var(--bg);margin:0;padding:1rem;font-family:system-ui}
-h1,h2{text-align:center;margin:0}
-h1{font-size:1.7rem;font-weight:800;margin-bottom:.2rem}
-h2{font-size:1.1rem;font-weight:600;margin-bottom:1.5rem}
+body{background:var(--bg);margin:0;padding:1rem;font-family:system-ui,sans-serif;}
+h1,h2{text-align:center;margin:0;}
+h1{font-size:1.7rem;font-weight:800;margin-bottom:.2rem;}
+h2{font-size:1.1rem;font-weight:600;margin-bottom:1.5rem;}
 
-.container{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-@media(max-width:900px){.container{grid-template-columns:1fr}}
+.container{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+@media(max-width:900px){.container{grid-template-columns:1fr;}}
 
-.scalaBox{background:#fff;padding:1rem;border-radius:1rem;box-shadow:var(--shadow);max-height:87vh;overflow-y:auto}
-.scalaTitle{text-align:center;font-size:1.4rem;font-weight:bold;margin-bottom:1rem}
+.scalaBox{background:#fff;padding:1rem;border-radius:1rem;box-shadow:var(--shadow);max-height:87vh;overflow-y:auto;}
+.scalaTitle{text-align:center;font-size:1.4rem;font-weight:bold;margin-bottom:1rem;}
 
-.pianoBox{background:#fff;border:1px solid #e3e3e3;padding:1rem;border-radius:.9rem;margin-bottom:1rem}
-.pianoTop{display:flex;justify-content:space-between;align-items:center;font-weight:bold}
+.pianoBox{background:#fff;border:1px solid #e3e3e3;padding:1rem;border-radius:.9rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.07);}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem}
+.pianoTop{display:flex;justify-content:space-between;align-items:center;font-weight:bold;margin-bottom:.6rem;}
 
-.card{background:var(--card-bg);border:2px solid var(--border);border-radius:1rem;
-padding:.6rem;text-align:center;font-weight:bold;cursor:pointer;box-shadow:var(--shadow)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;}
 
-.tempBox{font-size:.85rem;margin-top:3px;display:flex;justify-content:center;gap:4px}
-.tempDot{width:12px;height:12px;border-radius:50%}
-.t-blue{background:var(--t-blue)} .t-yellow{background:var(--t-yellow)} .t-red{background:var(--t-red)}
+.card{background:var(--card-bg);border:2px solid var(--border);border-radius:1rem;padding:.6rem;text-align:center;font-weight:bold;cursor:pointer;box-shadow:var(--shadow);transition:.15s;}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-strong);}
 
-.alert-red{background:#ff0000!important;color:#fff}
-.alert-orange{background:#ff8800!important;color:#fff}
-.alert-yellow{background:#fff06a!important}
-.alert-green{background:#00b454!important;color:#fff}
+.tempBox{font-size:.85rem;margin-top:3px;display:flex;justify-content:center;gap:4px;align-items:center;}
+.tempDot{width:12px;height:12px;border-radius:50%;}
+.t-blue{background:var(--t-blue);} .t-yellow{background:var(--t-yellow);} .t-red{background:var(--t-red);}
 
-.chatLauncher{font-size:22px;cursor:pointer;margin-left:6px}
+.alert-red{animation:redBlink 1s infinite;background:#ff0000!important;color:white;}
+.alert-orange{animation:orangeBlink 1.4s infinite;background:#ff8800!important;color:white;}
+.alert-yellow{animation:yellowBlink 1.8s infinite;background:#fff06a!important;}
+.alert-green{background:#00b454!important;color:white;}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center;z-index:9999}
-.modal-content{background:#fff;padding:1rem;width:92%;max-width:420px;border-radius:1rem}
+@keyframes redBlink{0%,100%{background:#b00000;}50%{background:#ff4444;}}
+@keyframes orangeBlink{0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
+@keyframes yellowBlink{0%,100%{background:#d4bf00;}50%{background:#fff455;}}
 
-input,select,textarea{width:100%;padding:.6rem;margin-top:.4rem;border:1px solid #ccc;border-radius:.6rem}
-textarea{height:90px;resize:none}
+.chatLauncher{font-size:20px;cursor:pointer;opacity:.4;}
+.chatLauncher.active{opacity:1;}
+.chatLauncher.disabled{opacity:.2;cursor:not-allowed;}
 
-.btn{margin-top:.8rem;padding:.8rem;width:100%;border:none;background:var(--primary);color:#fff;font-weight:bold;border-radius:.6rem}
-.btnClose{margin-top:.6rem;padding:.8rem;width:100%;background:#ccc;border-radius:.6rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center;z-index:9999;}
+.modal-content{background:#fff;padding:1rem;width:92%;max-width:420px;border-radius:1rem;}
 
-#chatPopup{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:10000}
-.chat-window{width:92%;max-width:420px;background:#fff;border-radius:14px;padding:15px;display:flex;flex-direction:column}
-.chat-messages{flex:1;overflow-y:auto;background:#f3f3f3;border-radius:10px;padding:10px}
-.chat-bubble{padding:10px;border-radius:10px;margin-bottom:8px;max-width:80%}
-.chat-user{background:#d2e3ff;align-self:flex-start}
-.chat-admin{background:#d4ffd9;align-self:flex-end}
+input,select,textarea{width:100%;padding:.6rem;margin-top:.4rem;border:1px solid #ccc;border-radius:.6rem;}
+textarea{height:90px;resize:none;}
+
+.btn{margin-top:.8rem;padding:.8rem;width:100%;border:none;background:var(--primary);color:#fff;font-weight:bold;border-radius:.6rem;cursor:pointer;}
+.btnClose{margin-top:.6rem;padding:.8rem;width:100%;background:#ccc;border-radius:.6rem;cursor:pointer;}
+
+#chatPopup{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:10000;}
+.chat-window{width:92%;max-width:420px;background:#fff;border-radius:14px;padding:15px;display:flex;flex-direction:column;max-height:85vh;}
+.chat-messages{flex:1;overflow-y:auto;background:#f3f3f3;border-radius:10px;padding:10px;margin-bottom:10px;}
+.chat-bubble{padding:10px;border-radius:10px;margin-bottom:8px;max-width:80%;}
+.chat-user{background:#d2e3ff;align-self:flex-start;}
+.chat-admin{background:#d4ffd9;align-self:flex-end;}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -80,26 +92,18 @@ const db=firebase.firestore();
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
 <h2>Piazza Guala • Via Piobesi</h2>
 
-<div class="container"></div>
+<div class="container" id="container"></div>
 
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
     <h3 id="modalTitle"></h3>
     <label>Temperatura</label>
-    <input id="tempInput" type="number">
-    <label>Tipo</label>
-    <select id="tipoInput"></select>
+    <input id="tempInput">
+    <label>Tipo intervento</label>
+    <select id="tipoInput"><option value="altro">Altro</option></select>
     <textarea id="descrizioneInput"></textarea>
     <button class="btn" onclick="confermaInvio()">Procedi</button>
     <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
-  </div>
-</div>
-
-<div class="modal" id="modalConferma">
-  <div class="modal-content">
-    <h3 id="confermaTesto"></h3>
-    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
-    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
   </div>
 </div>
 
@@ -112,75 +116,101 @@ const db=firebase.firestore();
     <button class="btnClose" onclick="closeChat()">Chiudi</button>
   </div>
 </div>
-<script>
-const container=document.querySelector(".container");
 
-function creaCard(scala,piano,lato,nome){
-  return `
-  <div class="pianoBox">
-    <div class="pianoTop">
-      <span>${piano}</span>
-      <span class="chatLauncher" onclick="openChat('${scala}','${piano}','${lato}','${nome}')">💬</span>
-    </div>
-    <div class="cards">
-      <div class="card" onclick="apri('${scala}','${piano}','${lato}','${nome}',this)">
-        ${nome}
-        <div class="tempBox"><span class="tempDot t-blue"></span><span class="tempVal">—°C</span></div>
+<script>
+const condominio={"SCALA 131":{piani:{9:{dx:"BARBA / RIPANDELLI",sx:"BORDIGNON"}}}};
+const container=document.getElementById("container");
+
+Object.keys(condominio).forEach(scala=>{
+  const box=document.createElement("div");
+  box.className="scalaBox";
+  box.innerHTML=`<div class="scalaTitle">${scala}</div>`;
+  Object.entries(condominio[scala].piani).forEach(([p,d])=>{
+    box.innerHTML+=`
+    <div class="pianoBox">
+      <div class="pianoTop">${p}° piano</div>
+      <div class="cards">
+        ${["DX","SX"].map(l=>`
+        <div>
+          <span class="chatLauncher"
+            id="chat-${scala}-${p}-${l}"
+            onclick="openChatFromCard('${scala}','${p}','${l}','${d[l.toLowerCase()]}')">💬</span>
+          <div class="card" onclick="apri('${scala}','${p}','${l}','${d[l.toLowerCase()]}',this)">
+            ${d[l.toLowerCase()]}
+            <div class="tempBox"><span class="tempDot t-blue"></span><span>—°C</span></div>
+          </div>
+        </div>`).join("")}
       </div>
-    </div>
-  </div>`;
-}
-
-// QUI resta la TUA struttura condominio (immutata)
-// container.innerHTML += creaCard(...)
-</script>
+    </div>`;
+  });
+  container.appendChild(box);
+});
 <script>
-let elementoSelezionato=null;
-let scalaSel="",pianoSel="",latoSel="",nominativo="";
-let currentChatId=null;
+let elementoSelezionato=null,scalaSel="",pianoSel="",latoSel="",nomeSel="";
+let currentChatId=null,unsubscribeChat=null;
 
 function apri(scala,piano,lato,nome,elem){
   const modal=document.getElementById("modalSegnalazione");
   const title=document.getElementById("modalTitle");
   if(!modal||!title)return;
-
   elementoSelezionato=elem;
-  scalaSel=scala;pianoSel=piano;latoSel=lato;nominativo=nome;
+  scalaSel=scala;pianoSel=piano;latoSel=lato;nomeSel=nome;
   title.innerText=`${scala} • ${piano} • ${lato} • ${nome}`;
   modal.style.display="flex";
 }
 
-async function openChat(scala,piano,lato,nome){
+function chiudiModal(){document.getElementById("modalSegnalazione").style.display="none";}
+
+async function confermaInvio(){
+  await db.collection("segnalazioni").add({
+    scala:scalaSel,piano:pianoSel,lato:latoSel,nome:nomeSel,stato:"attiva",
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById(`chat-${scalaSel}-${pianoSel}-${latoSel}`).classList.add("active");
+  chiudiModal();
+}
+
+async function openChatFromCard(scala,piano,lato,nome){
   const snap=await db.collection("segnalazioni")
     .where("scala","==",scala)
     .where("piano","==",piano)
     .where("lato","==",lato)
     .where("nome","==",nome)
     .where("stato","==","attiva")
-    .orderBy("timestamp","desc").limit(1).get();
-
-  if(snap.empty){alert("Nessuna segnalazione attiva");return;}
-
+    .limit(1).get();
+  if(snap.empty){alert("Nessuna segnalazione attiva.");return;}
   currentChatId=snap.docs[0].id;
   document.getElementById("chatPopup").style.display="flex";
+  if(unsubscribeChat)unsubscribeChat();
+  unsubscribeChat=db.collection("segnalazioni").doc(currentChatId)
+    .collection("chat").orderBy("timestamp")
+    .onSnapshot(s=>{
+      const box=document.getElementById("chatMessages");
+      box.innerHTML="";
+      s.forEach(m=>{
+        const d=m.data();
+        const div=document.createElement("div");
+        div.className="chat-bubble "+(d.mittente==="admin"?"chat-admin":"chat-user");
+        div.innerText=d.testo;
+        box.appendChild(div);
+      });
+    });
 }
 
-function sendUserMessage(){
-  if(!currentChatId)return;
-  const input=document.getElementById("chatInput");
-  const text=input.value.trim();
-  if(!text)return;
-  input.value="";
-  db.collection("segnalazioni").doc(currentChatId)
-    .collection("chat").add({
-      testo:text,mittente:"utente",
-      timestamp:firebase.firestore.FieldValue.serverTimestamp()
-    });
+async function sendUserMessage(){
+  const text=document.getElementById("chatInput").value.trim();
+  if(!text||!currentChatId)return;
+  await db.collection("segnalazioni").doc(currentChatId).collection("chat").add({
+    testo:text,mittente:"utente",
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("chatInput").value="";
 }
 
 function closeChat(){
   document.getElementById("chatPopup").style.display="none";
-  currentChatId=null;
+  if(unsubscribeChat)unsubscribeChat();
+  unsubscribeChat=null;currentChatId=null;
 }
 </script>
 
