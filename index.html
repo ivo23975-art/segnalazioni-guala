@@ -67,15 +67,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   font-weight: bold;
   margin-bottom: .8rem;
   font-size: 1rem;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-/* contenitore icone chat a destra della riga piano */
-.pianoTop .chatIconContainer {
-  display:flex;
-  gap:8px;
 }
 
 .cards {
@@ -94,6 +85,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   font-weight: bold;
   box-shadow: var(--shadow);
   transition: .15s ease;
+  position: relative;
 }
 
 .card:hover {
@@ -101,6 +93,28 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: var(--shadow-strong);
 }
 
+/* ICONA CHAT */
+.chatIcon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: white;
+  border: 2px solid #cc0000;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform .2s;
+}
+.chatIcon:hover { transform: scale(1.15); }
+
+/* TEMPERATURA */
 .tempBox {
   font-size: .85rem;
   margin-top: 3px;
@@ -114,6 +128,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 .t-yellow { background: var(--t-yellow); }
 .t-red { background: var(--t-red); }
 
+/* ALLERTE */
 .alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
 .alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
 .alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
@@ -132,60 +147,44 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   50%{background:#fff455;}
 }
 
-.modal {
+/* MODALE AMMINISTRATORE */
+#modalAdminMsg {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.45);
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 99999;
 }
-
-.modal-content {
+#modalAdminMsg .box {
   background: white;
-  padding: 1rem;
-  width: 92%;
-  max-width: 420px;
+  padding: 1.2rem;
+  width: 90%;
+  max-width: 360px;
   border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.35);
 }
-
-input, select, textarea {
-  width: 100%;
-  padding: .6rem;
-  margin-top: .4rem;
-  border: 1px solid #ccc;
-  border-radius: .6rem;
+#modalAdminMsg h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #cc0000;
 }
-textarea { height: 90px; resize: none; }
-
-.btn {
-  margin-top: .8rem;
-  padding: .8rem;
-  width: 100%;
-  border: none;
-  background: var(--primary);
+#modalAdminMsg p {
+  margin: .6rem 0 1rem;
+  font-size: 1rem;
+}
+#modalAdminMsg button {
+  background: #cc0000;
   color: white;
-  font-weight: bold;
-  border-radius: .6rem;
-  cursor: pointer;
+  padding: .7rem 1rem;
+  border:none;
+  border-radius:.6rem;
+  width:100%;
+  cursor:pointer;
 }
 
-.btnClose {
-  margin-top: .6rem;
-  padding: .8rem;
-  width: 100%;
-  background: #ccc;
-  border-radius: .6rem;
-  cursor: pointer;
-}
-
-#selectPartiComuniWrapper {
-  display: none;
-  margin-top: .6rem;
-}
-
-/* Pulsante INSTALLA APP */
 #installPWA {
   position: fixed;
   bottom: 18px;
@@ -200,91 +199,6 @@ textarea { height: 90px; resize: none; }
   cursor:pointer;
   display:none;
   z-index:9999;
-}
-
-/* CHAT POPUP */
-#chatPopup {
-  position: fixed;
-  inset:0;
-  background: rgba(0,0,0,0.65);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index: 10000;
-}
-
-.chat-window {
-  width: 92%;
-  max-width: 420px;
-  background:white;
-  border-radius:14px;
-  padding:15px;
-  display:flex;
-  flex-direction:column;
-  max-height:85vh;
-}
-
-#chatTitle {
-  font-weight:bold;
-  text-align:center;
-  margin-bottom:10px;
-}
-
-.chat-messages {
-  flex:1;
-  overflow-y:auto;
-  background:#f3f3f3;
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:10px;
-}
-
-.chat-bubble {
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:8px;
-  max-width:80%;
-}
-
-.chat-user {
-  background:#d2e3ff;
-  align-self:flex-start;
-}
-
-.chat-admin {
-  background:#d4ffd9;
-  align-self:flex-end;
-}
-
-#chatInput {
-  width:100%;
-  min-height:55px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  padding:8px;
-}
-
-.chat-buttons {
-  display:flex;
-  justify-content:space-between;
-  margin-top:8px;
-}
-
-.chat-btn {
-  flex:1;
-  margin:3px;
-  padding:10px;
-  border:none;
-  color:white;
-  background:#cc0000;
-  border-radius:8px;
-  font-weight:bold;
-}
-
-/* icone chat nella riga piano */
-.chatLauncher {
-  font-size:22px;
-  cursor:pointer;
 }
 </style>
 
@@ -304,8 +218,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
-
 </head>
+
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
@@ -313,98 +227,11 @@ const db = firebase.firestore();
 
 <div class="container"></div>
 
-<!-- MODALE SEGNALAZIONE -->
-<div class="modal" id="modalSegnalazione">
-  <div class="modal-content">
-
-    <h3 id="modalTitle"></h3>
-
-    <label>Temperatura (facoltativa)</label>
-    <input type="number" id="tempInput" placeholder="es: 23">
-
-    <label style="margin-top:10px;">Tipo di intervento</label>
-    <select id="tipoInput" onchange="gestisciPartiComuni()">
-
-      <optgroup label="🔴 EMERGENZA">
-        <option value="118">118 – Emergenza sanitaria</option>
-        <option value="112">112 – Forze dell’ordine</option>
-        <option value="115">115 – Vigili del fuoco</option>
-      </optgroup>
-
-      <optgroup label="🟠 ALTA URGENZA">
-        <option value="ascensore">Ascensore</option>
-        <option value="elettricista">Elettricista</option>
-        <option value="idraulico">Idraulico</option>
-        <option value="centrale">Centrale termica</option>
-        <option value="autoclave">Autoclave</option>
-      </optgroup>
-
-      <optgroup label="🟡 MEDIA URGENZA">
-        <option value="serramenti">Serramentista</option>
-        <option value="antincendio">Manutenzione antincendio</option>
-      </optgroup>
-
-      <optgroup label="🟢 PUÒ ATTENDERE">
-        <option value="pulizie">Pulizie</option>
-        <option value="altro">Altro</option>
-      </optgroup>
-
-      <optgroup label="🟡 PARTI COMUNI">
-        <option value="particomuni">Segnala PARTI COMUNI</option>
-      </optgroup>
-
-    </select>
-
-    <div id="selectPartiComuniWrapper">
-      <label>Seleziona la parte comune</label>
-      <select id="selectPartiComuni">
-        <option value="">— Seleziona —</option>
-        <option value="Luci cortile">Luci cortile</option>
-        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
-        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
-        <option value="Cancello Pedonale">Cancello Pedonale</option>
-        <option value="Cortile">Cortile</option>
-        <option value="Aree verdi">Aree verdi</option>
-        <option value="Box interrati">Box interrati</option>
-        <option value="Garage">Serrande garage</option>
-        <option value="Vano scale">Vano scale</option>
-        <option value="Locale contatori">Locale contatori</option>
-      </select>
-    </div>
-
-    <label style="margin-top:12px;">Descrizione</label>
-    <textarea id="descrizioneInput" placeholder="Descrizione dettagliata"></textarea>
-
-    <button class="btn" onclick="confermaInvio()">Procedi</button>
-    <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
-
-  </div>
-</div>
-
-<div class="modal" id="modalConferma">
-  <div class="modal-content">
-    <h3 id="confermaTesto"></h3>
-    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
-    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
-  </div>
-</div>
-
-<!-- POPUP CHAT -->
-<div id="chatPopup">
-  <div class="chat-window">
-    <h3 id="chatTitle"></h3>
-    <div id="chatMessages" class="chat-messages"></div>
-    <textarea id="chatInput" placeholder="Scrivi un messaggio..."></textarea>
-    <div class="chat-buttons">
-      <button class="chat-btn" onclick="sendUserMessage()">Invia</button>
-      <button class="chat-btn" style="background:#444;" onclick="closeChat()">Chiudi</button>
-    </div>
-  </div>
-</div>
+<!-- ==============================
+     GENERAZIONE CARD
+=============================== -->
 <script>
-/* ============================================
-   LETTURA PARAM ?complesso=guala/piobesi
-============================================ */
+/* LETTURA PARAM ?complesso=guala/piobesi */
 const complessoSelezionato =
   new URLSearchParams(location.search).get("complesso");
 
@@ -418,9 +245,7 @@ function scalaAppartiene(scala) {
   return true;
 }
 
-/* ============================================
-   DEFINIZIONE CONDOMINIO (IDENTICO AL TUO)
-============================================ */
+/* DEFINIZIONE DEL CONDOMINIO (la tua, intatta) */
 const condominio = {
   "SCALA 131": {
     piani: {
@@ -521,9 +346,9 @@ const condominio = {
   }
 };
 
-/* ============================================
-   GENERA CARDS (STRUTTURA ORIGINALE + CHAT ICON)
-============================================ */
+/* ==================================
+   GENERA LE CARD + ICONE CHAT
+================================== */
 const container = document.querySelector(".container");
 
 Object.keys(condominio).forEach(scala => {
@@ -545,19 +370,12 @@ Object.keys(condominio).forEach(scala => {
 
       let html = `
         <div class="pianoBox">
-          <div class="pianoTop">
-            <span>${piano}° piano</span>
-            <span class="chatIconContainer">
-              <span class="chatLauncher"
-                    onclick="openChatFromCard('${scala}','${piano}','DX','${dati.dx}')">💬</span>
-              <span class="chatLauncher"
-                    onclick="openChatFromCard('${scala}','${piano}','SX','${dati.sx}')">💬</span>
-            </span>
-          </div>
+          <div class="pianoTop">${piano}° piano</div>
           <div class="cards">
 
-            <div class="card"
-                 onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+            <!-- CARD DX -->
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              <div class="chatIcon" onclick="event.stopPropagation(); openChatFor('${dati.dx}','${scala}','${piano}','DX');">💬</div>
               ${dati.dx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -565,8 +383,9 @@ Object.keys(condominio).forEach(scala => {
               </div>
             </div>
 
-            <div class="card"
-                 onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+            <!-- CARD SX -->
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              <div class="chatIcon" onclick="event.stopPropagation(); openChatFor('${dati.sx}','${scala}','${piano}','SX');">💬</div>
               ${dati.sx}
               <div class="tempBox">
                 <span class="tempDot t-blue"></span>
@@ -581,18 +400,17 @@ Object.keys(condominio).forEach(scala => {
       box.innerHTML += html;
     });
 
+  /* PORTICO */
   if (piani.portico && piani.portico.length > 0){
     let html = `
       <div class="pianoBox">
-        <div class="pianoTop">
-          <span>Livello strada</span>
-        </div>
+        <div class="pianoTop">Livello strada</div>
         <div class="cards">
     `;
     piani.portico.forEach(nome => {
       html += `
-        <div class="card"
-             onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+          <div class="chatIcon" onclick="event.stopPropagation(); openChatFor('${nome}','${scala}','PORTICO','NEGOZIO');">💬</div>
           ${nome}
           <div class="tempBox">
             <span class="tempDot t-blue"></span>
@@ -608,122 +426,9 @@ Object.keys(condominio).forEach(scala => {
   container.appendChild(box);
 });
 
-/* ============================================
-   CHAT – LOGICA UTENTE
-============================================ */
-
-let currentChatId = null;
-let currentChatReadOnly = false;
-let unsubscribeChat = null;
-
-/* Cerca l'ultima segnalazione per quella unità */
-async function findSegnalazione(scala, piano, lato, nome) {
-  const snap = await db.collection("segnalazioni")
-    .where("scala","==",scala)
-    .where("piano","==",piano)
-    .where("lato","==",lato)
-    .where("nome","==",nome)
-    .orderBy("timestamp","desc")
-    .limit(1)
-    .get();
-
-  if (snap.empty) return null;
-  const doc = snap.docs[0];
-  return { id: doc.id, data: doc.data() };
-}
-
-/* click su icona 💬 */
-async function openChatFromCard(scala, piano, lato, nome) {
-
-  const res = await findSegnalazione(scala, piano, lato, nome);
-  if (!res) {
-    alert("Nessuna segnalazione presente per questa unità.");
-    return;
-  }
-
-  const seg = res.data;
-  currentChatId = res.id;
-  currentChatReadOnly = seg.stato && seg.stato !== "attiva";
-
-  document.getElementById("chatTitle").innerText =
-    `${scala} • ${piano} • ${lato} • ${nome}`;
-
-  const popup = document.getElementById("chatPopup");
-  const box   = document.getElementById("chatMessages");
-  const input = document.getElementById("chatInput");
-  popup.style.display = "flex";
-  box.innerHTML = "";
-  input.value = "";
-
-  if (currentChatReadOnly) {
-    input.disabled = true;
-    input.placeholder = "Segnalazione chiusa: chat in sola lettura";
-  } else {
-    input.disabled = false;
-    input.placeholder = "Scrivi un messaggio...";
-  }
-
-  if (unsubscribeChat) unsubscribeChat();
-
-  unsubscribeChat = db.collection("segnalazioni")
-    .doc(currentChatId)
-    .collection("chat")
-    .orderBy("timestamp","asc")
-    .onSnapshot((snap) => {
-      box.innerHTML = "";
-      snap.forEach(m => {
-        const d = m.data();
-        const div = document.createElement("div");
-        div.className = "chat-bubble " +
-          (d.mittente === "admin" ? "chat-admin" : "chat-user");
-
-        const time = d.timestamp && d.timestamp.toDate
-          ? d.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
-          : "";
-
-        div.innerHTML = `
-          <div>${d.testo}</div>
-          <div style="font-size:0.7rem;opacity:.6;text-align:right;">${time}</div>
-        `;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    });
-}
-
-async function sendUserMessage() {
-  if (!currentChatId) return;
-  if (currentChatReadOnly) {
-    alert("Segnalazione chiusa: non puoi più inviare messaggi.");
-    return;
-  }
-  const input = document.getElementById("chatInput");
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = "";
-
-  await db.collection("segnalazioni")
-    .doc(currentChatId)
-    .collection("chat")
-    .add({
-      testo: text,
-      mittente: "utente",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
-function closeChat() {
-  const popup = document.getElementById("chatPopup");
-  popup.style.display = "none";
-  if (unsubscribeChat) unsubscribeChat();
-  unsubscribeChat = null;
-  currentChatId = null;
-  currentChatReadOnly = false;
-}
-
-/* ============================================
-   LOGICA MODALI E INVIO (TUA ORIGINALE)
-============================================ */
+/* ============================================================
+   LOGICA MODALI ORIGINALI (intatta)
+============================================================ */
 let elementoSelezionato = null;
 let nominativo = "";
 let scalaSel = "";
@@ -735,10 +440,10 @@ function apri(scala, piano, lato, nome, elem){
   nominativo = nome;
   scalaSel = scala;
   pianoSel = piano;
-  latoSel = piano === "PORTICO" ? "NEGOZIO" : lato;
+  latoSel = lato;
 
   document.getElementById("modalTitle").innerText =
-    `${scala} • ${piano} • ${latoSel} • ${nome}`;
+    `${scala} • ${piano} • ${lato} • ${nome}`;
 
   document.getElementById("modalSegnalazione").style.display = "flex";
 }
@@ -755,24 +460,21 @@ function gestisciPartiComuni() {
   const tipo = document.getElementById("tipoInput").value;
   const wrapper = document.getElementById("selectPartiComuniWrapper");
 
-  if (tipo === "particomuni") {
-    wrapper.style.display = "block";
-  } else {
+  if (tipo === "particomuni") wrapper.style.display = "block";
+  else {
     wrapper.style.display = "none";
     document.getElementById("selectPartiComuni").value = "";
   }
 }
 
 function confermaInvio(){
+
   const tipo = document.getElementById("tipoInput").value;
 
   if (tipo === "particomuni") {
     const sotto = document.getElementById("selectPartiComuni").value;
-    if (sotto === "") {
-      alert("Seleziona la parte comune.");
-      return;
-    }
-    if (document.getElementById("descrizioneInput").value.trim() === "") {
+    if (!sotto) { alert("Seleziona la parte comune."); return; }
+    if (!document.getElementById("descrizioneInput").value.trim()) {
       alert("La descrizione è obbligatoria.");
       return;
     }
@@ -792,14 +494,9 @@ function inviaSegnalazioneFinale() {
   const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
 
   let priorita = "VERDE";
-
   if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
-  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
-      priorita = "ARANCIONE";
-  else if(["serramenti","antincendio"].includes(tipo))
-      priorita = "GIALLO";
-  else if(tipo === "particomuni")
-      priorita = "GIALLO";
+  else if (["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo)) priorita = "ARANCIONE";
+  else if (["serramenti","antincendio","particomuni"].includes(tipo)) priorita = "GIALLO";
 
   elementoSelezionato.classList.remove(
     "alert-red","alert-orange","alert-yellow","alert-green"
@@ -848,9 +545,9 @@ function inviaSegnalazioneFinale() {
   document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
 </script>
-<!-- ===============================
+<!-- ============================================================
      SERVICE WORKER
-================================= -->
+============================================================ -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js")
@@ -858,9 +555,9 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
-<!-- ===============================
+<!-- ============================================================
      PULSANTE INSTALLA APP (PWA)
-================================= -->
+============================================================ -->
 <script>
 let deferredPrompt;
 const btnInstall = document.createElement("button");
@@ -878,7 +575,7 @@ btnInstall.addEventListener("click", async () => {
   if (!deferredPrompt) return;
   btnInstall.style.display = "none";
   deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+  const result = await deferredPrompt.userChoice;
   deferredPrompt = null;
 });
 </script>
