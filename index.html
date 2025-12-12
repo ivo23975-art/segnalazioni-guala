@@ -5,213 +5,655 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Segnalazioni Condominio Piazza Guala</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#cc0000">
 
 <style>
 :root {
-  --primary:#cc0000;
-  --bg:#f3f4f6;
-  --card-bg:#f7f7f7;
-  --border:#cc0000;
-  --shadow:0 4px 14px rgba(0,0,0,0.12);
-  --shadow-strong:0 6px 22px rgba(204,0,0,0.45);
-  --t-blue:#0077ff;
-  --t-yellow:#ffcc00;
-  --t-red:#d50000;
+  --primary: #cc0000;
+  --bg: #f3f4f6;
+  --card-bg: #f7f7f7;
+  --border: #cc0000;
+  --shadow: 0 4px 14px rgba(0,0,0,0.12);
+  --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
+  --t-blue: #0077ff;
+  --t-yellow: #ffcc00;
+  --t-red: #d50000;
 }
 
-body{background:var(--bg);margin:0;padding:1rem;font-family:system-ui,sans-serif;}
-h1,h2{text-align:center;margin:0;}
-h1{font-size:1.7rem;font-weight:800;margin-bottom:.2rem;}
-h2{font-size:1.1rem;font-weight:600;margin-bottom:1.5rem;}
+body {
+  background: var(--bg);
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
 
-.container{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
-@media(max-width:900px){.container{grid-template-columns:1fr;}}
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
+h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
 
-.scalaBox{background:#fff;padding:1rem;border-radius:1rem;box-shadow:var(--shadow);max-height:87vh;overflow-y:auto;}
-.scalaTitle{text-align:center;font-size:1.4rem;font-weight:bold;margin-bottom:1rem;}
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 
-.pianoBox{background:#fff;border:1px solid #e3e3e3;padding:1rem;border-radius:.9rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.scalaBox {
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  max-height: 87vh;
+  overflow-y: auto;
+}
 
-.pianoTop{display:flex;justify-content:space-between;align-items:center;font-weight:bold;margin-bottom:.6rem;}
+.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
 
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;}
+.pianoBox {
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+  padding: 1rem;
+  border-radius: .9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
 
-.card{background:var(--card-bg);border:2px solid var(--border);border-radius:1rem;padding:.6rem;text-align:center;font-weight:bold;cursor:pointer;box-shadow:var(--shadow);transition:.15s;}
-.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-strong);}
+.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
 
-.tempBox{font-size:.85rem;margin-top:3px;display:flex;justify-content:center;gap:4px;align-items:center;}
-.tempDot{width:12px;height:12px;border-radius:50%;}
-.t-blue{background:var(--t-blue);} .t-yellow{background:var(--t-yellow);} .t-red{background:var(--t-red);}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .6rem;
+}
 
-.alert-red{animation:redBlink 1s infinite;background:#ff0000!important;color:white;}
-.alert-orange{animation:orangeBlink 1.4s infinite;background:#ff8800!important;color:white;}
-.alert-yellow{animation:yellowBlink 1.8s infinite;background:#fff06a!important;}
-.alert-green{background:#00b454!important;color:white;}
+.card {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: .6rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: var(--shadow);
+  transition: .15s ease;
+}
 
-@keyframes redBlink{0%,100%{background:#b00000;}50%{background:#ff4444;}}
-@keyframes orangeBlink{0%,100%{background:#cc6a00;}50%{background:#ff9c22;}}
-@keyframes yellowBlink{0%,100%{background:#d4bf00;}50%{background:#fff455;}}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-strong);
+}
 
-.chatLauncher{font-size:20px;cursor:pointer;opacity:.4;}
-.chatLauncher.active{opacity:1;}
-.chatLauncher.disabled{opacity:.2;cursor:not-allowed;}
+.tempBox {
+  font-size: .85rem;
+  margin-top: 3px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
+}
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
+.t-blue { background: var(--t-blue); }
+.t-yellow { background: var(--t-yellow); }
+.t-red { background: var(--t-red); }
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center;z-index:9999;}
-.modal-content{background:#fff;padding:1rem;width:92%;max-width:420px;border-radius:1rem;}
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
+.alert-green { background:#00b454!important; color:white;}
 
-input,select,textarea{width:100%;padding:.6rem;margin-top:.4rem;border:1px solid #ccc;border-radius:.6rem;}
-textarea{height:90px;resize:none;}
+@keyframes redBlink {
+  0%,100%{background:#b00000;}
+  50%{background:#ff4444;}
+}
+@keyframes orangeBlink {
+  0%,100%{background:#cc6a00;}
+  50%{background:#ff9c22;}
+}
+@keyframes yellowBlink {
+  0%,100%{background:#d4bf00;}
+  50%{background:#fff455;}
+}
 
-.btn{margin-top:.8rem;padding:.8rem;width:100%;border:none;background:var(--primary);color:#fff;font-weight:bold;border-radius:.6rem;cursor:pointer;}
-.btnClose{margin-top:.6rem;padding:.8rem;width:100%;background:#ccc;border-radius:.6rem;cursor:pointer;}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
 
-#chatPopup{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:10000;}
-.chat-window{width:92%;max-width:420px;background:#fff;border-radius:14px;padding:15px;display:flex;flex-direction:column;max-height:85vh;}
-.chat-messages{flex:1;overflow-y:auto;background:#f3f3f3;border-radius:10px;padding:10px;margin-bottom:10px;}
-.chat-bubble{padding:10px;border-radius:10px;margin-bottom:8px;max-width:80%;}
-.chat-user{background:#d2e3ff;align-self:flex-start;}
-.chat-admin{background:#d4ffd9;align-self:flex-end;}
+.modal-content {
+  background: white;
+  padding: 1rem;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 1rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: .6rem;
+  margin-top: .4rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+}
+textarea { height: 90px; resize: none; }
+
+.btn {
+  margin-top: .8rem;
+  padding: .8rem;
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+.btnClose {
+  margin-top: .6rem;
+  padding: .8rem;
+  width: 100%;
+  background: #ccc;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+#selectPartiComuniWrapper {
+  display: none;
+  margin-top: .6rem;
+}
+
+/* Pulsante INSTALLA APP */
+#installPWA {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  padding: 14px 20px;
+  font-size: 15px;
+  background:#cc0000;
+  color:white;
+  border:none;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  cursor:pointer;
+  display:none;
+  z-index:9999;
+}
 </style>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
-  authDomain:"segnalazioni-guala.firebaseapp.com",
-  projectId:"segnalazioni-guala"
-});
-const db=firebase.firestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
+  authDomain: "segnalazioni-guala.firebaseapp.com",
+  projectId: "segnalazioni-guala",
+  storageBucket: "segnalazioni-guala.firebasestorage.app",
+  messagingSenderId: "118462666966",
+  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 </script>
+
 </head>
 <body>
 
 <h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
 <h2>Piazza Guala • Via Piobesi</h2>
 
-<div class="container" id="container"></div>
+<div class="container"></div>
+
+<!-- ===============================
+     MODALI (identiche alle tue)
+================================= -->
 
 <div class="modal" id="modalSegnalazione">
   <div class="modal-content">
+
     <h3 id="modalTitle"></h3>
-    <label>Temperatura</label>
-    <input id="tempInput">
-    <label>Tipo intervento</label>
-    <select id="tipoInput"><option value="altro">Altro</option></select>
-    <textarea id="descrizioneInput"></textarea>
+
+    <label>Temperatura (facoltativa)</label>
+    <input type="number" id="tempInput" placeholder="es: 23">
+
+    <label style="margin-top:10px;">Tipo di intervento</label>
+    <select id="tipoInput" onchange="gestisciPartiComuni()">
+
+      <optgroup label="🔴 EMERGENZA">
+        <option value="118">118 – Emergenza sanitaria</option>
+        <option value="112">112 – Forze dell’ordine</option>
+        <option value="115">115 – Vigili del fuoco</option>
+      </optgroup>
+
+      <optgroup label="🟠 ALTA URGENZA">
+        <option value="ascensore">Ascensore</option>
+        <option value="elettricista">Elettricista</option>
+        <option value="idraulico">Idraulico</option>
+        <option value="centrale">Centrale termica</option>
+        <option value="autoclave">Autoclave</option>
+      </optgroup>
+
+      <optgroup label="🟡 MEDIA URGENZA">
+        <option value="serramenti">Serramentista</option>
+        <option value="antincendio">Manutenzione antincendio</option>
+      </optgroup>
+
+      <optgroup label="🟢 PUÒ ATTENDERE">
+        <option value="pulizie">Pulizie</option>
+        <option value="altro">Altro</option>
+      </optgroup>
+
+      <optgroup label="🟡 PARTI COMUNI">
+        <option value="particomuni">Segnala PARTI COMUNI</option>
+      </optgroup>
+
+    </select>
+
+    <div id="selectPartiComuniWrapper">
+      <label>Seleziona la parte comune</label>
+      <select id="selectPartiComuni">
+        <option value="">— Seleziona —</option>
+        <option value="Luci cortile">Luci cortile</option>
+        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
+        <option value="Cancello Pedonale">Cancello Pedonale</option>
+        <option value="Cortile">Cortile</option>
+        <option value="Aree verdi">Aree verdi</option>
+        <option value="Box interrati">Box interrati</option>
+        <option value="Garage">Serrande garage</option>
+        <option value="Vano scale">Vano scale</option>
+        <option value="Locale contatori">Locale contatori</option>
+      </select>
+    </div>
+
+    <label style="margin-top:12px;">Descrizione</label>
+    <textarea id="descrizioneInput" placeholder="Descrizione dettagliata"></textarea>
+
     <button class="btn" onclick="confermaInvio()">Procedi</button>
     <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
+
   </div>
 </div>
 
-<div id="chatPopup">
-  <div class="chat-window">
-    <h3 id="chatTitle"></h3>
-    <div id="chatMessages" class="chat-messages"></div>
-    <textarea id="chatInput"></textarea>
-    <button class="btn" onclick="sendUserMessage()">Invia</button>
-    <button class="btnClose" onclick="closeChat()">Chiudi</button>
+<div class="modal" id="modalConferma">
+  <div class="modal-content">
+    <h3 id="confermaTesto"></h3>
+    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
+    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
   </div>
 </div>
 
 <script>
-const condominio={"SCALA 131":{piani:{9:{dx:"BARBA / RIPANDELLI",sx:"BORDIGNON"}}}};
-const container=document.getElementById("container");
+/* ============================================
+   LETTURA PARAM ?complesso=guala/piobesi
+============================================ */
+const complessoSelezionato =
+  new URLSearchParams(location.search).get("complesso");
 
-Object.keys(condominio).forEach(scala=>{
-  const box=document.createElement("div");
-  box.className="scalaBox";
-  box.innerHTML=`<div class="scalaTitle">${scala}</div>`;
-  Object.entries(condominio[scala].piani).forEach(([p,d])=>{
-    box.innerHTML+=`
-    <div class="pianoBox">
-      <div class="pianoTop">${p}° piano</div>
-      <div class="cards">
-        ${["DX","SX"].map(l=>`
-        <div>
-          <span class="chatLauncher"
-            id="chat-${scala}-${p}-${l}"
-            onclick="openChatFromCard('${scala}','${p}','${l}','${d[l.toLowerCase()]}')">💬</span>
-          <div class="card" onclick="apri('${scala}','${p}','${l}','${d[l.toLowerCase()]}',this)">
-            ${d[l.toLowerCase()]}
-            <div class="tempBox"><span class="tempDot t-blue"></span><span>—°C</span></div>
+const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
+const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
+
+function scalaAppartiene(scala) {
+  if (!complessoSelezionato) return true;
+
+  if (complessoSelezionato === "guala")
+    return scaleGuala.includes(scala);
+
+  if (complessoSelezionato === "piobesi")
+    return scalePiobesi.includes(scala);
+
+  return true;
+}
+
+/* ============================================
+   DEFINIZIONE CONDOMINIO (IDENTICO AL TUO)
+============================================ */
+const condominio = {
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
+    }
+  },
+
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
+    }
+  },
+
+  "SCALA 133": {
+    piani:{
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
+    }
+  },
+
+  "SCALA 6": {
+    piani: {
+      9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+      8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+      7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+      6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+      5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+      4:{dx:"GERVASI/RACCO", sx:"PLATANIA"},
+      3:{dx:"DR ING E PERRETTI/DELL ALBA C", sx:"MAMELI/CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 8": {
+    piani: {
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
+
+  "SCALA 10": {
+    piani: {
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  }
+
+};
+
+/* ============================================
+   GENERA LE CARD (IDENTICO AL TUO)
+============================================ */
+const container = document.querySelector(".container");
+
+Object.keys(condominio).forEach(scala => {
+
+  if (!scalaAppartiene(scala)) return;
+
+  const box = document.createElement("div");
+  box.className = "scalaBox";
+  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
+
+  const piani = condominio[scala].piani;
+
+  Object.keys(piani)
+    .filter(p => !isNaN(p))
+    .sort((a,b)=>b-a)
+    .forEach(piano => {
+
+      const dati = piani[piano];
+
+      let html = `
+        <div class="pianoBox">
+          <div class="pianoTop">${piano}° piano</div>
+          <div class="cards">
+
+            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              ${dati.dx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
+            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              ${dati.sx}
+              <div class="tempBox">
+                <span class="tempDot t-blue"></span>
+                <span class="tempVal">—°C</span>
+              </div>
+            </div>
+
           </div>
-        </div>`).join("")}
-      </div>
-    </div>`;
-  });
+        </div>
+      `;
+
+      box.innerHTML += html;
+    });
+
+  if (piani.portico && piani.portico.length > 0){
+    let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">Livello strada</div>
+        <div class="cards">
+    `;
+    piani.portico.forEach(nome => {
+      html += `
+        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
+          ${nome}
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
   container.appendChild(box);
 });
-<script>
-let elementoSelezionato=null,scalaSel="",pianoSel="",latoSel="",nomeSel="";
-let currentChatId=null,unsubscribeChat=null;
 
-function apri(scala,piano,lato,nome,elem){
-  const modal=document.getElementById("modalSegnalazione");
-  const title=document.getElementById("modalTitle");
-  if(!modal||!title)return;
-  elementoSelezionato=elem;
-  scalaSel=scala;pianoSel=piano;latoSel=lato;nomeSel=nome;
-  title.innerText=`${scala} • ${piano} • ${lato} • ${nome}`;
-  modal.style.display="flex";
+/* ============================================
+   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
+============================================ */
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
+
+function apri(scala, piano, lato, nome, elem){
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display = "flex";
 }
 
-function chiudiModal(){document.getElementById("modalSegnalazione").style.display="none";}
+function chiudiModal(){
+  document.getElementById("modalSegnalazione").style.display = "none";
+}
 
-async function confermaInvio(){
-  await db.collection("segnalazioni").add({
-    scala:scalaSel,piano:pianoSel,lato:latoSel,nome:nomeSel,stato:"attiva",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+function chiudiConferma(){
+  document.getElementById("modalConferma").style.display = "none";
+}
+
+function gestisciPartiComuni() {
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
+  }
+}
+
+function confermaInvio(){
+  const tipo = document.getElementById("tipoInput").value;
+
+  if (tipo === "particomuni") {
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if (sotto === "") {
+      alert("Seleziona la parte comune.");
+      return;
+    }
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
+      alert("La descrizione è obbligatoria.");
+      return;
+    }
+  }
+
+  document.getElementById("confermaTesto").innerText =
+    `Confermi la segnalazione per:\n${nominativo}`;
+
+  document.getElementById("modalConferma").style.display = "flex";
+}
+
+function inviaSegnalazioneFinale() {
+
+  const tipo = document.getElementById("tipoInput").value;
+  const sotto = document.getElementById("selectPartiComuni").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
+
+  let priorita = "VERDE";
+
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+      priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo))
+      priorita = "GIALLO";
+  else if(tipo === "particomuni")
+      priorita = "GIALLO";
+
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
+
+  elementoSelezionato.classList.add(css);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+  db.collection("segnalazioni").add({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      descrizione: desc,
+      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+      sottotipo: sotto,
+      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+      priorita: priorita,
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
-  document.getElementById(`chat-${scalaSel}-${pianoSel}-${latoSel}`).classList.add("active");
+
+  chiudiConferma();
   chiudiModal();
-}
 
-async function openChatFromCard(scala,piano,lato,nome){
-  const snap=await db.collection("segnalazioni")
-    .where("scala","==",scala)
-    .where("piano","==",piano)
-    .where("lato","==",lato)
-    .where("nome","==",nome)
-    .where("stato","==","attiva")
-    .limit(1).get();
-  if(snap.empty){alert("Nessuna segnalazione attiva.");return;}
-  currentChatId=snap.docs[0].id;
-  document.getElementById("chatPopup").style.display="flex";
-  if(unsubscribeChat)unsubscribeChat();
-  unsubscribeChat=db.collection("segnalazioni").doc(currentChatId)
-    .collection("chat").orderBy("timestamp")
-    .onSnapshot(s=>{
-      const box=document.getElementById("chatMessages");
-      box.innerHTML="";
-      s.forEach(m=>{
-        const d=m.data();
-        const div=document.createElement("div");
-        div.className="chat-bubble "+(d.mittente==="admin"?"chat-admin":"chat-user");
-        div.innerText=d.testo;
-        box.appendChild(div);
-      });
-    });
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+  document.getElementById("selectPartiComuni").value = "";
+  document.getElementById("selectPartiComuniWrapper").style.display = "none";
 }
+</script>
 
-async function sendUserMessage(){
-  const text=document.getElementById("chatInput").value.trim();
-  if(!text||!currentChatId)return;
-  await db.collection("segnalazioni").doc(currentChatId).collection("chat").add({
-    testo:text,mittente:"utente",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  document.getElementById("chatInput").value="";
+<!-- ===============================
+     SERVICE WORKER
+================================= -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
 }
+</script>
 
-function closeChat(){
-  document.getElementById("chatPopup").style.display="none";
-  if(unsubscribeChat)unsubscribeChat();
-  unsubscribeChat=null;currentChatId=null;
-}
+<!-- ===============================
+     PULSANTE INSTALLA APP (PWA)
+================================= -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
+});
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
 </script>
 
 </body>
