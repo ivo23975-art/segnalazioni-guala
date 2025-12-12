@@ -63,7 +63,12 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
-.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+.pianoTop {
+  font-weight: bold;
+  margin-bottom: .8rem;
+  font-size: 1rem;
+  position: relative;
+}
 
 .cards {
   display: grid;
@@ -71,6 +76,12 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   gap: .6rem;
 }
 
+/* WRAPPER (icona chat separata dalla card, NON dentro) */
+.cardWrap {
+  position: relative;
+}
+
+/* CARD (TUO) */
 .card {
   background: var(--card-bg);
   border: 2px solid var(--border);
@@ -126,6 +137,7 @@ h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 .modal-content {
@@ -187,6 +199,112 @@ textarea { height: 90px; resize: none; }
   display:none;
   z-index:9999;
 }
+
+/* ==========================================================
+   CHAT UTENTE – ICONA (separata dalla card)
+========================================================== */
+.chatUserIcon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  user-select: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  transform: translateZ(0);
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* 3D WOW blu base */
+.chat-blue {
+  background: radial-gradient(circle at 30% 30%, #7fe0ff, #0088ff 65%, #0057b3);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(0,136,255,.35);
+}
+
+/* 1 msg */
+.chat-yellow {
+  background: radial-gradient(circle at 30% 30%, #fff7a1, #ffd000 65%, #caa100);
+  color: #000;
+  box-shadow: 0 8px 22px rgba(255,208,0,.35);
+}
+
+/* 2 msg */
+.chat-orange {
+  background: radial-gradient(circle at 30% 30%, #ffd2a1, #ff8800 65%, #c35f00);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255,136,0,.35);
+}
+
+/* 3+ msg */
+.chat-red {
+  background: radial-gradient(circle at 30% 30%, #ffb3b3, #ff0000 65%, #b30000);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255,0,0,.35);
+}
+
+.chat-disabled {
+  opacity: .35;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+/* ==========================================================
+   CHAT UTENTE – MODALE (stessa grafica user)
+========================================================== */
+#modalChat .modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 78vh;
+  max-height: 78vh;
+}
+
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e2e2e2;
+  border-radius: .8rem;
+  padding: .8rem;
+  background: #fafafa;
+  margin-top: .6rem;
+}
+
+.chat-bubble {
+  max-width: 82%;
+  padding: .6rem .75rem;
+  border-radius: .9rem;
+  margin: .35rem 0;
+  display: inline-flex;
+  flex-direction: column;
+  gap: .25rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.chat-bubble-user {
+  background: #e6f2ff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.chat-bubble-admin {
+  background: #d6ffd6;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.chat-time {
+  font-size: .75rem;
+  opacity: .65;
+  text-align: right;
+}
 </style>
 
 <!-- FIREBASE -->
@@ -215,7 +333,7 @@ const db = firebase.firestore();
 <div class="container"></div>
 
 <!-- ===============================
-     MODALI (identiche alle tue)
+     MODALI (TUOI)
 ================================= -->
 
 <div class="modal" id="modalSegnalazione">
@@ -293,6 +411,33 @@ const db = firebase.firestore();
   </div>
 </div>
 
+<!-- ===============================
+     MODALE SCELTA CHAT (post invio)
+================================= -->
+<div class="modal" id="modalChatChoice">
+  <div class="modal-content">
+    <h3 id="chatChoiceTitle"></h3>
+    <button class="btn" onclick="chatChoiceYes()">SI, apri chat</button>
+    <button class="btnClose" onclick="chatChoiceNo()">NO, più tardi</button>
+  </div>
+</div>
+
+<!-- ===============================
+     MODALE CHAT (utente)
+================================= -->
+<div class="modal" id="modalChat">
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+
+    <div id="chatMessages"></div>
+
+    <textarea id="chatInput" placeholder="Scrivi un messaggio..."></textarea>
+
+    <button class="btn" onclick="sendUserChatMessage()">Invia</button>
+    <button class="btnClose" onclick="closeUserChat()">Chiudi</button>
+  </div>
+</div>
+
 <script>
 /* ============================================
    LETTURA PARAM ?complesso=guala/piobesi
@@ -316,7 +461,7 @@ function scalaAppartiene(scala) {
 }
 
 /* ============================================
-   DEFINIZIONE CONDOMINIO (IDENTICO AL TUO)
+   DEFINIZIONE CONDOMINIO (TUO)
 ============================================ */
 const condominio = {
   "SCALA 131": {
@@ -416,13 +561,32 @@ const condominio = {
       portico:[]
     }
   }
-
 };
 
 /* ============================================
-   GENERA LE CARD (IDENTICO AL TUO)
+   GENERA LE CARD (TUO + data-attrs + wrapper + icona separata)
 ============================================ */
 const container = document.querySelector(".container");
+
+/* Mappa key->elementi DOM */
+const cardWrapByKey = new Map();
+
+function buildKey(scala, piano, lato, nome){
+  return `${scala}||${piano}||${lato}||${nome}`;
+}
+
+/* Crea icona chat sempre presente, ma disattiva di default */
+function createChatIconForKey(key){
+  const icon = document.createElement("div");
+  icon.className = "chatUserIcon chat-blue chat-disabled";
+  icon.innerText = "💬";
+  icon.title = "Chat";
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onChatIconClick(key);
+  });
+  return icon;
+}
 
 Object.keys(condominio).forEach(scala => {
 
@@ -441,60 +605,123 @@ Object.keys(condominio).forEach(scala => {
 
       const dati = piani[piano];
 
-      let html = `
-        <div class="pianoBox">
-          <div class="pianoTop">${piano}° piano</div>
-          <div class="cards">
+      const pianoBox = document.createElement("div");
+      pianoBox.className = "pianoBox";
+      pianoBox.innerHTML = `<div class="pianoTop">${piano}° piano</div>`;
 
-            <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
-              ${dati.dx}
-              <div class="tempBox">
-                <span class="tempDot t-blue"></span>
-                <span class="tempVal">—°C</span>
-              </div>
-            </div>
+      const cardsDiv = document.createElement("div");
+      cardsDiv.className = "cards";
 
-            <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
-              ${dati.sx}
-              <div class="tempBox">
-                <span class="tempDot t-blue"></span>
-                <span class="tempVal">—°C</span>
-              </div>
-            </div>
+      /* DX */
+      {
+        const wrap = document.createElement("div");
+        wrap.className = "cardWrap";
 
-          </div>
-        </div>
-      `;
-
-      box.innerHTML += html;
-    });
-
-  if (piani.portico && piani.portico.length > 0){
-    let html = `
-      <div class="pianoBox">
-        <div class="pianoTop">Livello strada</div>
-        <div class="cards">
-    `;
-    piani.portico.forEach(nome => {
-      html += `
-        <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${nome}', this)">
-          ${nome}
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("data-scala", scala);
+        card.setAttribute("data-piano", piano);
+        card.setAttribute("data-lato", "DX");
+        card.setAttribute("data-nome", dati.dx);
+        card.innerHTML = `
+          ${dati.dx}
           <div class="tempBox">
             <span class="tempDot t-blue"></span>
             <span class="tempVal">—°C</span>
           </div>
+        `;
+        card.onclick = function(){ apri(scala, piano, "DX", dati.dx, card); };
+
+        const key = buildKey(scala, piano, "DX", dati.dx);
+        const icon = createChatIconForKey(key);
+
+        wrap.appendChild(card);
+        wrap.appendChild(icon);
+
+        cardsDiv.appendChild(wrap);
+        cardWrapByKey.set(key, { wrap, card, icon });
+      }
+
+      /* SX */
+      {
+        const wrap = document.createElement("div");
+        wrap.className = "cardWrap";
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("data-scala", scala);
+        card.setAttribute("data-piano", piano);
+        card.setAttribute("data-lato", "SX");
+        card.setAttribute("data-nome", dati.sx);
+        card.innerHTML = `
+          ${dati.sx}
+          <div class="tempBox">
+            <span class="tempDot t-blue"></span>
+            <span class="tempVal">—°C</span>
+          </div>
+        `;
+        card.onclick = function(){ apri(scala, piano, "SX", dati.sx, card); };
+
+        const key = buildKey(scala, piano, "SX", dati.sx);
+        const icon = createChatIconForKey(key);
+
+        wrap.appendChild(card);
+        wrap.appendChild(icon);
+
+        cardsDiv.appendChild(wrap);
+        cardWrapByKey.set(key, { wrap, card, icon });
+      }
+
+      pianoBox.appendChild(cardsDiv);
+      box.appendChild(pianoBox);
+    });
+
+  if (piani.portico && piani.portico.length > 0){
+    const pianoBox = document.createElement("div");
+    pianoBox.className = "pianoBox";
+    pianoBox.innerHTML = `<div class="pianoTop">Livello strada</div>`;
+
+    const cardsDiv = document.createElement("div");
+    cardsDiv.className = "cards";
+
+    piani.portico.forEach(nome => {
+      const wrap = document.createElement("div");
+      wrap.className = "cardWrap";
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.setAttribute("data-scala", scala);
+      card.setAttribute("data-piano", "PORTICO");
+      card.setAttribute("data-lato", "NEGOZIO");
+      card.setAttribute("data-nome", nome);
+      card.innerHTML = `
+        ${nome}
+        <div class="tempBox">
+          <span class="tempDot t-blue"></span>
+          <span class="tempVal">—°C</span>
         </div>
       `;
+      card.onclick = function(){ apri(scala, "PORTICO", "NEGOZIO", nome, card); };
+
+      const key = buildKey(scala, "PORTICO", "NEGOZIO", nome);
+      const icon = createChatIconForKey(key);
+
+      wrap.appendChild(card);
+      wrap.appendChild(icon);
+
+      cardsDiv.appendChild(wrap);
+      cardWrapByKey.set(key, { wrap, card, icon });
     });
-    html += `</div></div>`;
-    box.innerHTML += html;
+
+    pianoBox.appendChild(cardsDiv);
+    box.appendChild(pianoBox);
   }
 
   container.appendChild(box);
 });
 
 /* ============================================
-   LOGICA MODALI E INVIO (IDENTICA ALLA TUA)
+   LOGICA MODALI E INVIO (TUA) + aggancio ID
 ============================================ */
 let elementoSelezionato = null;
 let nominativo = "";
@@ -556,6 +783,78 @@ function confermaInvio(){
   document.getElementById("modalConferma").style.display = "flex";
 }
 
+/* ============================================
+   CHAT UTENTE – STATO
+============================================ */
+let lastCreatedSegnalazioneId = null;
+
+const segnalazioneStateByKey = new Map();
+/*
+  key -> {
+    id: string,
+    stato: "attiva"|"risolta"|...,
+    lastReadUser: Timestamp|null,
+    unsubDoc: fn|null,
+    unsubChat: fn|null
+  }
+*/
+
+function setIconDisabled(key, msg){
+  const item = cardWrapByKey.get(key);
+  if (!item) return;
+  const icon = item.icon;
+  icon.classList.add("chat-disabled");
+  icon.classList.remove("chat-blue","chat-yellow","chat-orange","chat-red");
+  icon.classList.add("chat-blue");
+  icon.onclick = null;
+  icon.title = "Chat";
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    alert(msg);
+  }, { once:false });
+}
+
+function setIconEnabled(key){
+  const item = cardWrapByKey.get(key);
+  if (!item) return;
+  const icon = item.icon;
+  icon.classList.remove("chat-disabled");
+}
+
+function setIconColor(key, unread){
+  const item = cardWrapByKey.get(key);
+  if (!item) return;
+  const icon = item.icon;
+
+  icon.classList.remove("chat-blue","chat-yellow","chat-orange","chat-red");
+  if (unread === 0) icon.classList.add("chat-blue");
+  else if (unread === 1) icon.classList.add("chat-yellow");
+  else if (unread === 2) icon.classList.add("chat-orange");
+  else icon.classList.add("chat-red");
+}
+
+/* click icona chat */
+function onChatIconClick(key){
+  const state = segnalazioneStateByKey.get(key);
+  if (!state || !state.id) {
+    alert("Non ci sono segnalazioni avviate, chat non attiva.");
+    return;
+  }
+  if (state.stato !== "attiva") {
+    alert("Segnalazione risolta. Chat disponibile solo da archivio storico.");
+    return;
+  }
+  openUserChat(state.id, getNomeFromKey(key));
+}
+
+function getNomeFromKey(key){
+  const parts = key.split("||");
+  return parts[3] || "";
+}
+
+/* ============================================
+   INVIO SEGNALAZIONE (TUA) – CON ID RECUPERATO
+============================================ */
 function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
@@ -595,29 +894,336 @@ function inviaSegnalazioneFinale() {
     val.innerText = temp + "°C";
   }
 
-  db.collection("segnalazioni").add({
-      scala: scalaSel,
-      piano: pianoSel,
-      lato: latoSel,
-      nome: nominativo,
-      temperatura: temp,
-      descrizione: desc,
-      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
-      sottotipo: sotto,
-      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
-      priorita: priorita,
-      stato: "attiva",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  const payload = {
+    scala: scalaSel,
+    piano: pianoSel,
+    lato: latoSel,
+    nome: nominativo,
+    temperatura: temp,
+    descrizione: desc,
+    tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+    sottotipo: sotto,
+    complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+    priorita: priorita,
+    stato: "attiva",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection("segnalazioni").add(payload)
+    .then((docRef) => {
+      lastCreatedSegnalazioneId = docRef.id;
+
+      /* chiusura modali come tuo flusso */
+      chiudiConferma();
+      chiudiModal();
+
+      document.getElementById("tempInput").value = "";
+      document.getElementById("descrizioneInput").value = "";
+      document.getElementById("tipoInput").value = "altro";
+      document.getElementById("selectPartiComuni").value = "";
+      document.getElementById("selectPartiComuniWrapper").style.display = "none";
+
+      /* popup SI/NO chat (come richiesto) */
+      showChatChoicePopup(nominativo, lastCreatedSegnalazioneId);
+
+      /* attiva subito l’icona per quella card */
+      const key = buildKey(scalaSel, pianoSel, latoSel, nominativo);
+      ensureSegnalazioneWatch(key, lastCreatedSegnalazioneId);
+    })
+    .catch((err) => {
+      alert("Errore Firestore: " + err.message);
+    });
+}
+
+/* ============================================
+   POPUP SCELTA CHAT (SI/NO)
+============================================ */
+let pendingChoiceChatId = null;
+let pendingChoiceNome = null;
+
+function showChatChoicePopup(nome, segId){
+  pendingChoiceChatId = segId;
+  pendingChoiceNome = nome;
+
+  document.getElementById("chatChoiceTitle").innerText =
+    `${nome}, vuoi aprire la chat?`;
+
+  document.getElementById("modalChatChoice").style.display = "flex";
+}
+
+function chatChoiceYes(){
+  document.getElementById("modalChatChoice").style.display = "none";
+  if (pendingChoiceChatId && pendingChoiceNome) {
+    openUserChat(pendingChoiceChatId, pendingChoiceNome);
+  }
+  pendingChoiceChatId = null;
+  pendingChoiceNome = null;
+}
+
+function chatChoiceNo(){
+  document.getElementById("modalChatChoice").style.display = "none";
+  pendingChoiceChatId = null;
+  pendingChoiceNome = null;
+}
+
+/* ============================================
+   WATCH SEGNALAZIONE → stato + lastRead + unread
+============================================ */
+function ensureSegnalazioneWatch(key, segId){
+  const existing = segnalazioneStateByKey.get(key);
+  if (existing && existing.id === segId) return;
+
+  // se c'era un vecchio watch, chiudilo
+  if (existing) {
+    if (existing.unsubDoc) existing.unsubDoc();
+    if (existing.unsubChat) existing.unsubChat();
+  }
+
+  const state = {
+    id: segId,
+    stato: "attiva",
+    lastReadUser: null,
+    unsubDoc: null,
+    unsubChat: null
+  };
+  segnalazioneStateByKey.set(key, state);
+
+  setIconEnabled(key);
+
+  // Listener sul doc segnalazione
+  state.unsubDoc = db.collection("segnalazioni").doc(segId)
+    .onSnapshot((doc) => {
+      if (!doc.exists) {
+        // doc sparito: icona disattiva
+        segnalazioneStateByKey.delete(key);
+        setIconDisabled(key, "Non ci sono segnalazioni avviate, chat non attiva.");
+        return;
+      }
+      const d = doc.data();
+      state.stato = d.stato || "attiva";
+      state.lastReadUser = d.lastReadUser || null;
+
+      if (state.stato !== "attiva") {
+        // risolta o altro: disabilita
+        if (state.unsubChat) state.unsubChat();
+        state.unsubChat = null;
+        setIconDisabled(key, "Segnalazione risolta. Chat disponibile solo da archivio storico.");
+        return;
+      }
+
+      // attiva: attacca listener unread
+      attachUnreadListenerForKey(key, state);
+    });
+}
+
+function attachUnreadListenerForKey(key, state){
+  if (state.unsubChat) return; // già attivo
+
+  state.unsubChat = db.collection("segnalazioni").doc(state.id)
+    .collection("chat")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snap) => {
+      const lastReadDate = state.lastReadUser && state.lastReadUser.toDate
+        ? state.lastReadUser.toDate()
+        : new Date(0);
+
+      let unread = 0;
+
+      snap.forEach((mDoc) => {
+        const m = mDoc.data();
+        if (m.mittente !== "admin") return;
+        if (m.timestamp && m.timestamp.toDate) {
+          const t = m.timestamp.toDate();
+          if (t > lastReadDate) unread++;
+        } else {
+          // se manca timestamp (raro), non lo contiamo come non letto
+        }
+      });
+
+      setIconColor(key, unread);
+    });
+}
+
+/* ============================================
+   ALLINEAMENTO INIZIALE: icone sempre presenti
+   - se non c'è segnalazione attiva: popup "non attiva"
+   - se esiste: watch + colori + click apre
+============================================ */
+function initAllIconsAsDisabled(){
+  for (const [key] of cardWrapByKey.entries()){
+    // default: disabilitata (chat non attiva)
+    // nota: click handler è gestito da onChatIconClick comunque, ma qui forziamo popup coerente
+    const item = cardWrapByKey.get(key);
+    if (!item) continue;
+
+    // pulizia eventi duplicati: rimettiamo la logica base di click via onChatIconClick
+    item.icon.classList.add("chat-disabled");
+    item.icon.classList.remove("chat-yellow","chat-orange","chat-red");
+    item.icon.classList.add("chat-blue");
+  }
+}
+initAllIconsAsDisabled();
+
+/* ============================================
+   SCANSIONE SEGNALAZIONI (solo complesso attivo)
+   - trova la segnalazione più recente per key
+   - attiva/disattiva icone in modo coerente
+============================================ */
+function currentComplesso(){
+  if (complessoSelezionato === "guala") return "guala";
+  if (complessoSelezionato === "piobesi") return "piobesi";
+  // se nessun filtro, ascoltiamo entrambi (ma i key non collidono per scala)
+  return null;
+}
+
+function startSegnalazioniIndexListener(){
+  const compl = currentComplesso();
+  let q = db.collection("segnalazioni").orderBy("timestamp", "desc");
+
+  // Se c'è filtro complesso, restringi (riduce carico)
+  if (compl) q = q.where("complesso", "==", compl);
+
+  q.onSnapshot((snapshot) => {
+    // per ogni key, teniamo la più recente
+    const latestByKey = new Map();
+
+    snapshot.forEach((doc) => {
+      const r = doc.data();
+      const id = doc.id;
+
+      // costruisci key
+      if (!r.scala || !r.piano || !r.lato || !r.nome) return;
+      const key = buildKey(r.scala, r.piano, r.lato, r.nome);
+
+      // ignora se key non esiste in pagina
+      if (!cardWrapByKey.has(key)) return;
+
+      const existing = latestByKey.get(key);
+      if (!existing) {
+        latestByKey.set(key, { id, r });
+      }
+    });
+
+    // applica stato per ogni card key presente
+    for (const [key, ui] of cardWrapByKey.entries()){
+      const found = latestByKey.get(key);
+      if (!found) {
+        // nessuna segnalazione trovata per quella card -> disabilita
+        segnalazioneStateByKey.delete(key);
+        ui.icon.classList.add("chat-disabled");
+        ui.icon.classList.remove("chat-yellow","chat-orange","chat-red");
+        ui.icon.classList.add("chat-blue");
+        continue;
+      }
+
+      const stato = (found.r.stato || "attiva");
+      if (stato === "attiva") {
+        ensureSegnalazioneWatch(key, found.id);
+      } else {
+        // risolta o altro
+        ensureSegnalazioneWatch(key, found.id);
+        // il watcher la disabiliterà
+      }
+    }
   });
+}
+startSegnalazioniIndexListener();
 
-  chiudiConferma();
-  chiudiModal();
+/* ============================================
+   CHAT UTENTE – UI + REALTIME
+============================================ */
+let currentChatSegnalazioneId = null;
+let unsubscribeUserChat = null;
 
-  document.getElementById("tempInput").value = "";
-  document.getElementById("descrizioneInput").value = "";
-  document.getElementById("tipoInput").value = "altro";
-  document.getElementById("selectPartiComuni").value = "";
-  document.getElementById("selectPartiComuniWrapper").style.display = "none";
+function openUserChat(segnalazioneId, nome){
+  // se segnalazione risolta: blocca
+  const key = buildKey(scalaSel || "", pianoSel || "", latoSel || "", nome || "");
+  // non usiamo key qui per decidere: controlliamo stato da mappa se presente
+  // se non presente, blocca comunque (coerenza)
+  const state = Array.from(segnalazioneStateByKey.values()).find(s => s.id === segnalazioneId);
+  if (!state || state.stato !== "attiva") {
+    alert("Segnalazione risolta. Chat disponibile solo da archivio storico.");
+    return;
+  }
+
+  currentChatSegnalazioneId = segnalazioneId;
+  document.getElementById("chatTitle").innerText = `Chat con ${nome}`;
+  document.getElementById("modalChat").style.display = "flex";
+
+  // segna come letto (reset colori)
+  db.collection("segnalazioni").doc(segnalazioneId).update({
+    lastReadUser: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(()=>{});
+
+  // realtime chat
+  if (unsubscribeUserChat) unsubscribeUserChat();
+
+  unsubscribeUserChat = db.collection("segnalazioni")
+    .doc(segnalazioneId)
+    .collection("chat")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snap) => {
+      const box = document.getElementById("chatMessages");
+      box.innerHTML = "";
+
+      snap.forEach((mDoc) => {
+        const m = mDoc.data();
+
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (m.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
+        bubble.innerText = m.testo || "";
+
+        const time = document.createElement("div");
+        time.className = "chat-time";
+        if (m.timestamp && m.timestamp.toDate) {
+          time.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          time.innerText = "";
+        }
+
+        bubble.appendChild(time);
+        box.appendChild(bubble);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+function closeUserChat(){
+  document.getElementById("modalChat").style.display = "none";
+  if (unsubscribeUserChat) unsubscribeUserChat();
+  unsubscribeUserChat = null;
+  currentChatSegnalazioneId = null;
+  document.getElementById("chatInput").value = "";
+}
+
+function sendUserChatMessage(){
+  const input = document.getElementById("chatInput");
+  const text = (input.value || "").trim();
+  if (!text) return;
+  if (!currentChatSegnalazioneId) return;
+
+  // controlla stato attuale
+  const st = Array.from(segnalazioneStateByKey.values()).find(s => s.id === currentChatSegnalazioneId);
+  if (!st || st.stato !== "attiva") {
+    alert("Segnalazione risolta. Chat disponibile solo da archivio storico.");
+    return;
+  }
+
+  db.collection("segnalazioni")
+    .doc(currentChatSegnalazioneId)
+    .collection("chat")
+    .add({
+      testo: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      mittente: "user"
+    })
+    .then(() => {
+      input.value = "";
+    })
+    .catch((err) => {
+      alert("Errore durante l'invio del messaggio: " + err.message);
+    });
 }
 </script>
 
