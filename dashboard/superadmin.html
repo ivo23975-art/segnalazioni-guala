@@ -2,10 +2,11 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>SUPER ADMIN – Chat + Reset PIN</title>
+<title>SuperAdmin – Segnalazioni & Chat</title>
 
 <link rel="stylesheet" href="dashboard.css">
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
@@ -15,33 +16,40 @@
 
 <style>
 .logout-btn{
-  position:absolute;top:15px;right:20px;
-  background:#ff0000;color:#fff;
-  padding:10px 18px;border-radius:6px;
-  cursor:pointer;font-weight:bold
+    position:absolute;top:15px;right:20px;
+    background:#ff0000;color:#fff;
+    padding:10px 18px;border-radius:6px;
+    cursor:pointer;font-weight:bold
 }
 .section{margin-bottom:40px}
 .chat-box{
-  background:#0e1b2a;border-radius:8px;
-  padding:8px;max-height:180px;overflow-y:auto
+    background:#0e1b2a;
+    border-radius:8px;
+    padding:8px;
+    max-height:180px;
+    overflow-y:auto;
+    font-size:14px
 }
-.chat-msg{font-size:13px;margin-bottom:4px}
 .chat-user{color:#90caf9}
 .chat-admin{color:#00e676}
 .chat-input{
-  width:100%;margin-top:6px;
-  padding:6px;border-radius:4px;
-  border:none
+    width:100%;
+    padding:6px;
+    margin-top:6px;
+    border-radius:6px;
+    border:none
 }
 .btn{
-  padding:6px 10px;border-radius:4px;
-  cursor:pointer;font-weight:bold
+    padding:6px 10px;
+    border-radius:4px;
+    cursor:pointer;
+    font-weight:bold;
+    border:none
 }
+.btn-send{background:#00e676}
 .btn-reset{background:#ff9800}
-.btn-archive{background:#03a9f4}
-.btn-delete{background:#e53935;color:#fff}
-.pin-ok{color:#00c853;font-weight:bold}
-.pin-missing{color:#ff9800;font-weight:bold}
+.btn-archive{background:#607d8b;color:#fff}
+.btn-delete{background:#b00000;color:#fff}
 </style>
 </head>
 
@@ -49,8 +57,7 @@
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">SUPER ADMIN – CHAT + RESET PIN</div>
-
+<div class="header">SUPER ADMIN</div>
 <div class="content">
 
 <!-- ================= CHAT ================= -->
@@ -60,26 +67,22 @@
 <table class="table">
 <thead>
 <tr>
-  <th>Complesso</th>
-  <th>Scala</th>
-  <th>Piano</th>
-  <th>Lato</th>
-  <th>Nome</th>
-  <th>PIN</th>
-  <th>Chat</th>
-  <th>Azioni</th>
+<th>Complesso</th>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>Chat</th>
+<th>Azioni</th>
 </tr>
 </thead>
-<tbody id="chatTable">
-<tr><td colspan="8">Caricamento…</td></tr>
-</tbody>
+<tbody id="chatTable"></tbody>
 </table>
 </div>
 
 <!-- ================= SEGNALAZIONI ================= -->
 <div class="section">
 <h2>📋 TUTTE LE SEGNALAZIONI</h2>
-
 <table class="table">
 <thead>
 <tr>
@@ -96,106 +99,97 @@
 <script>
 requireRole("superadmin");
 
-/* LOGICA SEGNAZIONI INVARIATA */
+/* SEGNALAZIONI – INTACT */
 loadSegnalazioni(r=>true,true);
 
 /* ================= CHAT ================= */
-const chatTable = document.getElementById("chatTable");
+const chatTable=document.getElementById("chatTable");
 
 firebase.firestore()
 .collection("chats")
-.where("meta.archived","!=",true)
+.orderBy("meta.createdAt","desc")
 .onSnapshot(snap=>{
-  chatTable.innerHTML="";
-  if(snap.empty){
-    chatTable.innerHTML="<tr><td colspan='8'>Nessuna chat</td></tr>";
-    return;
-  }
+    chatTable.innerHTML="";
+    if(snap.empty){
+        chatTable.innerHTML="<tr><td colspan='7'>Nessuna chat</td></tr>";
+        return;
+    }
 
-  snap.forEach(doc=>{
-    const d = doc.data().meta;
-    const tr = document.createElement("tr");
+    snap.forEach(doc=>{
+        const c=doc.data();
+        if(c.meta?.archived) return;
 
-    tr.innerHTML = `
-      <td>${d.complesso}</td>
-      <td>${d.scala}</td>
-      <td>${d.piano}</td>
-      <td>${d.lato}</td>
-      <td>${d.nome}</td>
-      <td class="${d.pinHash?'pin-ok':'pin-missing'}">
-        ${d.pinHash?'ATTIVO':'RESET'}
-      </td>
-      <td>
-        <div class="chat-box" id="box-${doc.id}"></div>
-        <input class="chat-input" id="input-${doc.id}" placeholder="Scrivi come admin..."
-          onkeydown="if(event.key==='Enter')sendAdminMsg('${doc.id}')">
-      </td>
-      <td>
-        <div class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</div><br><br>
-        <div class="btn btn-archive" onclick="archiveChat('${doc.id}')">ARCHIVIA</div><br><br>
-        <div class="btn btn-delete" onclick="deleteChat('${doc.id}')">CANCELLA</div>
-      </td>
-    `;
-    chatTable.appendChild(tr);
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+<td>${c.meta.complesso}</td>
+<td>${c.meta.scala}</td>
+<td>${c.meta.piano}</td>
+<td>${c.meta.lato}</td>
+<td>${c.meta.nome}</td>
+<td>
+<div class="chat-box" id="box-${doc.id}"></div>
+<textarea class="chat-input" id="inp-${doc.id}" placeholder="Rispondi…"></textarea>
+<button class="btn btn-send" onclick="sendAdminMsg('${doc.id}')">INVIA</button>
+</td>
+<td>
+<button class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</button><br><br>
+<button class="btn btn-archive" onclick="archiveChat('${doc.id}')">ARCHIVIA</button><br><br>
+<button class="btn btn-delete" onclick="deleteChat('${doc.id}')">CANCELLA</button>
+</td>`;
+        chatTable.appendChild(tr);
 
-    firebase.firestore()
-    .collection("chats").doc(doc.id)
-    .collection("messages")
-    .orderBy("timestamp")
-    .limit(20)
-    .onSnapshot(ms=>{
-      const box=document.getElementById("box-"+doc.id);
-      box.innerHTML="";
-      ms.forEach(m=>{
-        const x=m.data();
-        const div=document.createElement("div");
-        div.className="chat-msg "+(x.mittente==="admin"?"chat-admin":"chat-user");
-        div.innerText=x.testo;
-        box.appendChild(div);
-      });
-      box.scrollTop=box.scrollHeight;
+        firebase.firestore()
+        .collection("chats").doc(doc.id)
+        .collection("messages")
+        .orderBy("timestamp","asc")
+        .limit(10)
+        .onSnapshot(ms=>{
+            const box=document.getElementById("box-"+doc.id);
+            box.innerHTML="";
+            ms.forEach(m=>{
+                const d=m.data();
+                const div=document.createElement("div");
+                div.className=d.mittente==="admin"?"chat-admin":"chat-user";
+                div.innerText=d.testo;
+                box.appendChild(div);
+            });
+            box.scrollTop=box.scrollHeight;
+        });
     });
-  });
 });
 
-/* ===== FUNZIONI ===== */
-
 function sendAdminMsg(id){
-  const input=document.getElementById("input-"+id);
-  const txt=input.value.trim();
-  if(!txt)return;
-
-  firebase.firestore()
-  .collection("chats").doc(id)
-  .collection("messages")
-  .add({
-    testo:txt,
-    mittente:"admin",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  input.value="";
+    const input=document.getElementById("inp-"+id);
+    const text=input.value.trim();
+    if(!text) return;
+    firebase.firestore()
+    .collection("chats").doc(id)
+    .collection("messages")
+    .add({
+        testo:text,
+        mittente:"admin",
+        timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value="";
 }
 
 function resetPin(id){
-  if(!confirm("Reset PIN chat?"))return;
-  firebase.firestore().collection("chats").doc(id)
-  .update({ "meta.pinHash": firebase.firestore.FieldValue.delete() });
+    if(!confirm("Resettare PIN?"))return;
+    firebase.firestore()
+    .collection("chats").doc(id)
+    .update({ "meta.pinHash": firebase.firestore.FieldValue.delete() });
 }
 
 function archiveChat(id){
-  if(!confirm("Archiviare la chat?"))return;
-  firebase.firestore().collection("chats").doc(id)
-  .update({ "meta.archived": true });
+    if(!confirm("Archiviare chat?"))return;
+    firebase.firestore()
+    .collection("chats").doc(id)
+    .update({ "meta.archived": true });
 }
 
-async function deleteChat(id){
-  if(!confirm("CANCELLA DEFINITIVAMENTE la chat?"))return;
-
-  const ref=firebase.firestore().collection("chats").doc(id);
-  const msgs=await ref.collection("messages").get();
-  msgs.forEach(m=>m.ref.delete());
-  await ref.delete();
+function deleteChat(id){
+    if(!confirm("CANCELLA DEFINITIVAMENTE?"))return;
+    firebase.firestore().collection("chats").doc(id).delete();
 }
 </script>
 
