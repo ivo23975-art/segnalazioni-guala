@@ -1,205 +1,179 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>SuperAdmin – Controllo Chat & Segnalazioni</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="dashboard.css">
+<title>SUPER ADMIN – Controllo Chat & Reset PIN</title>
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<link rel="stylesheet" href="dashboard.css">
 
-    <!-- CONFIG FIREBASE -->
-    <script src="firebase-config.js"></script>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- LOGIN + RUOLI -->
-    <script src="admin-auth.js"></script>
+<script src="firebase-config.js"></script>
+<script src="admin-auth.js"></script>
+<script src="dashboard.js"></script>
 
-    <!-- LOGICA DASHBOARD (segnalazioni) -->
-    <script src="dashboard.js"></script>
+<style>
+body { background:#0b1622; color:white; font-family:system-ui; margin:0; }
+.header { padding:20px; font-size:22px; font-weight:800; background:#000; text-align:center; }
+.logout { position:absolute; top:15px; right:20px; background:red; color:white; padding:10px 16px; border-radius:6px; cursor:pointer; }
 
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 12px;
-            right: 20px;
-            background: #ff0000;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            z-index: 9999;
-        }
+.section { padding:20px; }
+.section h2 { margin-bottom:10px; }
 
-        .section-title {
-            margin: 25px 0 10px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #ff5555;
-        }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
 
-        .pin-reset-table td {
-            background: #2a0000;
-        }
+.btn { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
+.btn-reset { background:#ffcc00; }
+.btn-chat { background:#00b4ff; color:black; }
 
-        .pin-ok {
-            color: #00ff88;
-            font-weight: bold;
-        }
+.pin-ok { color:#00ff8c; font-weight:bold; }
+.pin-reset { color:#ff4444; font-weight:bold; }
 
-        .pin-reset {
-            color: #ff4444;
-            font-weight: bold;
-        }
-
-        .reset-btn {
-            background: #ff4444;
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .reset-btn:hover {
-            background: #ff0000;
-        }
-    </style>
+.modal {
+  position:fixed; inset:0; background:rgba(0,0,0,.7);
+  display:none; justify-content:center; align-items:center;
+}
+.modal-box {
+  background:#111; padding:20px; width:90%; max-width:500px;
+  border-radius:10px;
+}
+.chat-box {
+  max-height:260px; overflow-y:auto; background:#0a111a;
+  padding:10px; border-radius:8px;
+}
+.msg-admin { background:#0057ff; padding:8px; margin:6px 0; border-radius:8px; }
+.msg-user { background:#00b454; padding:8px; margin:6px 0; border-radius:8px; }
+</style>
 </head>
 
 <body>
 
-<button class="logout-btn" onclick="adminLogout()">Logout</button>
-
 <div class="header">SUPER ADMIN – CONTROLLO CHAT & RESET PIN</div>
+<div class="logout" onclick="adminLogout()">Logout</div>
 
-<div class="content">
+<!-- ================= RESET PIN ================= -->
+<div class="section">
+<h2>🔴 CHAT – RICHIESTE RESET PIN</h2>
 
-<!-- ======================================================
-     SEZIONE PRIORITARIA – RESET PIN CHAT
-====================================================== -->
-<div class="section-title">🔴 CHAT – RICHIESTE RESET PIN</div>
-
-<table class="table pin-reset-table">
+<table>
 <thead>
 <tr>
-    <th>Complesso</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>PIN Status</th>
-    <th>Azione</th>
+<th>Complesso</th>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>PIN Status</th>
+<th>Azione</th>
 </tr>
 </thead>
-
-<tbody id="pinResetBody"></tbody>
+<tbody id="pinTable"></tbody>
 </table>
+</div>
 
-<!-- ======================================================
-     SEGNALAZIONI (INVARIATE)
-====================================================== -->
-<div class="section-title" style="color:#ffffff;">📋 TUTTE LE SEGNALAZIONI</div>
-
-<table class="table">
+<!-- ================= SEGNALAZIONI ================= -->
+<div class="section">
+<h2>📋 TUTTE LE SEGNALAZIONI</h2>
+<table>
 <thead>
 <tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Azioni</th>
+<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
 </tr>
 </thead>
-
 <tbody id="tbody"></tbody>
 </table>
+</div>
 
+<!-- ================= CHAT MODAL ================= -->
+<div class="modal" id="chatModal">
+<div class="modal-box">
+<h3 id="chatTitle"></h3>
+<div class="chat-box" id="chatMessages"></div>
+<input id="chatInput" placeholder="Scrivi..." style="width:100%;margin-top:8px;">
+<button class="btn btn-chat" onclick="sendAdminMsg()">Invia</button>
+<button class="btn" onclick="closeChat()">Chiudi</button>
+</div>
 </div>
 
 <script>
-/* ======================================================
-   PROTEZIONE ACCESSO
-====================================================== */
 requireRole("superadmin");
 
-/* ======================================================
-   LISTENER RESET PIN CHAT
-====================================================== */
-const pinResetBody = document.getElementById("pinResetBody");
+const db = firebase.firestore();
+let chatUserId = null;
 
-db.collection("chatUsers")
-  .orderBy("updatedAt", "desc")
-  .onSnapshot(snapshot => {
-
-    let html = "";
-
-    snapshot.forEach(doc => {
-        const d = doc.data();
-        const id = doc.id;
-
-        if (d.pinStatus !== "RESET_REQUIRED") return;
-
-        html += `
-        <tr>
-            <td>${d.complesso || "-"}</td>
-            <td>${d.scala || "-"}</td>
-            <td>${d.piano || "-"}</td>
-            <td>${d.lato || "-"}</td>
-            <td>${d.nome || "-"}</td>
-            <td class="pin-reset">RESET RICHIESTO</td>
-            <td>
-                <button class="reset-btn"
-                    onclick="resetUserPin('${id}')">
-                    RESET PIN
-                </button>
-            </td>
-        </tr>`;
-    });
-
-    pinResetBody.innerHTML = html || `
-        <tr>
-            <td colspan="7" style="text-align:center; color:#00ff88;">
-                Nessuna richiesta di reset PIN
-            </td>
-        </tr>`;
+/* ===== RESET PIN ===== */
+db.collection("chats")
+.where("pinResetRequested","==",true)
+.onSnapshot(snap=>{
+  const tb=document.getElementById("pinTable");
+  tb.innerHTML="";
+  if(snap.empty){
+    tb.innerHTML="<tr><td colspan='7' style='color:#00ff8c'>Nessuna richiesta di reset PIN</td></tr>";
+    return;
+  }
+  snap.forEach(d=>{
+    const c=d.data();
+    tb.innerHTML+=`
+    <tr>
+      <td>${c.complesso}</td>
+      <td>${c.scala}</td>
+      <td>${c.piano}</td>
+      <td>${c.lato}</td>
+      <td>${c.nome}</td>
+      <td class="pin-reset">RESET RICHIESTO</td>
+      <td>
+        <button class="btn btn-reset" onclick="resetPIN('${d.id}')">RESET</button>
+        <button class="btn btn-chat" onclick="openChat('${d.id}','${c.nome}')">CHAT</button>
+      </td>
+    </tr>`;
+  });
 });
 
-/* ======================================================
-   RESET PIN (SUPER ADMIN)
-====================================================== */
-function resetUserPin(chatUserId) {
-
-    if (!confirm("Confermi il RESET del PIN per questo utente?")) return;
-
-    db.collection("chatUsers").doc(chatUserId).update({
-        pinStatus: "OK",
-        pinHash: firebase.firestore.FieldValue.delete(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-        alert("PIN resettato. L'utente dovrà crearne uno nuovo.");
-    })
-    .catch(err => {
-        alert("Errore reset PIN: " + err.message);
-    });
+function resetPIN(id){
+  if(!confirm("Confermi RESET PIN?"))return;
+  db.collection("chats").doc(id).update({
+    pin:null,
+    pinResetRequested:false,
+    pinStatus:"RESET_BY_ADMIN"
+  });
 }
 
-/* ======================================================
-   SEGNALAZIONI – COME PRIMA
-====================================================== */
-loadSegnalazioni(
-    r => true,
-    true
-);
+/* ===== CHAT ===== */
+function openChat(id,nome){
+  chatUserId=id;
+  document.getElementById("chatTitle").innerText="Chat con "+nome;
+  document.getElementById("chatModal").style.display="flex";
+  db.collection("chats").doc(id).collection("messages")
+  .orderBy("ts")
+  .onSnapshot(s=>{
+    const box=document.getElementById("chatMessages");
+    box.innerHTML="";
+    s.forEach(m=>{
+      const x=m.data();
+      box.innerHTML+=`<div class="${x.from==='admin'?'msg-admin':'msg-user'}">${x.text}</div>`;
+    });
+    box.scrollTop=box.scrollHeight;
+  });
+}
+
+function sendAdminMsg(){
+  const t=document.getElementById("chatInput").value.trim();
+  if(!t)return;
+  db.collection("chats").doc(chatUserId).collection("messages").add({
+    from:"admin", text:t, ts:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("chatInput").value="";
+}
+function closeChat(){ document.getElementById("chatModal").style.display="none"; }
+
+/* ===== SEGNALAZIONI ===== */
+loadSegnalazioni(()=>true,true);
 </script>
 
 </body>
