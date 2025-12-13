@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>SuperAdmin – Tutte le Segnalazioni</title>
+    <title>SuperAdmin – Gestione Segnalazioni & Chat</title>
 
     <link rel="stylesheet" href="dashboard.css">
 
@@ -33,8 +33,25 @@
             text-decoration: none;
             transition: 0.2s;
         }
-        .logout-btn:hover {
-            background: #cc0000;
+        .logout-btn:hover { background: #cc0000; }
+
+        .section-title {
+            margin: 30px 0 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .btn-reset {
+            background: #ff8800;
+            color: #000;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+        }
+        .btn-reset:hover {
+            background: #ffaa33;
         }
     </style>
 </head>
@@ -43,43 +60,114 @@
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">SUPER ADMIN – TUTTE LE SEGNALAZIONI</div>
+<div class="header">SUPER ADMIN – CONTROLLO TOTALE</div>
 
 <div class="content">
 
-<table class="table">
-<thead>
-<tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Azioni</th>
-</tr>
-</thead>
+    <!-- ===========================
+         SEGNALAZIONI (TUO)
+    ============================ -->
+    <div class="section-title">Segnalazioni</div>
 
-<tbody id="tbody"></tbody>
-</table>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Scala</th>
+            <th>Piano</th>
+            <th>Lato</th>
+            <th>Nome</th>
+            <th>Temp</th>
+            <th>Tipo</th>
+            <th>Descrizione</th>
+            <th>Azioni</th>
+        </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+    <!-- ===========================
+         CHAT – RESET PIN
+    ============================ -->
+    <div class="section-title">Chat utenti – Reset PIN</div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Complesso</th>
+            <th>Scala</th>
+            <th>Piano</th>
+            <th>Lato</th>
+            <th>Nome</th>
+            <th>PIN</th>
+            <th>Azione</th>
+        </tr>
+        </thead>
+        <tbody id="chatBody"></tbody>
+    </table>
 
 </div>
 
 <script>
-
 console.log("[DEBUG] SuperAdmin – pannello avviato");
 
 /* Protezione accesso */
 requireRole("superadmin");
 
-/* Nessun filtro: il SuperAdmin vede tutto e può ELIMINARE */
-loadSegnalazioni(
-    r => true,   // mostra tutte le segnalazioni
-    true         // abilita il pulsante elimina
-);
+/* Segnalazioni: nessun filtro, elimina attivo */
+loadSegnalazioni(r => true, true);
 
+/* ===============================
+   CHAT – LETTURA + RESET PIN
+=============================== */
+const chatBody = document.getElementById("chatBody");
+
+db.collection("chats").orderBy("createdAt", "desc")
+  .onSnapshot(snapshot => {
+
+    let html = "";
+
+    snapshot.forEach(doc => {
+        const d = doc.data();
+        const hasPin = !!d.pinHash;
+
+        html += `
+        <tr>
+            <td>${d.complesso || "-"}</td>
+            <td>${d.scala || "-"}</td>
+            <td>${d.piano || "-"}</td>
+            <td>${d.lato || "-"}</td>
+            <td>${d.nome || "-"}</td>
+            <td>${hasPin ? "✔ impostato" : "❌ assente"}</td>
+            <td>
+                <button class="btn-reset"
+                    onclick="resetPin('${doc.id}')">
+                    RESET PIN
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    chatBody.innerHTML = html;
+});
+
+/* ===============================
+   RESET PIN (SUPER ADMIN)
+=============================== */
+function resetPin(chatId) {
+    if (!confirm("Confermi il RESET del PIN?\nL’utente dovrà reimpostarlo.")) return;
+
+    db.collection("chats").doc(chatId).update({
+        pinHash: firebase.firestore.FieldValue.delete()
+    })
+    .then(() => {
+        alert("PIN resettato correttamente.");
+    })
+    .catch(err => {
+        alert("Errore reset PIN: " + err.message);
+    });
+}
 </script>
 
 </body>
