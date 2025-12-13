@@ -1,77 +1,54 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>SuperAdmin – Gestione Chat e Segnalazioni</title>
+<meta charset="UTF-8">
+<title>SUPER ADMIN – CHAT + RESET PIN</title>
 
-    <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="dashboard.css">
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG -->
-    <script src="firebase-config.js"></script>
+<!-- CONFIG -->
+<script src="firebase-config.js"></script>
+<script src="admin-auth.js"></script>
+<script src="dashboard.js"></script>
 
-    <!-- AUTH -->
-    <script src="admin-auth.js"></script>
-
-    <!-- DASHBOARD (NON TOCCATO) -->
-    <script src="dashboard.js"></script>
-
-    <style>
-        .logout-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: #ff0000;
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .section { margin-bottom: 35px; }
-
-        .pin-ok { color:#00c853; font-weight:bold; }
-        .pin-missing { color:#ff9800; font-weight:bold; }
-
-        .btn-reset {
-            background:#ff9800;
-            padding:6px 10px;
-            border-radius:5px;
-            font-weight:bold;
-            cursor:pointer;
-        }
-
-        .chat-preview {
-            max-height:120px;
-            overflow-y:auto;
-            background:#0e1b2a;
-            padding:8px;
-            border-radius:6px;
-            font-size:13px;
-        }
-
-        .msg-admin { color:#00e676; }
-        .msg-user { color:#90caf9; }
-
-        .chat-full {
-            background:#081421;
-            padding:10px;
-            border-radius:8px;
-            max-height:260px;
-            overflow-y:auto;
-        }
-
-        .chat-input {
-            width:100%;
-            margin-top:6px;
-            padding:6px;
-            border-radius:6px;
-        }
-    </style>
+<style>
+.logout-btn{
+  position:absolute;top:15px;right:20px;
+  background:#ff0000;color:#fff;
+  padding:10px 18px;border-radius:6px;
+  cursor:pointer;font-weight:bold;
+}
+.section{margin-bottom:30px;}
+.chat-box{
+  background:#0e1b2a;border-radius:8px;
+  padding:8px;max-height:200px;
+  overflow-y:auto;font-size:13px;
+}
+.chat-msg{margin-bottom:4px;}
+.chat-user{color:#90caf9;}
+.chat-admin{color:#00e676;}
+.admin-input{
+  width:100%;margin-top:6px;
+  padding:6px;border-radius:4px;
+}
+.btn-send{
+  margin-top:6px;
+  background:#00e676;border:none;
+  padding:6px 10px;border-radius:4px;
+  cursor:pointer;font-weight:bold;
+}
+.btn-reset{
+  background:#ff9800;
+  padding:6px 10px;border-radius:4px;
+  cursor:pointer;font-weight:bold;
+}
+.pin-ok{color:#00e676;font-weight:bold;}
+.pin-missing{color:#ff9800;font-weight:bold;}
+</style>
 </head>
 
 <body>
@@ -82,165 +59,134 @@
 
 <div class="content">
 
-<!-- ===================================================
-     SEZIONE CHAT + RESET PIN (IN TESTA)
-=================================================== -->
+<!-- ================= CHAT + RESET PIN ================= -->
 <div class="section">
-    <h2>🔐 CHAT UTENTI</h2>
+<h2>🔐 CHAT UTENTI</h2>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>PIN</th>
-            <th>Chat</th>
-            <th>Azione</th>
-        </tr>
-        </thead>
-        <tbody id="chatTable">
-        <tr><td colspan="7">Caricamento…</td></tr>
-        </tbody>
-    </table>
+<table class="table">
+<thead>
+<tr>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>PIN</th>
+<th>Chat</th>
+<th>Azione</th>
+</tr>
+</thead>
+<tbody id="chatTable">
+<tr><td colspan="7">Caricamento…</td></tr>
+</tbody>
+</table>
 </div>
 
-<!-- ===================================================
-     SEGNALAZIONI (LOGICA ORIGINALE)
-=================================================== -->
+<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
 <div class="section">
-    <h2>📋 TUTTE LE SEGNALAZIONI</h2>
+<h2>📋 TUTTE LE SEGNALAZIONI</h2>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Data</th>
-            <th>Scala</th>
-            <th>Piano</th>
-            <th>Lato</th>
-            <th>Nome</th>
-            <th>Temp</th>
-            <th>Tipo</th>
-            <th>Descrizione</th>
-            <th>Azioni</th>
-        </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-    </table>
+<table class="table">
+<thead>
+<tr>
+<th>Data</th>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>Temp</th>
+<th>Tipo</th>
+<th>Descrizione</th>
+<th>Azioni</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
 </div>
 
 </div>
 
 <script>
-/* =============================
-   ACCESSO
-============================= */
 requireRole("superadmin");
+loadSegnalazioni(r=>true,true);
 
-/* =============================
-   SEGNALAZIONI (NON TOCCATE)
-============================= */
-loadSegnalazioni(r => true, true);
+const chatTable=document.getElementById("chatTable");
 
-/* =============================
-   CHAT SUPERADMIN + RESET PIN
-============================= */
-const chatTable = document.getElementById("chatTable");
+firebase.firestore().collection("chats").onSnapshot(snap=>{
+  chatTable.innerHTML="";
+  if(snap.empty){
+    chatTable.innerHTML="<tr><td colspan='7'>Nessuna chat</td></tr>";
+    return;
+  }
 
-db.collection("chats")
-  .orderBy("meta.nome")
-  .onSnapshot(snapshot => {
+  snap.forEach(doc=>{
+    const d=doc.data().meta||{};
+    const chatId=doc.id;
 
-    chatTable.innerHTML = "";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${d.scala||""}</td>
+      <td>${d.piano||""}</td>
+      <td>${d.lato||""}</td>
+      <td>${d.nome||""}</td>
+      <td class="${d.pinHash?'pin-ok':'pin-missing'}">
+        ${d.pinHash?'ATTIVO':'NON SET'}
+      </td>
+      <td>
+        <div class="chat-box" id="box-${chatId}">…</div>
+        <textarea class="admin-input" id="input-${chatId}" placeholder="Scrivi come admin..."></textarea>
+        <button class="btn-send" onclick="sendAdmin('${chatId}')">Invia</button>
+      </td>
+      <td>
+        <span class="btn-reset" onclick="resetPin('${chatId}')">RESET PIN</span>
+      </td>
+    `;
+    chatTable.appendChild(tr);
 
-    if (snapshot.empty) {
-        chatTable.innerHTML = `<tr><td colspan="7">Nessuna chat</td></tr>`;
-        return;
-    }
-
-    snapshot.forEach(doc => {
-        const d = doc.data();
-        const meta = d.meta || {};
-
-        const pinOk = !!meta.pinHash;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${meta.scala || "-"}</td>
-            <td>${meta.piano || "-"}</td>
-            <td>${meta.lato || "-"}</td>
-            <td>${meta.nome || "-"}</td>
-            <td class="${pinOk ? 'pin-ok' : 'pin-missing'}">
-                ${pinOk ? "ATTIVO" : "DA IMPOSTARE"}
-            </td>
-            <td>
-                <div class="chat-full" id="chat-${doc.id}">…</div>
-                <input class="chat-input"
-                       placeholder="Scrivi come admin…"
-                       onkeydown="if(event.key==='Enter') sendAdminMsg('${doc.id}', this)">
-            </td>
-            <td>
-                <span class="btn-reset"
-                      onclick="resetPin('${doc.id}')">
-                      RESET PIN
-                </span>
-            </td>
-        `;
-        chatTable.appendChild(tr);
-
-        // realtime messaggi
-        db.collection("chats")
-          .doc(doc.id)
-          .collection("messages")
-          .orderBy("timestamp","asc")
-          .onSnapshot(ms => {
-              const box = document.getElementById("chat-"+doc.id);
-              box.innerHTML = "";
-              ms.forEach(m => {
-                  const msg = m.data();
-                  const div = document.createElement("div");
-                  div.className = msg.mittente === "admin" ? "msg-admin" : "msg-user";
-                  div.innerText = msg.testo;
-                  box.appendChild(div);
-              });
-              box.scrollTop = box.scrollHeight;
-          });
-    });
-});
-
-/* =============================
-   INVIO MESSAGGIO ADMIN
-============================= */
-function sendAdminMsg(chatId, input) {
-    const text = input.value.trim();
-    if (!text) return;
-
-    db.collection("chats")
+    firebase.firestore()
+      .collection("chats")
       .doc(chatId)
       .collection("messages")
-      .add({
-          testo: text,
-          mittente: "admin",
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      .orderBy("timestamp","asc")
+      .onSnapshot(ms=>{
+        const box=document.getElementById("box-"+chatId);
+        box.innerHTML="";
+        ms.forEach(m=>{
+          const msg=m.data();
+          const div=document.createElement("div");
+          div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
+          div.innerText=msg.testo;
+          box.appendChild(div);
+        });
+        box.scrollTop=box.scrollHeight;
       });
+  });
+});
 
-    input.value = "";
+function sendAdmin(chatId){
+  const input=document.getElementById("input-"+chatId);
+  const text=input.value.trim();
+  if(!text)return;
+
+  firebase.firestore()
+    .collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .add({
+      testo:text,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  input.value="";
 }
 
-/* =============================
-   RESET PIN REALE
-============================= */
-function resetPin(chatId) {
-    if (!confirm("Resettare il PIN di questa chat?")) return;
-
-    db.collection("chats")
-      .doc(chatId)
-      .update({
-          "meta.pinHash": firebase.firestore.FieldValue.delete()
-      })
-      .then(() => alert("PIN resettato. L’utente dovrà reimpostarlo."))
-      .catch(err => alert("Errore reset PIN: " + err.message));
+function resetPin(chatId){
+  if(!confirm("Resettare il PIN?"))return;
+  firebase.firestore()
+    .collection("chats")
+    .doc(chatId)
+    .update({
+      "meta.pinHash":firebase.firestore.FieldValue.delete()
+    });
 }
 </script>
 
