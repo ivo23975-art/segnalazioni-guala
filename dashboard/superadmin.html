@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SUPER ADMIN – Controllo Chat & Reset PIN</title>
 
 <link rel="stylesheet" href="dashboard.css">
@@ -17,37 +16,28 @@
 <script src="dashboard.js"></script>
 
 <style>
-body { background:#0b1622; color:white; font-family:system-ui; margin:0; }
-.header { padding:20px; font-size:22px; font-weight:800; background:#000; text-align:center; }
-.logout { position:absolute; top:15px; right:20px; background:red; color:white; padding:10px 16px; border-radius:6px; cursor:pointer; }
+body{margin:0;background:#0b1622;color:#fff;font-family:system-ui}
+.header{background:#000;padding:18px;font-size:22px;font-weight:800;text-align:center}
+.logout{position:absolute;top:15px;right:20px;background:#e00000;color:#fff;padding:10px 16px;border-radius:6px;cursor:pointer}
 
-.section { padding:20px; }
-.section h2 { margin-bottom:10px; }
+.section{padding:20px}
+h2{margin:0 0 10px}
 
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #223047;text-align:left}
 
-.btn { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
-.btn-reset { background:#ffcc00; }
-.btn-chat { background:#00b4ff; color:black; }
+.btn{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
+.btn-reset{background:#ffcc00}
+.btn-chat{background:#00b4ff;color:#000}
 
-.pin-ok { color:#00ff8c; font-weight:bold; }
-.pin-reset { color:#ff4444; font-weight:bold; }
+.pin-ok{color:#00ff8c;font-weight:800}
+.pin-req{color:#ff5555;font-weight:800}
 
-.modal {
-  position:fixed; inset:0; background:rgba(0,0,0,.7);
-  display:none; justify-content:center; align-items:center;
-}
-.modal-box {
-  background:#111; padding:20px; width:90%; max-width:500px;
-  border-radius:10px;
-}
-.chat-box {
-  max-height:260px; overflow-y:auto; background:#0a111a;
-  padding:10px; border-radius:8px;
-}
-.msg-admin { background:#0057ff; padding:8px; margin:6px 0; border-radius:8px; }
-.msg-user { background:#00b454; padding:8px; margin:6px 0; border-radius:8px; }
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center}
+.modal-box{background:#111;padding:20px;width:90%;max-width:500px;border-radius:10px}
+.chat-box{max-height:260px;overflow-y:auto;background:#0a111a;padding:10px;border-radius:8px}
+.msg-admin{background:#0057ff;padding:8px;margin:6px 0;border-radius:8px}
+.msg-user{background:#00b454;padding:8px;margin:6px 0;border-radius:8px}
 </style>
 </head>
 
@@ -58,7 +48,7 @@ th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
 
 <!-- ================= RESET PIN ================= -->
 <div class="section">
-<h2>🔴 CHAT – RICHIESTE RESET PIN</h2>
+<h2>🔴 CHAT – RESET PIN UTENTI</h2>
 
 <table>
 <thead>
@@ -72,13 +62,16 @@ th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
 <th>Azione</th>
 </tr>
 </thead>
-<tbody id="pinTable"></tbody>
+<tbody id="pinTable">
+<tr><td colspan="7">Caricamento…</td></tr>
+</tbody>
 </table>
 </div>
 
 <!-- ================= SEGNALAZIONI ================= -->
 <div class="section">
 <h2>📋 TUTTE LE SEGNALAZIONI</h2>
+
 <table>
 <thead>
 <tr>
@@ -95,7 +88,7 @@ th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
 <div class="modal-box">
 <h3 id="chatTitle"></h3>
 <div class="chat-box" id="chatMessages"></div>
-<input id="chatInput" placeholder="Scrivi..." style="width:100%;margin-top:8px;">
+<input id="chatInput" placeholder="Scrivi..." style="width:100%;margin-top:8px">
 <button class="btn btn-chat" onclick="sendAdminMsg()">Invia</button>
 <button class="btn" onclick="closeChat()">Chiudi</button>
 </div>
@@ -105,74 +98,88 @@ th,td { padding:10px; border-bottom:1px solid #1e2a3a; text-align:left; }
 requireRole("superadmin");
 
 const db = firebase.firestore();
-let chatUserId = null;
+let currentChatId = null;
 
-/* ===== RESET PIN ===== */
+/* ================= RESET PIN – SEMPRE VISIBILE ================= */
 db.collection("chats")
-.where("pinResetRequested","==",true)
 .onSnapshot(snap=>{
   const tb=document.getElementById("pinTable");
   tb.innerHTML="";
+
   if(snap.empty){
-    tb.innerHTML="<tr><td colspan='7' style='color:#00ff8c'>Nessuna richiesta di reset PIN</td></tr>";
+    tb.innerHTML="<tr><td colspan='7'>Nessuna chat presente</td></tr>";
     return;
   }
-  snap.forEach(d=>{
-    const c=d.data();
+
+  snap.forEach(doc=>{
+    const c=doc.data();
+    const status = c.pinResetRequested
+      ? "<span class='pin-req'>RESET RICHIESTO</span>"
+      : "<span class='pin-ok'>OK</span>";
+
     tb.innerHTML+=`
     <tr>
-      <td>${c.complesso}</td>
-      <td>${c.scala}</td>
-      <td>${c.piano}</td>
-      <td>${c.lato}</td>
-      <td>${c.nome}</td>
-      <td class="pin-reset">RESET RICHIESTO</td>
+      <td>${c.complesso||"-"}</td>
+      <td>${c.scala||"-"}</td>
+      <td>${c.piano||"-"}</td>
+      <td>${c.lato||"-"}</td>
+      <td>${c.nome||"-"}</td>
+      <td>${status}</td>
       <td>
-        <button class="btn btn-reset" onclick="resetPIN('${d.id}')">RESET</button>
-        <button class="btn btn-chat" onclick="openChat('${d.id}','${c.nome}')">CHAT</button>
+        <button class="btn btn-reset" onclick="resetPIN('${doc.id}')">RESET</button>
+        <button class="btn btn-chat" onclick="openChat('${doc.id}','${c.nome||""}')">CHAT</button>
       </td>
     </tr>`;
   });
 });
 
+/* ================= RESET PIN ================= */
 function resetPIN(id){
-  if(!confirm("Confermi RESET PIN?"))return;
+  if(!confirm("Confermi RESET PIN utente?")) return;
   db.collection("chats").doc(id).update({
     pin:null,
     pinResetRequested:false,
-    pinStatus:"RESET_BY_ADMIN"
+    pinStatus:"RESET_BY_SUPERADMIN"
   });
 }
 
-/* ===== CHAT ===== */
+/* ================= CHAT ================= */
 function openChat(id,nome){
-  chatUserId=id;
+  currentChatId=id;
   document.getElementById("chatTitle").innerText="Chat con "+nome;
   document.getElementById("chatModal").style.display="flex";
+
   db.collection("chats").doc(id).collection("messages")
-  .orderBy("ts")
-  .onSnapshot(s=>{
-    const box=document.getElementById("chatMessages");
-    box.innerHTML="";
-    s.forEach(m=>{
-      const x=m.data();
-      box.innerHTML+=`<div class="${x.from==='admin'?'msg-admin':'msg-user'}">${x.text}</div>`;
+    .orderBy("ts")
+    .onSnapshot(s=>{
+      const box=document.getElementById("chatMessages");
+      box.innerHTML="";
+      s.forEach(m=>{
+        const d=m.data();
+        box.innerHTML+=`<div class="${d.from==='admin'?'msg-admin':'msg-user'}">${d.text}</div>`;
+      });
+      box.scrollTop=box.scrollHeight;
     });
-    box.scrollTop=box.scrollHeight;
-  });
 }
 
 function sendAdminMsg(){
   const t=document.getElementById("chatInput").value.trim();
-  if(!t)return;
-  db.collection("chats").doc(chatUserId).collection("messages").add({
-    from:"admin", text:t, ts:firebase.firestore.FieldValue.serverTimestamp()
-  });
+  if(!t||!currentChatId) return;
+  db.collection("chats").doc(currentChatId)
+    .collection("messages")
+    .add({
+      from:"admin",
+      text:t,
+      ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
   document.getElementById("chatInput").value="";
 }
-function closeChat(){ document.getElementById("chatModal").style.display="none"; }
 
-/* ===== SEGNALAZIONI ===== */
+function closeChat(){
+  document.getElementById("chatModal").style.display="none";
+}
+
+/* ================= SEGNALAZIONI ================= */
 loadSegnalazioni(()=>true,true);
 </script>
 
