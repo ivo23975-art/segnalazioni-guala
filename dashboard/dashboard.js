@@ -24,10 +24,7 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                 if (!r.tipo) r.tipo = "N/D";
                 if (!r.complesso) r.complesso = "sconosciuto";
 
-                const passa = filterFn(r);
-                if (!passa) return;
-
-                const safeNome = (r.nome || "-").replace(/'/g, "\\'");
+                if (!filterFn(r)) return;
 
                 html += `
                 <tr>
@@ -46,12 +43,6 @@ function loadSegnalazioni(filterFn, superadmin = false) {
                             <!-- RISOLVI -->
                             <div class="action-btn btn-green"
                                  onclick="risolviSegnalazione('${r.id}')">✔</div>
-
-                            <!-- CHAT ICON -->
-                            <div class="chat-icon"
-                                 style="cursor:pointer; pointer-events:auto; display:inline-flex; align-items:center; justify-content:center;"
-                                 title="Apri chat"
-                                 onclick="openChat('${r.id}', '${safeNome}')">💬</div>
 
                             <!-- ELIMINA (solo superadmin) -->
                             ${
@@ -114,7 +105,8 @@ function formatDate(ts) {
 
     try {
         const d = ts.toDate();
-        return d.toLocaleDateString("it-IT") + " " + d.toLocaleTimeString("it-IT");
+        return d.toLocaleDateString("it-IT") + " " +
+               d.toLocaleTimeString("it-IT");
     } catch {
         return "-";
     }
@@ -128,136 +120,4 @@ function formatDate(ts) {
 function tipoConSottotipo(tipo, sottotipo) {
     if (!sottotipo) return tipo;
     return `${tipo} – <span class="sottotipo">${sottotipo}</span>`;
-}
-
-
-/* ========================================================
-   CHAT – REALTIME + WHATSAPP UI
-======================================================== */
-
-let currentChatSegnalazioneId = null;
-let unsubscribeChatListener = null;
-
-
-/* ===========================
-   APRI CHAT
-=========================== */
-function openChat(id, nome) {
-
-    console.log("[CHAT] openChat", id, nome);
-
-    const popup    = document.getElementById("chatPopup");
-    const titleEl  = document.getElementById("chatTitle");
-    const msgBox   = document.getElementById("chatMessages");
-    const inputEl  = document.getElementById("chatInput");
-
-    if (!popup || !titleEl || !msgBox || !inputEl) {
-        alert("La chat è disponibile solo per il pannello Guala.");
-        return;
-    }
-
-    currentChatSegnalazioneId = id;
-
-    titleEl.innerText = `Chat con ${nome}`;
-    msgBox.innerHTML = `<p class="chat-system">Chat collegata alla segnalazione: ${id}</p>`;
-
-    popup.style.display = "flex";
-
-    if (unsubscribeChatListener) unsubscribeChatListener();
-
-    unsubscribeChatListener = db.collection("segnalazioni")
-        .doc(id)
-        .collection("chat")
-        .orderBy("timestamp", "asc")
-        .onSnapshot((snapshot) => {
-            msgBox.innerHTML = "";
-
-            snapshot.forEach((doc) => {
-                const msg = doc.data();
-                renderChatMessage(msg, msgBox);
-            });
-
-            msgBox.scrollTop = msgBox.scrollHeight;
-        });
-}
-
-
-/* ===========================
-   CHIUDI CHAT
-=========================== */
-function closeChat() {
-    const popup = document.getElementById("chatPopup");
-    if (popup) popup.style.display = "none";
-
-    if (unsubscribeChatListener) unsubscribeChatListener();
-    unsubscribeChatListener = null;
-
-    currentChatSegnalazioneId = null;
-}
-
-
-/* ===========================
-   INVIO MESSAGGIO ADMIN
-=========================== */
-function sendChatMessage() {
-
-    const inputEl = document.getElementById("chatInput");
-    if (!inputEl) return;
-
-    const text = inputEl.value.trim();
-    if (!text) return;
-
-    if (!currentChatSegnalazioneId) {
-        console.error("Nessuna segnalazione attiva.");
-        return;
-    }
-
-    db.collection("segnalazioni")
-      .doc(currentChatSegnalazioneId)
-      .collection("chat")
-      .add({
-          testo: text,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          mittente: "admin"
-      })
-      .then(() => {
-          inputEl.value = "";
-      })
-      .catch(err => {
-          console.error("Errore invio messaggio:", err);
-          alert("Errore durante l'invio del messaggio.");
-      });
-}
-
-
-/* ===========================
-   RENDER MESSAGGIO WHATSAPP
-=========================== */
-function renderChatMessage(msg, msgBox) {
-
-    const isAdmin = msg.mittente === "admin";
-
-    const bubble = document.createElement("div");
-    bubble.className = isAdmin ? "chat-bubble chat-admin" : "chat-bubble chat-user";
-
-    const textDiv = document.createElement("div");
-    textDiv.className = "bubble-text";
-    textDiv.innerText = msg.testo;
-
-    const timeDiv = document.createElement("div");
-    timeDiv.className = "bubble-time";
-
-    if (msg.timestamp && msg.timestamp.toDate) {
-        timeDiv.innerText = msg.timestamp.toDate().toLocaleTimeString("it-IT", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    } else {
-        timeDiv.innerText = "";
-    }
-
-    bubble.appendChild(textDiv);
-    bubble.appendChild(timeDiv);
-
-    msgBox.appendChild(bubble);
 }
