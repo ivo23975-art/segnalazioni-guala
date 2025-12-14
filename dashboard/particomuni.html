@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Parti Comuni – Chat Destinatario</title>
+    <title>Parti Comuni – Segnalazioni attive</title>
 
     <link rel="stylesheet" href="dashboard.css">
 
@@ -15,6 +15,9 @@
 
     <!-- AUTH -->
     <script src="admin-auth.js"></script>
+
+    <!-- DASHBOARD -->
+    <script src="dashboard.js"></script>
 
     <style>
         .logout-btn {
@@ -31,7 +34,7 @@
         }
 
         .chat-admin-box {
-            margin-top: 30px;
+            margin-top: 40px;
             border-top: 2px solid #333;
             padding-top: 20px;
         }
@@ -63,15 +66,35 @@
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">Parti Comuni – Chat in arrivo</div>
+<div class="header">Parti Comuni – Segnalazioni attive</div>
 
 <div class="content">
+
+<!-- =======================
+     SEGNALAZIONI
+======================= -->
+<table class="table">
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Scala</th>
+    <th>Piano</th>
+    <th>Lato</th>
+    <th>Nome</th>
+    <th>Temp</th>
+    <th>Tipo</th>
+    <th>Descrizione</th>
+    <th>Risolvi</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
 
 <!-- =======================
      CHAT DESTINATARIO
 ======================= -->
 <div class="chat-admin-box">
-    <h2>💬 Chat da Guala e Piobesi</h2>
+    <h2>💬 Chat Parti Comuni</h2>
 
     <div class="chat-list" id="chatList">Caricamento chat…</div>
 
@@ -89,9 +112,17 @@
 requireRole("particomuni");
 
 /* =========================
+   SEGNALAZIONI PARTI COMUNI
+========================= */
+loadSegnalazioni(
+    r =>
+        (r.tipo === "Parti comuni" || r.tipo === "particomuni") &&
+        r.stato === "attiva"
+);
+
+/* =========================
    CHAT DESTINATARIO
 ========================= */
-
 let currentChatId = null;
 let unsubscribeChat = null;
 
@@ -156,7 +187,7 @@ function openChat(id, meta) {
         });
 }
 
-/* INVIO MESSAGGIO PARTI COMUNI */
+/* INVIO RISPOSTA */
 function sendAdminMsg() {
 
     const input = document.getElementById("chatInput");
