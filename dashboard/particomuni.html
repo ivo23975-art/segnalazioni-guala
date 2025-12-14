@@ -10,30 +10,55 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE -->
+    <!-- CONFIG -->
     <script src="firebase-config.js"></script>
 
-    <!-- LOGIN + RUOLI -->
+    <!-- AUTH -->
     <script src="admin-auth.js"></script>
 
-    <!-- LOGICA DASHBOARD -->
+    <!-- DASHBOARD -->
     <script src="dashboard.js"></script>
 
     <style>
         .logout-btn {
-            position: absolute;
-            top: 15px;
+            position: fixed;
+            top: 12px;
             right: 20px;
-            background: #ff0000;
+            background: #ff4444;
             color: white;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-weight: bold;
-            text-decoration: none;
-            transition: 0.2s;
+            cursor: pointer;
+            z-index: 9999;
         }
-        .logout-btn:hover { background: #cc0000; }
+
+        .chat-admin-box {
+            margin-top: 30px;
+            border-top: 2px solid #333;
+            padding-top: 20px;
+        }
+
+        .chat-list button {
+            margin: 5px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .chat-window {
+            margin-top: 10px;
+            border: 1px solid #333;
+            padding: 10px;
+            background: #111;
+        }
+
+        .chat-msg.admin { color: #00e676; }
+        .chat-msg.user { color: #90caf9; }
+
+        textarea {
+            width: 100%;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -45,6 +70,9 @@
 
 <div class="content">
 
+<!-- =======================
+     SEGNALAZIONI
+======================= -->
 <table class="table">
 <thead>
 <tr>
@@ -56,29 +84,114 @@
     <th>Temp</th>
     <th>Tipo</th>
     <th>Descrizione</th>
-    <th>Risolvi</th>
+    <th>Azioni</th>
 </tr>
 </thead>
-
 <tbody id="tbody"></tbody>
 </table>
+
+<!-- =======================
+     CHAT UTENTI – PARTI COMUNI
+======================= -->
+<div class="chat-admin-box">
+    <h2>💬 Chat utenti – Parti Comuni</h2>
+
+    <div class="chat-list" id="chatList">Caricamento chat…</div>
+
+    <div class="chat-window" id="chatWindow" style="display:none;">
+        <h3 id="chatTitle"></h3>
+        <div id="chatMessages"></div>
+        <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
+        <button onclick="sendAdminMsg()">Invia</button>
+    </div>
+</div>
 
 </div>
 
 <script>
-
-console.log("[DEBUG] Parti Comuni – pannello avviato");
-
-/* Protezione accesso */
 requireRole("particomuni");
 
-/* Carica SOLO segnalazioni parti comuni */
+/* SEGNALAZIONI */
 loadSegnalazioni(
     r =>
-        (r.tipo === "Parti comuni" || r.tipo === "particomuni") &&
-        r.stato === "attiva"
+        r.stato === "attiva" &&
+        (r.tipo === "Parti comuni" || r.tipo === "particomuni")
 );
 
+/* =========================
+   CHAT (chats/) – SOLO PARTI COMUNI
+========================= */
+let currentChatId = null;
+let unsubscribeChat = null;
+
+const chatList = document.getElementById("chatList");
+const chatWindow = document.getElementById("chatWindow");
+const chatMessages = document.getElementById("chatMessages");
+
+db.collection("chats")
+  .where("meta.complesso", "==", "particomuni")
+  .orderBy("meta.nome")
+  .onSnapshot(snap => {
+
+    chatList.innerHTML = "";
+
+    if (snap.empty) {
+        chatList.innerText = "Nessuna chat attiva";
+        return;
+    }
+
+    snap.forEach(doc => {
+        const d = doc.data();
+        const btn = document.createElement("button");
+        btn.innerText = d.meta.nome;
+        btn.onclick = () => openChat(doc.id, d.meta);
+        chatList.appendChild(btn);
+    });
+});
+
+function openChat(id, meta) {
+    currentChatId = id;
+    chatWindow.style.display = "block";
+
+    document.getElementById("chatTitle").innerText =
+        `${meta.nome} – ${meta.scala || ""} ${meta.piano || ""} ${meta.lato || ""}`;
+
+    if (unsubscribeChat) unsubscribeChat();
+
+    unsubscribeChat = db.collection("chats")
+        .doc(id)
+        .collection("messages")
+        .orderBy("timestamp")
+        .onSnapshot(snap => {
+
+            chatMessages.innerHTML = "";
+
+            snap.forEach(m => {
+                const msg = m.data();
+                const div = document.createElement("div");
+                div.className = "chat-msg " + msg.mittente;
+                div.innerText = msg.testo;
+                chatMessages.appendChild(div);
+            });
+        });
+}
+
+function sendAdminMsg() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text || !currentChatId) return;
+
+    db.collection("chats")
+      .doc(currentChatId)
+      .collection("messages")
+      .add({
+          testo: text,
+          mittente: "admin",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    input.value = "";
+}
 </script>
 
 </body>
