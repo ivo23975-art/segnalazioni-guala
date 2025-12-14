@@ -1,65 +1,27 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>Guala – Segnalazioni attive</title>
+<meta charset="UTF-8">
+<title>Guala – Segnalazioni attive</title>
 
-    <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="dashboard.css">
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG -->
-    <script src="firebase-config.js"></script>
+<script src="firebase-config.js"></script>
+<script src="admin-auth.js"></script>
+<script src="dashboard.js"></script>
 
-    <!-- AUTH -->
-    <script src="admin-auth.js"></script>
-
-    <!-- DASHBOARD -->
-    <script src="dashboard.js"></script>
-
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 12px;
-            right: 20px;
-            background: #ff4444;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 9999;
-        }
-
-        .chat-admin-box {
-            margin-top: 30px;
-            border-top: 2px solid #333;
-            padding-top: 20px;
-        }
-
-        .chat-list button {
-            margin: 5px;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-
-        .chat-window {
-            margin-top: 10px;
-            border: 1px solid #333;
-            padding: 10px;
-            background: #111;
-        }
-
-        .chat-msg.admin { color: #00e676; }
-        .chat-msg.user { color: #90caf9; }
-
-        textarea {
-            width: 100%;
-            margin-top: 10px;
-        }
-    </style>
+<style>
+.logout-btn{position:fixed;top:12px;right:20px;background:#ff4444;color:#fff;padding:8px 16px;border-radius:8px;font-weight:bold;cursor:pointer}
+.chat-box{margin-top:30px;border-top:2px solid #333;padding-top:20px}
+.chat-list button{margin:5px;padding:6px 10px;cursor:pointer}
+.chat-window{margin-top:10px;border:1px solid #333;padding:10px;background:#111}
+.chat-msg.admin{color:#00e676}
+.chat-msg.user{color:#90caf9}
+textarea{width:100%;margin-top:10px}
+</style>
 </head>
 
 <body>
@@ -70,40 +32,27 @@
 
 <div class="content">
 
-<!-- =======================
-     SEGNALAZIONI
-======================= -->
 <table class="table">
 <thead>
 <tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Azioni</th>
+<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
 
-<!-- =======================
-     CHAT UTENTI – GUALA
-======================= -->
-<div class="chat-admin-box">
-    <h2>💬 Chat utenti – Guala</h2>
+<!-- CHAT PARTI COMUNI -->
+<div class="chat-box">
+<h2>💬 Scrivi a Parti Comuni</h2>
 
-    <div class="chat-list" id="chatList">Caricamento chat…</div>
+<button onclick="openPartiComuni()">Apri chat Parti Comuni</button>
 
-    <div class="chat-window" id="chatWindow" style="display:none;">
-        <h3 id="chatTitle"></h3>
-        <div id="chatMessages"></div>
-        <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
-        <button onclick="sendAdminMsg()">Invia</button>
-    </div>
+<div class="chat-window" id="pcWindow" style="display:none">
+<div id="pcMessages"></div>
+<textarea id="pcInput" placeholder="Scrivi messaggio..."></textarea>
+<button onclick="sendPC()">Invia</button>
+</div>
 </div>
 
 </div>
@@ -111,84 +60,56 @@
 <script>
 requireRole("guala");
 
-/* SEGNALAZIONI */
-loadSegnalazioni(
-    r => r.stato === "attiva" && r.complesso === "guala"
-);
+loadSegnalazioni(r => r.stato==="attiva" && r.complesso==="guala");
 
-/* =========================
-   CHAT (chats/) – SOLO GUALA
-========================= */
-let currentChatId = null;
-let unsubscribeChat = null;
+let pcChatId=null;
+let unsubPC=null;
 
-const chatList = document.getElementById("chatList");
-const chatWindow = document.getElementById("chatWindow");
-const chatMessages = document.getElementById("chatMessages");
-
+function openPartiComuni(){
 db.collection("chats")
-  .where("meta.complesso", "==", "guala")
-  .orderBy("meta.nome")
-  .onSnapshot(snap => {
-
-    chatList.innerHTML = "";
-
-    if (snap.empty) {
-        chatList.innerText = "Nessuna chat attiva";
-        return;
-    }
-
-    snap.forEach(doc => {
-        const d = doc.data();
-        const btn = document.createElement("button");
-        btn.innerText = d.meta.nome;
-        btn.onclick = () => openChat(doc.id, d.meta);
-        chatList.appendChild(btn);
-    });
+.where("meta.destinazione","==","particomuni")
+.where("meta.origine","==","guala")
+.limit(1)
+.get()
+.then(s=>{
+if(s.empty){
+db.collection("chats").add({
+meta:{destinazione:"particomuni",origine:"guala"},
+createdAt:firebase.firestore.FieldValue.serverTimestamp()
+}).then(ref=>startPC(ref.id));
+}else{
+startPC(s.docs[0].id);
+}
 });
-
-function openChat(id, meta) {
-    currentChatId = id;
-    chatWindow.style.display = "block";
-
-    document.getElementById("chatTitle").innerText =
-        `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
-
-    if (unsubscribeChat) unsubscribeChat();
-
-    unsubscribeChat = db.collection("chats")
-        .doc(id)
-        .collection("messages")
-        .orderBy("timestamp")
-        .onSnapshot(snap => {
-
-            chatMessages.innerHTML = "";
-
-            snap.forEach(m => {
-                const msg = m.data();
-                const div = document.createElement("div");
-                div.className = "chat-msg " + msg.mittente;
-                div.innerText = msg.testo;
-                chatMessages.appendChild(div);
-            });
-        });
 }
 
-function sendAdminMsg() {
-    const input = document.getElementById("chatInput");
-    const text = input.value.trim();
-    if (!text || !currentChatId) return;
+function startPC(id){
+pcChatId=id;
+document.getElementById("pcWindow").style.display="block";
+if(unsubPC)unsubPC();
+unsubPC=db.collection("chats").doc(id).collection("messages")
+.orderBy("timestamp")
+.onSnapshot(s=>{
+const box=document.getElementById("pcMessages");
+box.innerHTML="";
+s.forEach(m=>{
+const d=m.data();
+const div=document.createElement("div");
+div.className="chat-msg "+d.mittente;
+div.innerText=d.testo;
+box.appendChild(div);
+});
+});
+}
 
-    db.collection("chats")
-      .doc(currentChatId)
-      .collection("messages")
-      .add({
-          testo: text,
-          mittente: "admin",
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-    input.value = "";
+function sendPC(){
+const t=document.getElementById("pcInput").value.trim();
+if(!t||!pcChatId)return;
+db.collection("chats").doc(pcChatId).collection("messages").add({
+testo:t,mittente:"admin",
+timestamp:firebase.firestore.FieldValue.serverTimestamp()
+});
+document.getElementById("pcInput").value="";
 }
 </script>
 
