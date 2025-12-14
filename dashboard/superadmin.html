@@ -12,28 +12,29 @@
 
 <!-- CONFIG -->
 <script src="firebase-config.js"></script>
-
-<!-- AUTH -->
 <script src="admin-auth.js"></script>
-
-<!-- DASHBOARD -->
 <script src="dashboard.js"></script>
 
 <style>
-.logout-btn{position:absolute;top:15px;right:20px;background:#ff0000;color:#fff;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:bold}
-.section{margin:30px 0}
-.chat-box{background:#0e1b2a;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto}
-.chat-msg{font-size:13px;margin-bottom:6px}
+.logout-btn{
+  position:absolute;top:15px;right:20px;
+  background:#ff0000;color:#fff;
+  padding:10px 18px;border-radius:6px;
+  cursor:pointer;font-weight:bold
+}
+.section{margin-bottom:30px}
+.chat-box{background:#0e1b2a;border-radius:8px;padding:10px;max-height:220px;overflow-y:auto}
+.chat-msg{margin-bottom:6px;font-size:14px}
 .chat-user{color:#90caf9}
 .chat-admin{color:#00e676}
 textarea{width:100%;height:60px;border-radius:6px;padding:6px}
-.btn{padding:6px 10px;border-radius:6px;font-weight:bold;cursor:pointer;border:none}
+.btn{padding:6px 10px;border-radius:4px;font-weight:bold;cursor:pointer}
 .btn-send{background:#00c853;color:#000}
-.btn-reset{background:#ff9800}
+.btn-reset{background:#ff9800;color:#000}
 .btn-archive{background:#607d8b;color:#fff}
 .btn-clear{background:#d50000;color:#fff}
-.status-ok{color:#00e676;font-weight:bold}
-.status-arch{color:#ff9800;font-weight:bold}
+.status-archived{color:#ff9800;font-weight:bold}
+.status-active{color:#00c853;font-weight:bold}
 </style>
 </head>
 
@@ -45,14 +46,20 @@ textarea{width:100%;height:60px;border-radius:6px;padding:6px}
 
 <div class="content">
 
-<!-- ================= CHAT ================= -->
+<!-- CHAT UTENTI -->
 <div class="section">
 <h2>💬 CHAT UTENTI</h2>
 
 <table class="table">
 <thead>
 <tr>
-<th>Scala</th><th>Piano</th><th>Lato</th><th>Nome</th><th>Stato</th><th>Chat</th><th>Azioni</th>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>Stato</th>
+<th>Chat</th>
+<th>Azioni</th>
 </tr>
 </thead>
 <tbody id="chatTable">
@@ -61,13 +68,14 @@ textarea{width:100%;height:60px;border-radius:6px;padding:6px}
 </table>
 </div>
 
-<!-- ================= SEGNALAZIONI ================= -->
+<!-- SEGNALAZIONI -->
 <div class="section">
 <h2>📋 TUTTE LE SEGNALAZIONI</h2>
 <table class="table">
 <thead>
 <tr>
-<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th><th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
+<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -80,107 +88,101 @@ textarea{width:100%;height:60px;border-radius:6px;padding:6px}
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-const db = firebase.firestore();
 const chatTable = document.getElementById("chatTable");
 
-/* ================= CHAT LIST ================= */
-db.collection("chats").onSnapshot(snap=>{
-chatTable.innerHTML="";
-if(snap.empty){
-chatTable.innerHTML="<tr><td colspan='7'>Nessuna chat</td></tr>";
-return;
-}
-snap.forEach(doc=>{
-const c=doc.data().meta;
-const tr=document.createElement("tr");
-tr.innerHTML=`
-<td>${c.scala}</td>
-<td>${c.piano}</td>
-<td>${c.lato}</td>
-<td>${c.nome}</td>
-<td class="${c.archived?'status-arch':'status-ok'}">${c.archived?'ARCHIVIATA':'ATTIVA'}</td>
-<td>
-<div class="chat-box" id="box-${doc.id}"></div>
-<textarea id="input-${doc.id}" placeholder="Scrivi come admin..."></textarea>
-<button class="btn btn-send" onclick="sendAdmin('${doc.id}')">INVIA</button>
-</td>
-<td>
-<button class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</button><br><br>
-<button class="btn btn-archive" onclick="archiveChat('${doc.id}')">ARCHIVIA</button><br><br>
-<button class="btn btn-clear" onclick="clearChat('${doc.id}')">CANCELLA TESTO</button>
-</td>`;
-chatTable.appendChild(tr);
+firebase.firestore().collection("chats")
+.orderBy("meta.nome")
+.onSnapshot(snap=>{
+  chatTable.innerHTML="";
+  if(snap.empty){
+    chatTable.innerHTML=`<tr><td colspan="7">Nessuna chat</td></tr>`;
+    return;
+  }
 
-/* messages */
-db.collection("chats").doc(doc.id).collection("messages")
-.orderBy("timestamp")
-.onSnapshot(ms=>{
-const box=document.getElementById("box-"+doc.id);
-box.innerHTML="";
-ms.forEach(m=>{
-const d=m.data();
-const div=document.createElement("div");
-div.className="chat-msg "+(d.mittente==="admin"?"chat-admin":"chat-user");
-div.innerText=d.testo;
-box.appendChild(div);
-});
-box.scrollTop=box.scrollHeight;
-});
-});
+  snap.forEach(doc=>{
+    const d = doc.data();
+    const m = d.meta || {};
+    const archived = m.archived === true;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${m.scala||""}</td>
+      <td>${m.piano||""}</td>
+      <td>${m.lato||""}</td>
+      <td>${m.nome||""}</td>
+      <td class="${archived?'status-archived':'status-active'}">
+        ${archived?'ARCHIVIATA':'ATTIVA'}
+      </td>
+      <td>
+        <div class="chat-box" id="box-${doc.id}"></div>
+        <textarea id="input-${doc.id}" placeholder="Scrivi come admin..."></textarea>
+        <button class="btn btn-send" onclick="sendAdmin('${doc.id}')">INVIA</button>
+      </td>
+      <td>
+        <button class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</button><br><br>
+        <button class="btn btn-archive" onclick="toggleArchive('${doc.id}',${archived})">
+          ${archived?'RIPRISTINA':'ARCHIVIA'}
+        </button><br><br>
+        <button class="btn btn-clear" onclick="clearChat('${doc.id}')">
+          CANCELLA TESTI
+        </button>
+      </td>
+    `;
+    chatTable.appendChild(tr);
+
+    firebase.firestore().collection("chats")
+      .doc(doc.id).collection("messages")
+      .orderBy("timestamp","asc")
+      .onSnapshot(ms=>{
+        const box=document.getElementById("box-"+doc.id);
+        box.innerHTML="";
+        ms.forEach(m=>{
+          const msg=m.data();
+          const div=document.createElement("div");
+          div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
+          div.innerText=msg.testo;
+          box.appendChild(div);
+        });
+        box.scrollTop=box.scrollHeight;
+      });
+  });
 });
 
-/* ================= AZIONI ================= */
 function sendAdmin(id){
-const input=document.getElementById("input-"+id);
-const txt=input.value.trim();
-if(!txt)return;
-db.collection("chats").doc(id).collection("messages").add({
-testo:txt,
-mittente:"admin",
-timestamp:firebase.firestore.FieldValue.serverTimestamp()
-});
-input.value="";
+  const input=document.getElementById("input-"+id);
+  const txt=input.value.trim();
+  if(!txt)return;
+  firebase.firestore().collection("chats")
+    .doc(id).collection("messages")
+    .add({
+      testo:txt,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  input.value="";
 }
 
 function resetPin(id){
-if(!confirm("Reset PIN?"))return;
-db.collection("chats").doc(id).update({
-"meta.pinHash":null,
-"meta.pinReset":true
-});
+  if(!confirm("Reset PIN utente?"))return;
+  firebase.firestore().collection("chats")
+    .doc(id)
+    .update({ "meta.pinHash": null });
 }
 
-async function clearChat(id){
-if(!confirm("Cancellare SOLO i messaggi?"))return;
-const msgs=await db.collection("chats").doc(id).collection("messages").get();
-const batch=db.batch();
-msgs.forEach(m=>batch.delete(m.ref));
-batch.commit();
+function toggleArchive(id,archived){
+  firebase.firestore().collection("chats")
+    .doc(id)
+    .update({ "meta.archived": !archived });
 }
 
-async function archiveChat(id){
-if(!confirm("Archiviare la chat (copia su archivio)?"))return;
-
-const src=db.collection("chats").doc(id);
-const snap=await src.get();
-if(!snap.exists)return;
-
-const arch=db.collection("chats_archive").doc(id);
-await arch.set({
-...snap.data(),
-archivedAt:firebase.firestore.FieldValue.serverTimestamp(),
-archivedBy:"superadmin"
-});
-
-const msgs=await src.collection("messages").get();
-const batch=db.batch();
-msgs.forEach(m=>{
-const ref=arch.collection("messages").doc(m.id);
-batch.set(ref,m.data());
-});
-await batch.commit();
-
-await src.update({"meta.archived":true});
+function clearChat(id){
+  if(!confirm("Cancellare SOLO i messaggi della chat?"))return;
+  firebase.firestore().collection("chats")
+    .doc(id).collection("messages")
+    .get()
+    .then(snap=>{
+      snap.forEach(d=>d.ref.delete());
+    });
 }
 </script>
 
