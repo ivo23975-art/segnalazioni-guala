@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Parti Comuni – Segnalazioni attive</title>
+    <title>Parti Comuni – Chat Destinatario</title>
 
     <link rel="stylesheet" href="dashboard.css">
 
@@ -15,9 +15,6 @@
 
     <!-- AUTH -->
     <script src="admin-auth.js"></script>
-
-    <!-- DASHBOARD -->
-    <script src="dashboard.js"></script>
 
     <style>
         .logout-btn {
@@ -66,42 +63,22 @@
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">Parti Comuni – Segnalazioni attive</div>
+<div class="header">Parti Comuni – Chat in arrivo</div>
 
 <div class="content">
 
 <!-- =======================
-     SEGNALAZIONI
-======================= -->
-<table class="table">
-<thead>
-<tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Azioni</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
-<!-- =======================
-     CHAT UTENTI – PARTI COMUNI
+     CHAT DESTINATARIO
 ======================= -->
 <div class="chat-admin-box">
-    <h2>💬 Chat utenti – Parti Comuni</h2>
+    <h2>💬 Chat da Guala e Piobesi</h2>
 
     <div class="chat-list" id="chatList">Caricamento chat…</div>
 
     <div class="chat-window" id="chatWindow" style="display:none;">
         <h3 id="chatTitle"></h3>
         <div id="chatMessages"></div>
-        <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
+        <textarea id="chatInput" placeholder="Scrivi risposta..."></textarea>
         <button onclick="sendAdminMsg()">Invia</button>
     </div>
 </div>
@@ -111,16 +88,10 @@
 <script>
 requireRole("particomuni");
 
-/* SEGNALAZIONI */
-loadSegnalazioni(
-    r =>
-        r.stato === "attiva" &&
-        (r.tipo === "Parti comuni" || r.tipo === "particomuni")
-);
-
 /* =========================
-   CHAT (chats/) – SOLO PARTI COMUNI
+   CHAT DESTINATARIO
 ========================= */
+
 let currentChatId = null;
 let unsubscribeChat = null;
 
@@ -128,8 +99,9 @@ const chatList = document.getElementById("chatList");
 const chatWindow = document.getElementById("chatWindow");
 const chatMessages = document.getElementById("chatMessages");
 
+/* LISTA CHAT DESTINATE A PARTI COMUNI */
 db.collection("chats")
-  .where("meta.complesso", "==", "particomuni")
+  .where("meta.destinazione", "==", "particomuni")
   .orderBy("meta.nome")
   .onSnapshot(snap => {
 
@@ -143,18 +115,24 @@ db.collection("chats")
     snap.forEach(doc => {
         const d = doc.data();
         const btn = document.createElement("button");
-        btn.innerText = d.meta.nome;
+
+        btn.innerText =
+            `[${d.meta.origine.toUpperCase()}] ${d.meta.nome}`;
+
         btn.onclick = () => openChat(doc.id, d.meta);
+
         chatList.appendChild(btn);
     });
 });
 
+/* APERTURA CHAT */
 function openChat(id, meta) {
+
     currentChatId = id;
     chatWindow.style.display = "block";
 
     document.getElementById("chatTitle").innerText =
-        `${meta.nome} – ${meta.scala || ""} ${meta.piano || ""} ${meta.lato || ""}`;
+        `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato} (${meta.origine})`;
 
     if (unsubscribeChat) unsubscribeChat();
 
@@ -173,12 +151,17 @@ function openChat(id, meta) {
                 div.innerText = msg.testo;
                 chatMessages.appendChild(div);
             });
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         });
 }
 
+/* INVIO MESSAGGIO PARTI COMUNI */
 function sendAdminMsg() {
+
     const input = document.getElementById("chatInput");
     const text = input.value.trim();
+
     if (!text || !currentChatId) return;
 
     db.collection("chats")
