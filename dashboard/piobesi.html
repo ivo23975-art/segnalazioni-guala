@@ -16,7 +16,7 @@
     <!-- LOGIN + RUOLI -->
     <script src="admin-auth.js"></script>
 
-    <!-- LOGICA DASHBOARD (caricamento segnalazioni) -->
+    <!-- LOGICA DASHBOARD -->
     <script src="dashboard.js"></script>
 
     <style>
@@ -33,7 +33,9 @@
             text-decoration: none;
             transition: 0.2s;
         }
-        .logout-btn:hover { background: #cc0000; }
+        .logout-btn:hover {
+            background: #cc0000;
+        }
     </style>
 </head>
 
@@ -56,7 +58,7 @@
     <th>Temp</th>
     <th>Tipo</th>
     <th>Descrizione</th>
-    <th>Risolvi</th>
+    <th>Azioni</th>
 </tr>
 </thead>
 
@@ -66,17 +68,15 @@
 </div>
 
 <script>
-
 console.log("[DEBUG] Piobesi – pannello avviato");
 
 /* Protezione accesso */
 requireRole("piobesi");
 
-/* Carica SOLO segnalazioni attive del complesso Piobesi */
+/* SOLO segnalazioni attive del complesso Piobesi */
 loadSegnalazioni(
     r => r.complesso === "piobesi" && r.stato === "attiva"
 );
-
 </script>
 
 </body>
