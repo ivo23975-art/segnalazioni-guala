@@ -191,11 +191,10 @@ textarea { height: 90px; resize: none; }
 
 /* ==========================================================
    CHAT (ACCESSORIO) – ICONA ESTERNA ALLA CARD (NON DENTRO)
-   - GIRA INTORNO ALLA CARD, MA NON LA TOCCA
 ========================================================== */
 .cardWrap {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 10px;
   align-items: start;
 }
@@ -214,14 +213,21 @@ textarea { height: 90px; resize: none; }
   transform: translateZ(0);
 }
 
-/* base (blu) */
+/* AMMINISTRAZIONE (blu) */
 .chat-blue {
   background: radial-gradient(circle at 30% 30%, #7fe0ff, #0088ff 65%, #0057b3);
   color: #fff;
   box-shadow: 0 8px 22px rgba(0,136,255,.35);
 }
 
-/* stato disabilitato (solo per sicurezza UI, NON usa segnalazioni) */
+/* PARTI COMUNI (giallo) */
+.chat-yellow {
+  background: radial-gradient(circle at 30% 30%, #fff3a0, #ffcc00 65%, #b38b00);
+  color: #111;
+  box-shadow: 0 8px 22px rgba(255,204,0,.35);
+}
+
+/* stato disabilitato (solo per sicurezza UI) */
 .chat-disabled {
   opacity: .35;
   cursor: not-allowed;
@@ -258,7 +264,7 @@ textarea { height: 90px; resize: none; }
   display: none;
 }
 
-/* chat window in stile user (pulito, coerente) */
+/* chat window in stile user */
 #modalChat .modal-content {
   display: flex;
   flex-direction: column;
@@ -424,9 +430,7 @@ const db = firebase.firestore();
 </div>
 
 <!-- ===============================
-     MODALI CHAT + PIN (NUOVI, SEPARATI)
-     - NON LEGATI A SEGNALAZIONI
-     - 1 CHAT PER CARD
+     MODALI CHAT + PIN
 ================================= -->
 
 <div class="modal" id="modalPinSet">
@@ -598,22 +602,21 @@ const condominio = {
       portico:[]
     }
   }
-
 };
 
 /* ============================================
-   CHAT (ACCESSORIO) – STATO GLOBALE
-   - 1 CHAT PER CARD
-   - PIN 4 CIFRE scelto dall’utente
-   - reset futuro via SUPER ADMIN
+   CHAT – STATO GLOBALE
+   - 1 chat per CARD per DESTINATARIO
+   - destinatario: "amministrazione" oppure "particomuni"
 ============================================ */
-let chatPendingMeta = null;           // {scala,piano,lato,nome,complesso}
-let chatPendingKeyString = null;      // stringa stabile della card
-let chatCurrentChatId = null;         // docId in chats/
+let chatPendingMeta = null;           // meta della card
+let chatPendingKeyString = null;      // chiave stabile
+let chatCurrentChatId = null;         // docId chats/
 let unsubscribeUserChat = null;
 
-function buildChatKeyString(scala, piano, lato, nome, complesso){
-  return `${complesso}||${scala}||${piano}||${lato}||${nome}`;
+function buildChatKeyString(meta){
+  // REGOLA 1-a-1: destinatario + complesso + card
+  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
 }
 
 async function sha256Hex(str){
@@ -649,6 +652,7 @@ function closePinSet(){
   clearPinError("pinSetError");
   chatPendingMeta = null;
   chatPendingKeyString = null;
+  chatCurrentChatId = null;
 }
 
 function closePinEnter(){
@@ -657,30 +661,28 @@ function closePinEnter(){
   clearPinError("pinEnterError");
   chatPendingMeta = null;
   chatPendingKeyString = null;
+  chatCurrentChatId = null;
 }
 
 function openPinFlowForCard(meta){
   chatPendingMeta = meta;
-  chatPendingKeyString = buildChatKeyString(meta.scala, meta.piano, meta.lato, meta.nome, meta.complesso);
+  chatPendingKeyString = buildChatKeyString(meta);
 
-  // titolo in tutti i casi
-  document.getElementById("pinSetTitle").innerText = `Chat • ${meta.nome}`;
-  document.getElementById("pinEnterTitle").innerText = `Chat • ${meta.nome}`;
+  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  document.getElementById("pinSetTitle").innerText = `Chat • ${titoloDest} • ${meta.nome}`;
+  document.getElementById("pinEnterTitle").innerText = `Chat • ${titoloDest} • ${meta.nome}`;
 
-  // controllo esistenza chat doc (per capire se PIN già impostato)
   sha256Hex(chatPendingKeyString).then(async (hash) => {
-    chatCurrentChatId = `c_${hash}`; // prefisso per evitare id che iniziano con numero
+    chatCurrentChatId = `c_${hash}`;
     const ref = db.collection("chats").doc(chatCurrentChatId);
     const snap = await ref.get();
 
     if (!snap.exists || !snap.data() || !snap.data().meta || !snap.data().meta.pinHash) {
-      // PIN NON ESISTE -> set
       document.getElementById("pinSet1").value = "";
       document.getElementById("pinSet2").value = "";
       clearPinError("pinSetError");
       showEl("modalPinSet");
     } else {
-      // PIN ESISTE -> enter
       document.getElementById("pinEnter").value = "";
       clearPinError("pinEnterError");
       showEl("modalPinEnter");
@@ -716,9 +718,9 @@ async function confirmSetPin(){
     const pinHash = await sha256Hex(p1);
     const ref = db.collection("chats").doc(chatCurrentChatId);
 
-    // crea doc meta con pinHash (mai in chiaro)
     await ref.set({
       meta: {
+        destinatario: chatPendingMeta.destinatario,  // "amministrazione" | "particomuni"
         scala: chatPendingMeta.scala,
         piano: chatPendingMeta.piano,
         lato: chatPendingMeta.lato,
@@ -737,7 +739,6 @@ async function confirmSetPin(){
 
     openUserChat(chatCurrentChatId, chatPendingMeta);
 
-    // pulizia pending
     chatPendingMeta = null;
     chatPendingKeyString = null;
 
@@ -768,7 +769,6 @@ async function confirmEnterPin(){
 
     const saved = snap.exists && snap.data() && snap.data().meta ? snap.data().meta.pinHash : null;
     if (!saved) {
-      // se manca per qualunque motivo, fallback a set
       hideEl("modalPinEnter");
       showEl("modalPinSet");
       return;
@@ -784,7 +784,6 @@ async function confirmEnterPin(){
 
     openUserChat(chatCurrentChatId, chatPendingMeta);
 
-    // pulizia pending
     chatPendingMeta = null;
     chatPendingKeyString = null;
 
@@ -804,8 +803,9 @@ function closeUserChat(){
 function openUserChat(chatId, meta){
   chatCurrentChatId = chatId;
 
+  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
   document.getElementById("chatTitle").innerText =
-    `Chat • ${meta.nome} • ${meta.scala} • ${meta.piano} • ${meta.lato}`;
+    `Chat • ${titoloDest} • ${meta.nome} • ${meta.scala} • ${meta.piano} • ${meta.lato}`;
 
   showEl("modalChat");
 
@@ -868,10 +868,8 @@ function sendUserChatMessage(){
 }
 
 /* ============================================
-   GENERA LE CARD (TUO) + ICONA CHAT ESTERNA
-   - NON CAMBIO la logica card
-   - card onclick resta uguale (apri)
-   - icona chat ha click separato
+   GENERA LE CARD (TUO) + ICONE CHAT
+   - 2 icone: AMMINISTRAZIONE (blu) + PARTI COMUNI (gialla)
 ============================================ */
 const container = document.querySelector(".container");
 
@@ -905,9 +903,16 @@ Object.keys(condominio).forEach(scala => {
                   <span class="tempVal">—°C</span>
                 </div>
               </div>
+
+              <!-- AMMINISTRAZIONE -->
               <div class="chatUserIcon chat-blue"
-                   title="Apri chat"
-                   onclick="event.stopPropagation(); openPinFlowForCard({complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${dati.dx.replace(/'/g, "\\'")}'});">💬</div>
+                   title="Chat Amministrazione"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${dati.dx.replace(/'/g, "\\'")}'});">💬</div>
+
+              <!-- PARTI COMUNI -->
+              <div class="chatUserIcon chat-yellow"
+                   title="Chat Parti Comuni"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${dati.dx.replace(/'/g, "\\'")}'});">🧰</div>
             </div>
 
             <div class="cardWrap">
@@ -918,9 +923,16 @@ Object.keys(condominio).forEach(scala => {
                   <span class="tempVal">—°C</span>
                 </div>
               </div>
+
+              <!-- AMMINISTRAZIONE -->
               <div class="chatUserIcon chat-blue"
-                   title="Apri chat"
-                   onclick="event.stopPropagation(); openPinFlowForCard({complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${dati.sx.replace(/'/g, "\\'")}'});">💬</div>
+                   title="Chat Amministrazione"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${dati.sx.replace(/'/g, "\\'")}'});">💬</div>
+
+              <!-- PARTI COMUNI -->
+              <div class="chatUserIcon chat-yellow"
+                   title="Chat Parti Comuni"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${dati.sx.replace(/'/g, "\\'")}'});">🧰</div>
             </div>
 
           </div>
@@ -948,9 +960,16 @@ Object.keys(condominio).forEach(scala => {
               <span class="tempVal">—°C</span>
             </div>
           </div>
+
+          <!-- AMMINISTRAZIONE -->
           <div class="chatUserIcon chat-blue"
-               title="Apri chat"
-               onclick="event.stopPropagation(); openPinFlowForCard({complesso:'${compl}', scala:'${scala}', piano:'PORTICO', lato:'NEGOZIO', nome:'${safeNome}'});">💬</div>
+               title="Chat Amministrazione"
+               onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${compl}', scala:'${scala}', piano:'PORTICO', lato:'NEGOZIO', nome:'${safeNome}'});">💬</div>
+
+          <!-- PARTI COMUNI -->
+          <div class="chatUserIcon chat-yellow"
+               title="Chat Parti Comuni"
+               onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${compl}', scala:'${scala}', piano:'PORTICO', lato:'NEGOZIO', nome:'${safeNome}'});">🧰</div>
         </div>
       `;
     });
