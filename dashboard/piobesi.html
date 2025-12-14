@@ -10,51 +10,103 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG FIREBASE -->
+    <!-- CONFIG -->
     <script src="firebase-config.js"></script>
 
-    <!-- LOGIN + RUOLI -->
+    <!-- AUTH -->
     <script src="admin-auth.js"></script>
 
-    <!-- LOGICA DASHBOARD -->
+    <!-- DASHBOARD CORE (NO CHAT) -->
     <script src="dashboard.js"></script>
 
     <style>
         .logout-btn {
-            position: fixed;
-            top: 12px;
+            position: absolute;
+            top: 15px;
             right: 20px;
-            background: #ff4444;
+            background: #ff0000;
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
-            border: none;
+            font-weight: bold;
             text-decoration: none;
-            transition: .2s;
+            transition: 0.2s;
             z-index: 9999;
         }
-        .logout-btn:hover {
-            background: #ff0000;
-            transform: translateY(-2px);
+        .logout-btn:hover { background: #cc0000; }
+
+        .chat-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .chat-window {
+            background: #0e1b2a;
+            width: 420px;
+            max-width: 95%;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin: 10px 0;
+            padding: 8px;
+            background: #07121f;
+            border-radius: 8px;
+        }
+
+        .chat-bubble {
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 80%;
+        }
+
+        .chat-user { background:#1976d2; align-self:flex-start; }
+        .chat-admin { background:#2e7d32; align-self:flex-end; }
+
+        .chat-input {
+            width: 100%;
+            resize: none;
+            height: 60px;
+            border-radius: 8px;
+            padding: 6px;
+        }
+
+        .chat-buttons {
+            display:flex;
+            gap:8px;
+            margin-top:6px;
+        }
+
+        .chat-buttons button {
+            flex:1;
+            padding:6px;
+            font-weight:bold;
+            cursor:pointer;
         }
     </style>
 </head>
 
 <body>
 
-<!-- LOGOUT -->
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<!-- TITOLO -->
 <div class="header">Piobesi – Segnalazioni attive</div>
 
 <div class="content">
-
-<!-- ===================================================
-     TABELLA SEGNALAZIONI
-=================================================== -->
 <table class="table">
 <thead>
 <tr>
@@ -69,47 +121,104 @@
     <th>Azioni</th>
 </tr>
 </thead>
-
 <tbody id="tbody"></tbody>
 </table>
-
 </div>
 
-<!-- ===================================================
-     POPUP CHAT (SOLO PIOBESI)
-=================================================== -->
-<div id="chatPopup" class="chat-overlay" style="display:none;">
+<!-- ================= CHAT POPUP ================= -->
+<div id="chatPopup" class="chat-overlay">
     <div class="chat-window">
-
-        <h2 id="chatTitle">Chat segnalazione</h2>
-
+        <h3 id="chatTitle">Chat</h3>
         <div id="chatMessages" class="chat-messages"></div>
-
-        <textarea id="chatInput"
-                  class="chat-input"
-                  placeholder="Scrivi un messaggio..."></textarea>
-
+        <textarea id="chatInput" class="chat-input" placeholder="Scrivi messaggio..."></textarea>
         <div class="chat-buttons">
-            <button class="chat-send" onclick="sendChatMessage()">Invia</button>
-            <button class="chat-close" onclick="closeChat()">Chiudi</button>
+            <button onclick="sendPiobesiChat()">Invia</button>
+            <button onclick="closePiobesiChat()">Chiudi</button>
         </div>
-
     </div>
 </div>
 
-<!-- ===================================================
-     AVVIO PAGINA
-=================================================== -->
 <script>
-    console.log("[DEBUG] Piobesi – pannello avviato");
+requireRole("piobesi");
 
-    /* Protezione accesso */
-    requireRole("piobesi");
+loadSegnalazioni(
+    r => r.complesso === "piobesi" && r.stato === "attiva"
+);
 
-    /* SOLO segnalazioni Piobesi, UNA SOLA VOLTA */
-    loadSegnalazioni(
-        r => r.stato === "attiva" && r.complesso === "piobesi"
-    );
+/* ================= CHAT PIobesi ================= */
+
+let currentChatId = null;
+let unsubscribeChat = null;
+
+function openPiobesiChat(id, nome) {
+    currentChatId = id;
+    document.getElementById("chatTitle").innerText = "Chat – " + nome;
+    document.getElementById("chatPopup").style.display = "flex";
+
+    const box = document.getElementById("chatMessages");
+    box.innerHTML = "";
+
+    if (unsubscribeChat) unsubscribeChat();
+
+    unsubscribeChat = db.collection("segnalazioni")
+        .doc(id)
+        .collection("chat")
+        .orderBy("timestamp")
+        .onSnapshot(snap => {
+            box.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                const div = document.createElement("div");
+                div.className = "chat-bubble " + (m.mittente === "admin" ? "chat-admin" : "chat-user");
+                div.innerText = m.testo;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+}
+
+function closePiobesiChat(){
+    document.getElementById("chatPopup").style.display = "none";
+    if (unsubscribeChat) unsubscribeChat();
+    unsubscribeChat = null;
+    currentChatId = null;
+}
+
+function sendPiobesiChat(){
+    const input = document.getElementById("chatInput");
+    const txt = input.value.trim();
+    if (!txt || !currentChatId) return;
+
+    db.collection("segnalazioni")
+      .doc(currentChatId)
+      .collection("chat")
+      .add({
+          testo: txt,
+          mittente: "admin",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    input.value = "";
+}
+
+/* ================= AGGIUNTA ICONA CHAT ================= */
+const oldLoad = loadSegnalazioni;
+loadSegnalazioni = function(filterFn){
+    oldLoad(filterFn);
+    setTimeout(() => {
+        document.querySelectorAll("#tbody tr").forEach(tr => {
+            const id = tr.querySelector(".btn-green")?.getAttribute("onclick")?.match(/'(.+?)'/)?.[1];
+            if (!id) return;
+
+            const nome = tr.children[4].innerText;
+            const btn = document.createElement("div");
+            btn.innerText = "💬";
+            btn.style.cursor = "pointer";
+            btn.onclick = () => openPiobesiChat(id, nome);
+            tr.querySelector("td:last-child div").appendChild(btn);
+        });
+    }, 300);
+};
 </script>
 
 </body>
