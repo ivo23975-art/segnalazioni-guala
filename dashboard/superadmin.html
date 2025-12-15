@@ -22,37 +22,39 @@
   padding:10px 18px;border-radius:6px;
   cursor:pointer;font-weight:bold
 }
-
-.section{margin-bottom:40px}
+.section{margin-bottom:30px}
 
 .chat-toggle{
-  padding:10px;
+  background:#0f2a3d;
+  padding:12px;
   border-radius:8px;
+  margin-bottom:6px;
   cursor:pointer;
   font-weight:bold;
-  text-align:center;
-  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.chat-toggle span{
+  opacity:.8;
+}
+.chat-toggle.active{
+  background:#123e5c;
 }
 
-.chat-green{background:#00c853;color:#000}
-.chat-yellow{background:#ffeb3b;color:#000}
-.chat-red{background:#ff5252;color:#fff;animation:blink 1s infinite}
-
-@keyframes blink{
-  0%,100%{opacity:1}
-  50%{opacity:.5}
-}
-
-.chat-container{display:none;margin-bottom:30px}
-
-.chat-box{
+.chat-body{
+  display:none;
   background:#0e1b2a;
   border-radius:8px;
   padding:10px;
-  max-height:220px;
-  overflow-y:auto
+  margin-bottom:12px;
 }
 
+.chat-box{
+  max-height:180px;
+  overflow-y:auto;
+  margin-bottom:6px;
+}
 .chat-msg{margin-bottom:6px;font-size:14px}
 .chat-user{color:#90caf9}
 .chat-admin{color:#00e676}
@@ -62,17 +64,22 @@ textarea{
   height:60px;
   border-radius:6px;
   padding:6px;
-  margin-top:6px
 }
 
-.btn{padding:6px 10px;border-radius:4px;font-weight:bold;cursor:pointer;margin-top:4px}
+.btn{
+  padding:6px 10px;
+  border-radius:4px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-right:4px;
+}
 .btn-send{background:#00c853;color:#000}
 .btn-reset{background:#ff9800;color:#000}
 .btn-archive{background:#607d8b;color:#fff}
 .btn-clear{background:#d50000;color:#fff}
 
+.status-active{color:#00e676;font-weight:bold}
 .status-archived{color:#ff9800;font-weight:bold}
-.status-active{color:#00c853;font-weight:bold}
 </style>
 </head>
 
@@ -84,36 +91,20 @@ textarea{
 
 <div class="content">
 
-<!-- =========================
-     CHAT GUALA
-========================= -->
+<!-- ================= CHAT ================= -->
 <div class="section">
-<div id="toggle-guala" class="chat-toggle chat-green" onclick="toggleChat('guala')">
-💬 CHAT GUALA (0)
-</div>
-<div id="chat-guala" class="chat-container"></div>
+<h2>💬 CHAT UTENTI</h2>
+<div id="chatContainer">Caricamento…</div>
 </div>
 
-<!-- =========================
-     CHAT PIOBESI
-========================= -->
-<div class="section">
-<div id="toggle-piobesi" class="chat-toggle chat-green" onclick="toggleChat('piobesi')">
-💬 CHAT PIOBESI (0)
-</div>
-<div id="chat-piobesi" class="chat-container"></div>
-</div>
-
-<!-- =========================
-     SEGNALAZIONI (INVARIATE)
-========================= -->
+<!-- ================= SEGNALAZIONI ================= -->
 <div class="section">
 <h2>📋 TUTTE LE SEGNALAZIONI</h2>
 <table class="table">
 <thead>
 <tr>
 <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -126,134 +117,119 @@ textarea{
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-const dbRef = firebase.firestore();
+const chatContainer = document.getElementById("chatContainer");
+let openChatId = null;
 
-/* =========================
-   TOGGLE CHAT
-========================= */
-function toggleChat(c){
-  const el=document.getElementById("chat-"+c);
-  el.style.display=el.style.display==="block"?"none":"block";
-}
+firebase.firestore().collection("chats")
+.orderBy("meta.nome")
+.onSnapshot(snap=>{
+  chatContainer.innerHTML="";
+  if(snap.empty){
+    chatContainer.innerText="Nessuna chat";
+    return;
+  }
 
-/* =========================
-   RENDER CHAT SECTION
-========================= */
-function renderChatSection(complesso){
-  const container=document.getElementById("chat-"+complesso);
-  const toggle=document.getElementById("toggle-"+complesso);
+  snap.forEach(doc=>{
+    const d = doc.data();
+    const m = d.meta || {};
+    const archived = m.archived === true;
 
-  dbRef.collection("chats")
-    .where("meta.complesso","==",complesso)
-    .onSnapshot(snap=>{
-      container.innerHTML="";
-      let unreadTotal=0;
+    const wrap = document.createElement("div");
 
-      snap.forEach(doc=>{
-        const d=doc.data();
-        const m=d.meta||{};
-        const chatId=doc.id;
+    const header = document.createElement("div");
+    header.className = "chat-toggle";
+    header.innerHTML = `
+      <div>${m.nome || ""} – ${m.scala || ""} ${m.piano || ""} ${m.lato || ""}</div>
+      <span>${archived ? "ARCHIVIATA" : "ATTIVA"} ▸</span>
+    `;
 
-        if(!m.nome)return;
+    const body = document.createElement("div");
+    body.className = "chat-body";
+    body.id = "body-" + doc.id;
 
-        dbRef.collection("chats").doc(chatId)
-          .collection("messages")
-          .where("timestamp",">",m.lastReadAdminAt||new Date(0))
-          .get()
-          .then(unreadSnap=>{
-            unreadTotal+=unreadSnap.size;
-            updateToggle(toggle,unreadTotal);
-          });
+    body.innerHTML = `
+      <div class="chat-box" id="box-${doc.id}"></div>
+      <textarea id="input-${doc.id}" placeholder="Scrivi come admin..."></textarea>
+      <div style="margin-top:6px">
+        <button class="btn btn-send" onclick="sendAdmin('${doc.id}')">INVIA</button>
+        <button class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</button>
+        <button class="btn btn-archive" onclick="toggleArchive('${doc.id}',${archived})">
+          ${archived?"RIPRISTINA":"ARCHIVIA"}
+        </button>
+        <button class="btn btn-clear" onclick="clearChat('${doc.id}')">CANCELLA TESTI</button>
+      </div>
+    `;
 
-        const wrap=document.createElement("div");
-        wrap.style.borderBottom="1px solid #333";
-        wrap.style.paddingBottom="10px";
-        wrap.style.marginBottom="10px";
+    header.onclick = ()=>{
+      document.querySelectorAll(".chat-body").forEach(el=>el.style.display="none");
+      document.querySelectorAll(".chat-toggle").forEach(el=>el.classList.remove("active"));
 
-        wrap.innerHTML=`
-<b>${m.nome} – ${m.scala} ${m.piano} ${m.lato}</b>
-<span class="${m.archived?'status-archived':'status-active'}">
- ${m.archived?' ARCHIVIATA':' ATTIVA'}
-</span>
-<div class="chat-box" id="box-${chatId}"></div>
-<textarea id="input-${chatId}" placeholder="Scrivi come admin..."></textarea>
-<button class="btn btn-send" onclick="sendAdmin('${chatId}')">INVIA</button>
-<button class="btn btn-reset" onclick="resetPin('${chatId}')">RESET PIN</button>
-<button class="btn btn-archive" onclick="toggleArchive('${chatId}',${m.archived===true})">
-${m.archived?'RIPRISTINA':'ARCHIVIA'}
-</button>
-<button class="btn btn-clear" onclick="clearChat('${chatId}')">CANCELLA TESTI</button>
-        `;
-        container.appendChild(wrap);
+      if(openChatId !== doc.id){
+        body.style.display="block";
+        header.classList.add("active");
+        openChatId = doc.id;
+      }else{
+        openChatId = null;
+      }
+    };
 
-        dbRef.collection("chats").doc(chatId)
-          .collection("messages")
-          .orderBy("timestamp","asc")
-          .onSnapshot(ms=>{
-            const box=document.getElementById("box-"+chatId);
-            box.innerHTML="";
-            ms.forEach(mm=>{
-              const msg=mm.data();
-              const div=document.createElement("div");
-              div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
-              div.innerText=msg.testo;
-              box.appendChild(div);
-            });
-            box.scrollTop=box.scrollHeight;
-          });
+    wrap.appendChild(header);
+    wrap.appendChild(body);
+    chatContainer.appendChild(wrap);
+
+    firebase.firestore().collection("chats")
+      .doc(doc.id).collection("messages")
+      .orderBy("timestamp","asc")
+      .onSnapshot(ms=>{
+        const box=document.getElementById("box-"+doc.id);
+        if(!box) return;
+        box.innerHTML="";
+        ms.forEach(m=>{
+          const msg=m.data();
+          const div=document.createElement("div");
+          div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
+          div.innerText=msg.testo;
+          box.appendChild(div);
+        });
+        box.scrollTop=box.scrollHeight;
       });
+  });
+});
 
-      updateToggle(toggle,unreadTotal);
-    });
-}
-
-function updateToggle(el,count){
-  el.innerText=el.innerText.split("(")[0]+"("+count+")";
-  el.className="chat-toggle "+
-    (count>=7?"chat-red":count>=3?"chat-yellow":"chat-green");
-}
-
-/* =========================
-   CHAT ACTIONS
-========================= */
 function sendAdmin(id){
   const input=document.getElementById("input-"+id);
   const txt=input.value.trim();
   if(!txt)return;
-
-  dbRef.collection("chats").doc(id).collection("messages").add({
-    testo:txt,
-    mittente:"admin",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  dbRef.collection("chats").doc(id).update({
-    "meta.lastReadAdminAt":firebase.firestore.FieldValue.serverTimestamp()
-  });
-
+  firebase.firestore().collection("chats")
+    .doc(id).collection("messages")
+    .add({
+      testo:txt,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
   input.value="";
 }
 
 function resetPin(id){
   if(!confirm("Reset PIN utente?"))return;
-  dbRef.collection("chats").doc(id).update({"meta.pinHash":null});
+  firebase.firestore().collection("chats")
+    .doc(id)
+    .update({ "meta.pinHash": null });
 }
 
-function toggleArchive(id,a){
-  dbRef.collection("chats").doc(id).update({"meta.archived":!a});
+function toggleArchive(id,archived){
+  firebase.firestore().collection("chats")
+    .doc(id)
+    .update({ "meta.archived": !archived });
 }
 
 function clearChat(id){
   if(!confirm("Cancellare SOLO i messaggi?"))return;
-  dbRef.collection("chats").doc(id).collection("messages").get()
+  firebase.firestore().collection("chats")
+    .doc(id).collection("messages")
+    .get()
     .then(snap=>snap.forEach(d=>d.ref.delete()));
 }
-
-/* =========================
-   INIT
-========================= */
-renderChatSection("guala");
-renderChatSection("piobesi");
 </script>
 
 </body>
