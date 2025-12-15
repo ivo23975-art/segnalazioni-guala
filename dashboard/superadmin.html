@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>SUPER ADMIN – Chat + Segnalazioni</title>
+<title>SUPER ADMIN v2 – Chat + Segnalazioni</title>
 
 <link rel="stylesheet" href="dashboard.css">
 
@@ -12,11 +12,7 @@
 
 <!-- CONFIG -->
 <script src="firebase-config.js"></script>
-
-<!-- AUTH -->
 <script src="admin-auth.js"></script>
-
-<!-- DASHBOARD -->
 <script src="dashboard.js"></script>
 
 <style>
@@ -27,38 +23,33 @@
   cursor:pointer;font-weight:bold
 }
 
-.section{margin-bottom:30px}
+.section{margin-bottom:40px}
 
-.cards-top{
-  display:flex;
-  gap:20px;
-  margin-bottom:30px
-}
-
-.chat-card{
-  flex:1;
-  padding:18px;
-  border-radius:12px;
-  font-size:20px;
-  font-weight:bold;
+.chat-toggle{
+  padding:10px;
+  border-radius:8px;
   cursor:pointer;
+  font-weight:bold;
   text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.3);
-  background:#e0e0e0;
+  margin-bottom:10px;
 }
 
-.card-green{background:#00c853;color:#000}
-.card-yellow{background:#ffeb3b;color:#000}
-.card-red{background:#ff5252;color:#fff;animation:blink 1s infinite}
-@keyframes blink{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}
+.chat-green{background:#00c853;color:#000}
+.chat-yellow{background:#ffeb3b;color:#000}
+.chat-red{background:#ff5252;color:#fff;animation:blink 1s infinite}
 
-.chat-panel{display:none;margin-bottom:40px}
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.5}
+}
+
+.chat-container{display:none;margin-bottom:30px}
 
 .chat-box{
   background:#0e1b2a;
   border-radius:8px;
   padding:10px;
-  max-height:200px;
+  max-height:220px;
   overflow-y:auto
 }
 
@@ -74,7 +65,7 @@ textarea{
   margin-top:6px
 }
 
-.btn{padding:6px 10px;border-radius:4px;font-weight:bold;cursor:pointer}
+.btn{padding:6px 10px;border-radius:4px;font-weight:bold;cursor:pointer;margin-top:4px}
 .btn-send{background:#00c853;color:#000}
 .btn-reset{background:#ff9800;color:#000}
 .btn-archive{background:#607d8b;color:#fff}
@@ -89,56 +80,32 @@ textarea{
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">SUPER ADMIN – CHAT + SEGNALAZIONI</div>
+<div class="header">SUPER ADMIN v2 – CHAT + SEGNALAZIONI</div>
 
 <div class="content">
 
 <!-- =========================
-     CARD DI TESTA
-========================= -->
-<div class="cards-top">
-  <div id="cardGuala" class="chat-card" onclick="togglePanel('guala')">
-    💬 CHAT GUALA (<span id="countGuala">0</span>)
-  </div>
-  <div id="cardPiobesi" class="chat-card" onclick="togglePanel('piobesi')">
-    💬 CHAT PIOBESI (<span id="countPiobesi">0</span>)
-  </div>
-</div>
-
-<!-- =========================
      CHAT GUALA
 ========================= -->
-<div id="panel-guala" class="chat-panel">
-<h2>Chat Guala</h2>
-<table class="table">
-<thead>
-<tr>
-<th>Scala</th><th>Piano</th><th>Lato</th><th>Nome</th>
-<th>Stato</th><th>Chat</th><th>Azioni</th>
-</tr>
-</thead>
-<tbody id="chatGuala"></tbody>
-</table>
+<div class="section">
+<div id="toggle-guala" class="chat-toggle chat-green" onclick="toggleChat('guala')">
+💬 CHAT GUALA (0)
+</div>
+<div id="chat-guala" class="chat-container"></div>
 </div>
 
 <!-- =========================
      CHAT PIOBESI
 ========================= -->
-<div id="panel-piobesi" class="chat-panel">
-<h2>Chat Piobesi</h2>
-<table class="table">
-<thead>
-<tr>
-<th>Scala</th><th>Piano</th><th>Lato</th><th>Nome</th>
-<th>Stato</th><th>Chat</th><th>Azioni</th>
-</tr>
-</thead>
-<tbody id="chatPiobesi"></tbody>
-</table>
+<div class="section">
+<div id="toggle-piobesi" class="chat-toggle chat-green" onclick="toggleChat('piobesi')">
+💬 CHAT PIOBESI (0)
+</div>
+<div id="chat-piobesi" class="chat-container"></div>
 </div>
 
 <!-- =========================
-     SEGNALAZIONI (INTOCCATE)
+     SEGNALAZIONI (INVARIATE)
 ========================= -->
 <div class="section">
 <h2>📋 TUTTE LE SEGNALAZIONI</h2>
@@ -159,120 +126,134 @@ textarea{
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-let openPanel = null;
+const dbRef = firebase.firestore();
 
-function togglePanel(c){
-  const p = document.getElementById("panel-"+c);
-  if(openPanel && openPanel!==p) openPanel.style.display="none";
-  p.style.display = p.style.display==="block"?"none":"block";
-  openPanel = p.style.display==="block"?p:null;
+/* =========================
+   TOGGLE CHAT
+========================= */
+function toggleChat(c){
+  const el=document.getElementById("chat-"+c);
+  el.style.display=el.style.display==="block"?"none":"block";
 }
 
-function setCardState(card,count){
-  card.classList.remove("card-green","card-yellow","card-red");
-  if(count>=7) card.classList.add("card-red");
-  else if(count>=3) card.classList.add("card-yellow");
-  else if(count>=1) card.classList.add("card-green");
-}
+/* =========================
+   RENDER CHAT SECTION
+========================= */
+function renderChatSection(complesso){
+  const container=document.getElementById("chat-"+complesso);
+  const toggle=document.getElementById("toggle-"+complesso);
 
-function loadChats(complesso,tbodyId,cardId,countId){
-  const tbody=document.getElementById(tbodyId);
-  const card=document.getElementById(cardId);
-  const counter=document.getElementById(countId);
+  dbRef.collection("chats")
+    .where("meta.complesso","==",complesso)
+    .onSnapshot(snap=>{
+      container.innerHTML="";
+      let unreadTotal=0;
 
-  firebase.firestore().collection("chats")
-  .where("meta.complesso","==",complesso)
-  .onSnapshot(snap=>{
-    tbody.innerHTML="";
-    counter.innerText=snap.size;
-    setCardState(card,snap.size);
+      snap.forEach(doc=>{
+        const d=doc.data();
+        const m=d.meta||{};
+        const chatId=doc.id;
 
-    snap.forEach(doc=>{
-      const d=doc.data();
-      const m=d.meta||{};
-      const archived=m.archived===true;
+        if(!m.nome)return;
 
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td>${m.scala||""}</td>
-        <td>${m.piano||""}</td>
-        <td>${m.lato||""}</td>
-        <td>${m.nome||""}</td>
-        <td class="${archived?"status-archived":"status-active"}">
-          ${archived?"ARCHIVIATA":"ATTIVA"}
-        </td>
-        <td>
-          <div class="chat-box" id="box-${doc.id}"></div>
-          <textarea id="input-${doc.id}" placeholder="Scrivi come admin..."></textarea>
-          <button class="btn btn-send" onclick="sendAdmin('${doc.id}')">INVIA</button>
-        </td>
-        <td>
-          <button class="btn btn-reset" onclick="resetPin('${doc.id}')">RESET PIN</button><br><br>
-          <button class="btn btn-archive" onclick="toggleArchive('${doc.id}',${archived})">
-            ${archived?"RIPRISTINA":"ARCHIVIA"}
-          </button><br><br>
-          <button class="btn btn-clear" onclick="clearChat('${doc.id}')">
-            CANCELLA TESTI
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+        dbRef.collection("chats").doc(chatId)
+          .collection("messages")
+          .where("timestamp",">",m.lastReadAdminAt||new Date(0))
+          .get()
+          .then(unreadSnap=>{
+            unreadTotal+=unreadSnap.size;
+            updateToggle(toggle,unreadTotal);
+          });
 
-      firebase.firestore().collection("chats")
-      .doc(doc.id).collection("messages")
-      .orderBy("timestamp")
-      .onSnapshot(ms=>{
-        const box=document.getElementById("box-"+doc.id);
-        box.innerHTML="";
-        ms.forEach(m=>{
-          const msg=m.data();
-          const div=document.createElement("div");
-          div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
-          div.innerText=msg.testo;
-          box.appendChild(div);
-        });
-        box.scrollTop=box.scrollHeight;
+        const wrap=document.createElement("div");
+        wrap.style.borderBottom="1px solid #333";
+        wrap.style.paddingBottom="10px";
+        wrap.style.marginBottom="10px";
+
+        wrap.innerHTML=`
+<b>${m.nome} – ${m.scala} ${m.piano} ${m.lato}</b>
+<span class="${m.archived?'status-archived':'status-active'}">
+ ${m.archived?' ARCHIVIATA':' ATTIVA'}
+</span>
+<div class="chat-box" id="box-${chatId}"></div>
+<textarea id="input-${chatId}" placeholder="Scrivi come admin..."></textarea>
+<button class="btn btn-send" onclick="sendAdmin('${chatId}')">INVIA</button>
+<button class="btn btn-reset" onclick="resetPin('${chatId}')">RESET PIN</button>
+<button class="btn btn-archive" onclick="toggleArchive('${chatId}',${m.archived===true})">
+${m.archived?'RIPRISTINA':'ARCHIVIA'}
+</button>
+<button class="btn btn-clear" onclick="clearChat('${chatId}')">CANCELLA TESTI</button>
+        `;
+        container.appendChild(wrap);
+
+        dbRef.collection("chats").doc(chatId)
+          .collection("messages")
+          .orderBy("timestamp","asc")
+          .onSnapshot(ms=>{
+            const box=document.getElementById("box-"+chatId);
+            box.innerHTML="";
+            ms.forEach(mm=>{
+              const msg=mm.data();
+              const div=document.createElement("div");
+              div.className="chat-msg "+(msg.mittente==="admin"?"chat-admin":"chat-user");
+              div.innerText=msg.testo;
+              box.appendChild(div);
+            });
+            box.scrollTop=box.scrollHeight;
+          });
       });
+
+      updateToggle(toggle,unreadTotal);
     });
-  });
 }
 
-loadChats("guala","chatGuala","cardGuala","countGuala");
-loadChats("piobesi","chatPiobesi","cardPiobesi","countPiobesi");
+function updateToggle(el,count){
+  el.innerText=el.innerText.split("(")[0]+"("+count+")";
+  el.className="chat-toggle "+
+    (count>=7?"chat-red":count>=3?"chat-yellow":"chat-green");
+}
 
+/* =========================
+   CHAT ACTIONS
+========================= */
 function sendAdmin(id){
-  const i=document.getElementById("input-"+id);
-  const t=i.value.trim();
-  if(!t)return;
-  firebase.firestore().collection("chats")
-  .doc(id).collection("messages")
-  .add({
-    testo:t,
+  const input=document.getElementById("input-"+id);
+  const txt=input.value.trim();
+  if(!txt)return;
+
+  dbRef.collection("chats").doc(id).collection("messages").add({
+    testo:txt,
     mittente:"admin",
     timestamp:firebase.firestore.FieldValue.serverTimestamp()
   });
-  i.value="";
+
+  dbRef.collection("chats").doc(id).update({
+    "meta.lastReadAdminAt":firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  input.value="";
 }
 
 function resetPin(id){
   if(!confirm("Reset PIN utente?"))return;
-  firebase.firestore().collection("chats")
-  .doc(id).update({"meta.pinHash":null});
+  dbRef.collection("chats").doc(id).update({"meta.pinHash":null});
 }
 
 function toggleArchive(id,a){
-  firebase.firestore().collection("chats")
-  .doc(id).update({"meta.archived":!a});
+  dbRef.collection("chats").doc(id).update({"meta.archived":!a});
 }
 
 function clearChat(id){
   if(!confirm("Cancellare SOLO i messaggi?"))return;
-  firebase.firestore().collection("chats")
-  .doc(id).collection("messages")
-  .get().then(s=>{
-    s.forEach(d=>d.ref.delete());
-  });
+  dbRef.collection("chats").doc(id).collection("messages").get()
+    .then(snap=>snap.forEach(d=>d.ref.delete()));
 }
+
+/* =========================
+   INIT
+========================= */
+renderChatSection("guala");
+renderChatSection("piobesi");
 </script>
 
 </body>
