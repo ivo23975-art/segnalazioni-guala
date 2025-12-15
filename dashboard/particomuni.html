@@ -21,18 +21,13 @@
 
 <style>
 .logout-btn{
-  position:absolute;
-  top:15px;
-  right:20px;
-  background:#ff0000;
-  color:white;
-  padding:10px 18px;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
+  position:absolute;top:15px;right:20px;
+  background:#ff0000;color:white;
+  padding:10px 18px;border-radius:6px;
+  font-weight:bold;cursor:pointer;
 }
 
-.chat-box{
+.chat-section{
   margin-top:30px;
   border-top:2px solid #333;
   padding-top:20px;
@@ -42,10 +37,6 @@
   margin:5px;
   padding:6px 10px;
   cursor:pointer;
-  border-radius:6px;
-  border:none;
-  background:#1e3a5f;
-  color:white;
 }
 
 .chat-window{
@@ -53,17 +44,12 @@
   border:1px solid #333;
   padding:10px;
   background:#111;
-  border-radius:8px;
 }
 
-.chat-msg.admin{color:#00e676;margin:4px 0;}
-.chat-msg.user{color:#90caf9;margin:4px 0;}
+.chat-msg.admin{color:#00e676;margin-bottom:6px}
+.chat-msg.user{color:#90caf9;margin-bottom:6px}
 
-textarea{
-  width:100%;
-  margin-top:10px;
-  resize:none;
-}
+textarea{width:100%;margin-top:10px}
 </style>
 </head>
 
@@ -76,7 +62,7 @@ textarea{
 <div class="content">
 
 <!-- ======================
-     SEGNALAZIONI
+     SEGNALAZIONI (INVARIATE)
 ====================== -->
 <table class="table">
 <thead>
@@ -96,19 +82,28 @@ textarea{
 </table>
 
 <!-- ======================
-     CHAT 1↔1 (DESTINATARIO)
+     CHAT DA GUALA
 ====================== -->
-<div class="chat-box">
-<h2>💬 Chat utenti (Parti Comuni)</h2>
+<div class="chat-section">
+<h2>💬 Chat utenti – Guala</h2>
 
-<div class="chat-list" id="chatList">Caricamento chat…</div>
+<div id="chatListGuala">Caricamento chat…</div>
 
-<div class="chat-window" id="chatWindow" style="display:none;">
-  <h3 id="chatTitle"></h3>
-  <div id="chatMessages"></div>
-  <textarea id="chatInput" placeholder="Scrivi risposta..."></textarea>
-  <button onclick="sendPartiComuniMsg()">Invia</button>
+<div id="chatWindow" style="display:none">
+<h3 id="chatTitle"></h3>
+<div id="chatMessages"></div>
+<textarea id="chatInput" placeholder="Scrivi risposta..."></textarea>
+<button onclick="sendPartiComuniMsg()">Invia</button>
 </div>
+</div>
+
+<!-- ======================
+     CHAT DA PIOBESI
+====================== -->
+<div class="chat-section">
+<h2>💬 Chat utenti – Piobesi</h2>
+
+<div id="chatListPiobesi">Caricamento chat…</div>
 </div>
 
 </div>
@@ -116,93 +111,104 @@ textarea{
 <script>
 requireRole("particomuni");
 
-/* ======================
+/* =====================
    SEGNALAZIONI
-====================== */
+===================== */
 loadSegnalazioni(
-  r =>
-    (r.tipo === "Parti comuni" || r.tipo === "particomuni") &&
-    r.stato === "attiva"
+ r => (r.tipo === "Parti comuni" || r.tipo === "particomuni") && r.stato === "attiva"
 );
 
-/* ======================
-   CHAT 1↔1 — PARTI COMUNI
-   - destinatario
-   - NO broadcast
-====================== */
+/* =====================
+   CHAT 1↔1
+===================== */
 let currentChatId = null;
 let unsubscribeChat = null;
 
-const chatList     = document.getElementById("chatList");
 const chatWindow   = document.getElementById("chatWindow");
 const chatMessages = document.getElementById("chatMessages");
+const chatListGuala   = document.getElementById("chatListGuala");
+const chatListPiobesi = document.getElementById("chatListPiobesi");
 
-/* Elenco chat destinate a PARTI COMUNI */
+/* ===== LISTA CHAT GUALA ===== */
 db.collection("chats")
-  .where("meta.destinatario", "==", "particomuni")
-  .orderBy("meta.nome")
-  .onSnapshot(snapshot => {
-
-    chatList.innerHTML = "";
-
-    if (snapshot.empty) {
-      chatList.innerText = "Nessuna chat attiva";
-      return;
-    }
-
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      const btn = document.createElement("button");
-
-      btn.innerText = `${d.meta.nome} – ${d.meta.scala} ${d.meta.piano} ${d.meta.lato}`;
-      btn.onclick = () => openChat(doc.id, d.meta);
-
-      chatList.appendChild(btn);
-    });
+.where("meta.destinatario","==","particomuni")
+.where("meta.complesso","==","guala")
+.orderBy("meta.nome")
+.onSnapshot(snap=>{
+  chatListGuala.innerHTML="";
+  if(snap.empty){
+    chatListGuala.innerText="Nessuna chat da Guala";
+    return;
+  }
+  snap.forEach(doc=>{
+    const d=doc.data();
+    const b=document.createElement("button");
+    b.innerText=`${d.meta.nome} – ${d.meta.scala} ${d.meta.piano}`;
+    b.onclick=()=>openChat(doc.id,d.meta);
+    chatListGuala.appendChild(b);
   });
+});
 
-function openChat(chatId, meta){
-  currentChatId = chatId;
-  chatWindow.style.display = "block";
+/* ===== LISTA CHAT PIOBESI ===== */
+db.collection("chats")
+.where("meta.destinatario","==","particomuni")
+.where("meta.complesso","==","piobesi")
+.orderBy("meta.nome")
+.onSnapshot(snap=>{
+  chatListPiobesi.innerHTML="";
+  if(snap.empty){
+    chatListPiobesi.innerText="Nessuna chat da Piobesi";
+    return;
+  }
+  snap.forEach(doc=>{
+    const d=doc.data();
+    const b=document.createElement("button");
+    b.innerText=`${d.meta.nome} – ${d.meta.scala} ${d.meta.piano}`;
+    b.onclick=()=>openChat(doc.id,d.meta);
+    chatListPiobesi.appendChild(b);
+  });
+});
 
+/* ===== APRI CHAT ===== */
+function openChat(id,meta){
+  currentChatId=id;
+  chatWindow.style.display="block";
   document.getElementById("chatTitle").innerText =
-    `Chat • ${meta.nome} • ${meta.scala} ${meta.piano} ${meta.lato}`;
+   `${meta.nome} • ${meta.scala} ${meta.piano} ${meta.lato}`;
 
-  if (unsubscribeChat) unsubscribeChat();
+  if(unsubscribeChat) unsubscribeChat();
 
   unsubscribeChat = db.collection("chats")
-    .doc(chatId)
-    .collection("messages")
-    .orderBy("timestamp", "asc")
-    .onSnapshot(snapshot => {
-
-      chatMessages.innerHTML = "";
-
-      snapshot.forEach(doc => {
-        const m = doc.data();
-        const div = document.createElement("div");
-        div.className = "chat-msg " + m.mittente;
-        div.innerText = m.testo;
-        chatMessages.appendChild(div);
-      });
-    });
+   .doc(id).collection("messages")
+   .orderBy("timestamp")
+   .onSnapshot(s=>{
+     chatMessages.innerHTML="";
+     s.forEach(m=>{
+       const d=m.data();
+       const div=document.createElement("div");
+       div.className="chat-msg "+d.mittente;
+       div.innerText=d.testo;
+       chatMessages.appendChild(div);
+     });
+   });
 }
 
+/* ===== INVIO RISPOSTA ===== */
 function sendPartiComuniMsg(){
-  const input = document.getElementById("chatInput");
-  const text = input.value.trim();
-  if (!text || !currentChatId) return;
+  const i=document.getElementById("chatInput");
+  const t=i.value.trim();
+  if(!t||!currentChatId) return;
 
   db.collection("chats")
-    .doc(currentChatId)
-    .collection("messages")
-    .add({
-      testo: text,
-      mittente: "admin",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+   .doc(currentChatId)
+   .collection("messages")
+   .add({
+     testo:t,
+     mittente:"admin",
+     timestamp:firebase.firestore.FieldValue.serverTimestamp()
+   });
 
-  input.value = "";
+  i.value="";
 }
 </script>
 
