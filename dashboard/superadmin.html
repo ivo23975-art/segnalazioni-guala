@@ -236,32 +236,24 @@
   box-shadow:0 2px 10px rgba(0,0,0,.08);
   word-wrap:break-word;
   white-space:pre-wrap;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-user{
   background:#e6f2ff;
   align-self:flex-start;
   margin-right:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-admin{
   background:#d6ffd6;
   align-self:flex-end;
   margin-left:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-time{
   font-size:.75rem;
   opacity:.65;
   text-align:right;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 
@@ -274,8 +266,6 @@ textarea{
   padding:10px;
   margin-top:10px;
   box-sizing:border-box;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .btn{
@@ -290,6 +280,9 @@ textarea{
 .btnSend{ background:#00c853; color:#111; }
 .btnClose{ background:#ccc; color:#111; }
 .btnResetPin{ background:#ff9800; color:#111; }
+
+/* ====== Segnalazioni: separazione solo UI ====== */
+.segn-hidden { display:none !important; }
 </style>
 </head>
 
@@ -332,9 +325,37 @@ textarea{
   </div>
 </div>
 
-<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
+<!-- ================= SEGNALAZIONI – GUALA (UI) ================= -->
 <div class="section">
-  <h2>📋 TUTTE LE SEGNALAZIONI</h2>
+  <h2>📋 SEGNALAZIONI – GUALA</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+        <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-guala"></tbody>
+  </table>
+</div>
+
+<!-- ================= SEGNALAZIONI – PIOBESI (UI) ================= -->
+<div class="section">
+  <h2>📋 SEGNALAZIONI – PIOBESI</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+        <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-piobesi"></tbody>
+  </table>
+</div>
+
+<!-- ================= SEGNAZIONI ORIGINALE (NASCOSTA, PER NON TOCCARE dashboard.js) ================= -->
+<div class="section segn-hidden" id="segn-hidden-wrap">
+  <h2>📋 TUTTE LE SEGNALAZIONI (HIDDEN)</h2>
   <table class="table">
     <thead>
       <tr>
@@ -366,16 +387,55 @@ requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
 /* ==========================================================
+   SEGNALAZIONI – SPLIT SOLO FRONTEND (NO dashboard.js CHANGE)
+   - dashboard.js continua a renderizzare in #tbody
+   - noi spostiamo i <tr> in #tbody-guala o #tbody-piobesi
+   - classificazione per "Scala" (colonna 2), mappata alle scale note
+========================================================== */
+
+const tbodyHidden = document.getElementById("tbody");
+const tbodyGuala = document.getElementById("tbody-guala");
+const tbodyPiobesi = document.getElementById("tbody-piobesi");
+
+const SCALE_GUALA = new Set(["SCALA 131","SCALA 131 BIS","SCALA 133"]);
+const SCALE_PIOBESI = new Set(["SCALA 6","SCALA 8","SCALA 10"]);
+
+function getScalaFromRow(tr){
+  try{
+    const tds = tr.querySelectorAll("td");
+    if (!tds || tds.length < 2) return "";
+    return (tds[1].innerText || "").trim().toUpperCase();
+  }catch(e){
+    return "";
+  }
+}
+
+function routeRow(tr){
+  const scala = getScalaFromRow(tr);
+  if (SCALE_GUALA.has(scala)){
+    tbodyGuala.appendChild(tr);
+    return;
+  }
+  if (SCALE_PIOBESI.has(scala)){
+    tbodyPiobesi.appendChild(tr);
+    return;
+  }
+  tbodyGuala.appendChild(tr);
+}
+
+function resplitAll(){
+  const rows = Array.from(tbodyHidden.querySelectorAll("tr"));
+  rows.forEach(routeRow);
+}
+
+const obs = new MutationObserver(() => {
+  resplitAll();
+});
+
+obs.observe(tbodyHidden, { childList:true, subtree:false });
+
+/* ==========================================================
    CHAT – SUPERADMIN CORRETTO + UI ALERT
-   - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
-   - 1 listener messages alla volta (solo modale aperta)
-   - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
-   - Reset PIN (SOLO superadmin): meta.pinHash = null
-   - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
-   - Alert: chat item
-       1-2 nuovi -> verde
-       3-6 nuovi -> arancione
-       >=7 nuovi -> rosso
 ========================================================== */
 
 const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
@@ -398,10 +458,9 @@ let chatOpenDocId = null;
 let chatOpenMeta = null;
 let unsubscribeOpenChat = null;
 
-/* listeners per calcolo "nuovi messaggi" (senza cambiare la logica chat) */
-const perChatListener = new Map();     // docId -> unsubscribe
-const perChatUnread = new Map();       // docId -> unreadCount (user messages)
-const perChatLastSeen = new Map();     // docId -> lastReadMs (local cache)
+const perChatListener = new Map();
+const perChatUnread = new Map();
+const perChatLastSeen = new Map();
 let renderCacheG = [];
 let renderCacheP = [];
 
@@ -466,7 +525,6 @@ function updateContainerIndicators(){
   }
 }
 
-/* calcolo nuovi messaggi: conta messaggi "user" recenti (ultimi 50) dopo lastReadAdminAt */
 function ensurePerChatUnreadListener(docId){
   if (perChatListener.has(docId)) return;
 
@@ -497,7 +555,6 @@ function ensurePerChatUnreadListener(docId){
             if (m.timestamp && m.timestamp.toMillis) tms = m.timestamp.toMillis();
             else if (m.timestamp && m.timestamp.toDate) tms = m.timestamp.toDate().getTime();
           }catch(e){ tms = 0; }
-
           if (tms > lastReadMs) unread += 1;
         });
 
@@ -506,7 +563,6 @@ function ensurePerChatUnreadListener(docId){
         }
 
         perChatUnread.set(docId, unread);
-
         renderChatList(listGuala, renderCacheG);
         renderChatList(listPiobesi, renderCacheP);
         updateContainerIndicators();
