@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>SUPER ADMIN – Segnalazioni</title>
+<title>SUPER ADMIN – Chat + Segnalazioni</title>
 
 <link rel="stylesheet" href="dashboard.css">
 
@@ -23,6 +23,174 @@
   cursor:pointer;font-weight:bold
 }
 .section{margin-bottom:30px}
+
+/* ===== CHAT – 2 CARD SOPRA SEGNALAZIONI ===== */
+.chat-cards{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+@media (max-width: 900px){
+  .chat-cards{ grid-template-columns: 1fr; }
+}
+
+.chat-card{
+  background:#0f2a3d;
+  border-radius:12px;
+  padding:12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  color:#fff;
+}
+
+.chat-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+.chat-card-sub{
+  opacity:.85;
+  margin-top:6px;
+  font-size:13px;
+}
+
+.chat-list{
+  margin-top:10px;
+  display:none;
+  max-height:260px;
+  overflow-y:auto;
+  padding-right:4px;
+}
+.chat-item{
+  background:#102f45;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+.chat-item:hover{ background:#123e5c; }
+.chat-item .left{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.chat-item .title{
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.chat-item .meta{
+  font-size:12px;
+  opacity:.85;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.badge-admin{ background:#0077ff; color:#fff; }
+.badge-pc{ background:#ffcc00; color:#111; }
+
+/* ===== MODALE CHAT (stile index pubblico, ma admin) ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background: rgba(0,0,0,.45);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.modal-content{
+  background:white;
+  width:92%;
+  max-width:520px;
+  height:78vh;
+  max-height:78vh;
+  border-radius:16px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+}
+#chatTitle{
+  margin:0;
+  text-align:center;
+  font-weight:900;
+}
+#chatMessages{
+  flex:1;
+  overflow-y:auto;
+  border:1px solid #e2e2e2;
+  border-radius:12px;
+  padding:10px;
+  background:#fafafa;
+  margin-top:10px;
+}
+.chat-bubble{
+  max-width:82%;
+  padding:.6rem .75rem;
+  border-radius:.9rem;
+  margin:.35rem 0;
+  display:inline-flex;
+  flex-direction:column;
+  gap:.25rem;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  word-wrap:break-word;
+  white-space:pre-wrap;
+}
+.chat-bubble-user{
+  background:#e6f2ff;
+  align-self:flex-start;
+  margin-right:auto;
+}
+.chat-bubble-admin{
+  background:#d6ffd6;
+  align-self:flex-end;
+  margin-left:auto;
+}
+.chat-time{
+  font-size:.75rem;
+  opacity:.65;
+  text-align:right;
+}
+
+textarea{
+  width:100%;
+  height:70px;
+  resize:none;
+  border:1px solid #ccc;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+  box-sizing:border-box;
+}
+.btn{
+  margin-top:10px;
+  padding:12px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+}
+.btnSend{ background:#00c853; color:#111; }
+.btnClose{ background:#ccc; color:#111; }
 </style>
 </head>
 
@@ -30,29 +198,245 @@
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
 
-<div class="header">SUPER ADMIN – SEGNALAZIONI</div>
+<div class="header">SUPER ADMIN – CHAT + SEGNALAZIONI</div>
 
 <div class="content">
 
-<!-- ================= SEGNALAZIONI ================= -->
+<!-- ================= CHAT (SOPRA SEGNALAZIONI) ================= -->
 <div class="section">
-<h2>📋 TUTTE LE SEGNALAZIONI</h2>
-<table class="table">
-<thead>
-<tr>
-<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+  <h2>💬 CHAT</h2>
+
+  <div class="chat-cards">
+    <div class="chat-card" id="cardGuala">
+      <div class="chat-card-head" onclick="toggleChatCard('guala')">
+        <div>Chat Guala</div>
+        <div id="chevGuala">▸</div>
+      </div>
+      <div class="chat-card-sub">Apri per vedere tutte le chat del complesso Guala (amministrazione + parti comuni).</div>
+      <div class="chat-list" id="listGuala">Caricamento…</div>
+    </div>
+
+    <div class="chat-card" id="cardPiobesi">
+      <div class="chat-card-head" onclick="toggleChatCard('piobesi')">
+        <div>Chat Piobesi</div>
+        <div id="chevPiobesi">▸</div>
+      </div>
+      <div class="chat-card-sub">Apri per vedere tutte le chat del complesso Piobesi (amministrazione + parti comuni).</div>
+      <div class="chat-list" id="listPiobesi">Caricamento…</div>
+    </div>
+  </div>
 </div>
 
+<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
+<div class="section">
+  <h2>📋 TUTTE LE SEGNALAZIONI</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+        <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+</div>
+
+<!-- ================= MODALE CHAT ================= -->
+<div class="modal" id="modalChat">
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+    <div id="chatMessages"></div>
+    <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
+    <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
+    <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
+  </div>
 </div>
 
 <script>
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
+
+/* ==========================================================
+   CHAT – SUPERADMIN ALLINEATO A INDEX PUBBLICO
+   - chatId deterministico: c_<sha256(destinatario||complesso||scala||piano||lato||nome)>
+   - 2 contenitori: guala / piobesi
+   - 1 listener messages alla volta (solo modale aperta)
+========================================================== */
+
+const listGuala = document.getElementById("listGuala");
+const listPiobesi = document.getElementById("listPiobesi");
+
+const modalChat = document.getElementById("modalChat");
+const chatTitle = document.getElementById("chatTitle");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+
+let chatOpenId = null;
+let unsubscribeOpenChat = null;
+
+/* ===== util SHA256 (stesso metodo dell'index) ===== */
+async function sha256Hex(str){
+  const data = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function buildChatKeyString(meta){
+  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
+}
+
+/* ===== UI card open/close ===== */
+function toggleChatCard(complesso){
+  const list = (complesso === "guala") ? listGuala : listPiobesi;
+  const chev = document.getElementById(complesso === "guala" ? "chevGuala" : "chevPiobesi");
+  const open = list.style.display === "block";
+  list.style.display = open ? "none" : "block";
+  chev.innerText = open ? "▸" : "▾";
+}
+
+/* ===== LISTA CHAT (solo meta) =====
+   NOTA: qui non "inventiamo" documenti: mostriamo chat esistenti in /chats
+*/
+function renderChatList(targetEl, chats){
+  targetEl.innerHTML = "";
+  if (!chats.length){
+    targetEl.innerText = "Nessuna chat";
+    return;
+  }
+
+  chats.sort((a,b)=>{
+    const an = (a.meta.nome || "").toLowerCase();
+    const bn = (b.meta.nome || "").toLowerCase();
+    if (an < bn) return -1;
+    if (an > bn) return 1;
+    return 0;
+  });
+
+  chats.forEach(item=>{
+    const m = item.meta || {};
+    const row = document.createElement("div");
+    row.className = "chat-item";
+    const destLabel = (m.destinatario === "particomuni") ? "PARTI COMUNI" : "AMMIN.";
+    const badgeClass = (m.destinatario === "particomuni") ? "badge-pc" : "badge-admin";
+
+    row.innerHTML = `
+      <div class="left">
+        <div class="title">${m.nome || ""}</div>
+        <div class="meta">${m.scala || ""} • ${m.piano || ""} • ${m.lato || ""}</div>
+      </div>
+      <div class="badge ${badgeClass}">${destLabel}</div>
+    `;
+
+    row.onclick = () => openChatFromMeta(m);
+    targetEl.appendChild(row);
+  });
+}
+
+/* ===== Caricamento indice chat: leggiamo /chats e filtriamo per complesso ===== */
+firebase.firestore().collection("chats").onSnapshot((snap)=>{
+  const g = [];
+  const p = [];
+
+  snap.forEach(doc=>{
+    const d = doc.data() || {};
+    const m = d.meta || {};
+    if (!m.complesso) return;
+
+    if (m.complesso === "guala") g.push({ id: doc.id, meta: m });
+    if (m.complesso === "piobesi") p.push({ id: doc.id, meta: m });
+  });
+
+  renderChatList(listGuala, g);
+  renderChatList(listPiobesi, p);
+});
+
+/* ===== Apertura chat usando chiave deterministica (come index) ===== */
+async function openChatFromMeta(meta){
+  // costruiamo chatId come index pubblico, senza interpretazioni
+  const key = buildChatKeyString(meta);
+  const hash = await sha256Hex(key);
+  const chatId = `c_${hash}`;
+
+  openChatModal(chatId, meta);
+}
+
+/* ===== Modale + listener singolo ===== */
+function openChatModal(chatId, meta){
+  chatOpenId = chatId;
+
+  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  chatTitle.innerText = `Chat • ${titoloDest} • ${meta.nome || ""} • ${meta.scala || ""} • ${meta.piano || ""} • ${meta.lato || ""}`;
+
+  modalChat.style.display = "flex";
+  chatMessages.innerHTML = "";
+
+  if (unsubscribeOpenChat) unsubscribeOpenChat();
+
+  unsubscribeOpenChat = firebase.firestore()
+    .collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("timestamp","asc")
+    .onSnapshot((s)=>{
+      chatMessages.innerHTML = "";
+      s.forEach((d)=>{
+        const m = d.data() || {};
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (m.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = m.testo || "";
+
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "chat-time";
+        if (m.timestamp && m.timestamp.toDate) {
+          timeDiv.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          timeDiv.innerText = "";
+        }
+
+        bubble.appendChild(textDiv);
+        bubble.appendChild(timeDiv);
+        chatMessages.appendChild(bubble);
+      });
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+}
+
+function closeChatModal(){
+  modalChat.style.display = "none";
+  chatInput.value = "";
+  chatMessages.innerHTML = "";
+  chatOpenId = null;
+  if (unsubscribeOpenChat) unsubscribeOpenChat();
+  unsubscribeOpenChat = null;
+}
+
+/* ===== Invio admin ===== */
+function sendAdminMessage(){
+  const text = (chatInput.value || "").trim();
+  if (!text) return;
+  if (!chatOpenId) return;
+
+  firebase.firestore()
+    .collection("chats")
+    .doc(chatOpenId)
+    .collection("messages")
+    .add({
+      testo: text,
+      mittente: "admin",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=>{
+      chatInput.value = "";
+    })
+    .catch((err)=>{
+      alert("Errore invio: " + err.message);
+    });
+}
 </script>
 
 </body>
