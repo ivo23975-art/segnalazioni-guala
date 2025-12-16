@@ -17,7 +17,6 @@
 <script src="dashboard.js"></script>
 
 <style>
-/* ================= BASE ================= */
 .logout-btn{
   position:absolute;top:15px;right:20px;
   background:#ff0000;color:#fff;
@@ -26,132 +25,206 @@
 }
 .section{margin-bottom:30px}
 
-/* ================= CHAT CARDS ================= */
+/* ===== CHAT – 2 CARD SOPRA SEGNALAZIONI ===== */
 .chat-cards{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap:14px;
-  margin-bottom:18px
+  margin-bottom:18px;
 }
-@media (max-width:900px){
-  .chat-cards{grid-template-columns:1fr}
+@media (max-width: 900px){
+  .chat-cards{ grid-template-columns: 1fr; }
 }
 
 .chat-card{
   background:#0f2a3d;
   border-radius:12px;
   padding:12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
   color:#fff;
-  box-shadow:0 4px 14px rgba(0,0,0,.18);
-  border:1px solid rgba(255,255,255,.08)
+  border: 1px solid rgba(255,255,255,0.08);
+  transform: translateZ(0);
 }
 
-/* lampeggio contenitore */
+/* lampeggio contenitore (giallo) quando arrivano nuovi messaggi */
 .chat-card.attn{
-  animation: blinkYellow 1.2s infinite;
-  border-color:#ffcc00
+  animation: cardBlinkYellow 1.2s infinite;
+  border-color: rgba(255,204,0,0.65);
+  box-shadow: 0 8px 24px rgba(255,204,0,0.25), 0 4px 14px rgba(0,0,0,0.18);
 }
-@keyframes blinkYellow{
-  0%,100%{filter:brightness(1)}
-  50%{filter:brightness(1.25)}
+@keyframes cardBlinkYellow{
+  0%,100%{ filter: brightness(1); }
+  50%{ filter: brightness(1.25); }
 }
 
 .chat-card-head{
   display:flex;
   justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
   font-weight:900;
-  cursor:pointer
+  letter-spacing:.2px;
 }
 
 .chat-card-sub{
+  color: rgba(255,255,255,0.82);
+  margin-top:6px;
   font-size:13px;
-  opacity:.85;
   display:flex;
   justify-content:space-between;
-  margin-top:6px
+  gap:10px;
+  align-items:center;
 }
-
-.card-pill{
+.card-unread-pill{
   display:none;
-  background:rgba(255,204,0,.2);
-  border:1px solid rgba(255,204,0,.5);
+  font-size:12px;
+  font-weight:900;
   padding:4px 10px;
   border-radius:999px;
-  font-weight:900
+  background: rgba(255,204,0,0.18);
+  border: 1px solid rgba(255,204,0,0.45);
+  color:#fff;
+  white-space:nowrap;
 }
 
 .chat-list{
-  display:none;
   margin-top:10px;
+  display:none;
   max-height:300px;
-  overflow-y:auto
+  overflow-y:auto;
+  padding-right:4px;
 }
 
-/* ================= CHAT ITEM ================= */
 .chat-item{
   background:#102f45;
   border-radius:10px;
-  padding:10px;
+  padding:10px 10px;
   margin-bottom:8px;
+  cursor:pointer;
   display:flex;
   justify-content:space-between;
-  cursor:pointer;
-  border:1px solid rgba(255,255,255,.06)
+  gap:10px;
+  align-items:center;
+  border: 1px solid rgba(255,255,255,0.06);
+  transform: translateZ(0);
 }
-.chat-item:hover{background:#123e5c}
+.chat-item:hover{ background:#123e5c; }
 
-.chat-item.unread-green{box-shadow:0 0 12px rgba(0,200,83,.6)}
-.chat-item.unread-orange{box-shadow:0 0 14px rgba(255,136,0,.7)}
-.chat-item.unread-red{box-shadow:0 0 18px rgba(213,0,0,.8)}
-
-.chat-item .title{font-weight:900}
-.chat-item .meta{font-size:12px;opacity:.85}
-
+.chat-item .left{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.chat-item .title{
+  color:#ffffff;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.chat-item .meta{
+  color: rgba(255,255,255,0.85);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.badges{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
-  font-weight:900
+  font-weight:900;
+  white-space:nowrap;
 }
-.badge-admin{background:#0077ff}
-.badge-pc{background:#ffcc00;color:#111}
-.badge-unread.green{background:#00c853;color:#000}
-.badge-unread.orange{background:#ff9800;color:#000}
-.badge-unread.red{background:#d50000;color:#fff}
+.badge-admin{ background:#0077ff; color:#fff; }
+.badge-pc{ background:#ffcc00; color:#111; }
+.badge-dup{ background:#ff6b00; color:#111; }
 
-/* ================= MODALE CHAT ================= */
+/* ===== unread badge + effetto wow ===== */
+.badge-unread{
+  display:none;
+  border:1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  transform: perspective(600px) rotateX(6deg);
+}
+.chat-item.unread-1 .badge-unread,
+.chat-item.unread-2 .badge-unread,
+.chat-item.unread-3 .badge-unread{ display:inline-flex; }
+
+.chat-item.unread-green{
+  border-color: rgba(0,200,83,0.35);
+  box-shadow: 0 10px 26px rgba(0,200,83,0.10), 0 4px 14px rgba(0,0,0,0.18);
+  animation: wowPulse 1.6s infinite;
+}
+.chat-item.unread-orange{
+  border-color: rgba(255,136,0,0.45);
+  box-shadow: 0 12px 28px rgba(255,136,0,0.18), 0 4px 14px rgba(0,0,0,0.18);
+  animation: wowPulse 1.2s infinite;
+}
+.chat-item.unread-red{
+  border-color: rgba(213,0,0,0.55);
+  box-shadow: 0 14px 32px rgba(213,0,0,0.22), 0 4px 14px rgba(0,0,0,0.18);
+  animation: wowPulse 0.9s infinite;
+}
+
+@keyframes wowPulse{
+  0%,100%{ transform: translateZ(0) scale(1); filter: brightness(1); }
+  50%{ transform: translateZ(0) scale(1.012); filter: brightness(1.18); }
+}
+
+.badge-unread.green{ background:#00c853; color:#081b10; }
+.badge-unread.orange{ background:#ff8800; color:#111; }
+.badge-unread.red{ background:#d50000; color:#fff; }
+
+/* ===== MODALE CHAT (stile bubble alternato) ===== */
 .modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.45);
+  background: rgba(0,0,0,.45);
   display:none;
   justify-content:center;
   align-items:center;
-  z-index:9999
+  z-index:9999;
 }
-
 .modal-content{
-  background:#fff;
+  background:white;
   width:92%;
   max-width:520px;
   height:78vh;
+  max-height:78vh;
   border-radius:16px;
   padding:14px;
   display:flex;
-  flex-direction:column
+  flex-direction:column;
 }
-
+#chatTitle{
+  margin:0;
+  text-align:center;
+  font-weight:900;
+}
+#chatDocHint{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.75;
+  text-align:center;
+}
 #chatMessages{
   flex:1;
   overflow-y:auto;
-  border:1px solid #ddd;
+  border:1px solid #e2e2e2;
   border-radius:12px;
   padding:10px;
   background:#fafafa;
-  margin-top:10px
+  margin-top:10px;
 }
-
-/* ===== FIX LEGGIBILITÀ TESTO CHAT ===== */
 .chat-bubble{
   max-width:82%;
   padding:.6rem .75rem;
@@ -159,40 +232,64 @@
   margin:.35rem 0;
   display:inline-flex;
   flex-direction:column;
-  color:#000
+  gap:.25rem;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  word-wrap:break-word;
+  white-space:pre-wrap;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
+  color:#000;
 }
 .chat-bubble-user{
   background:#e6f2ff;
-  align-self:flex-start
+  align-self:flex-start;
+  margin-right:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
+  color:#000;
 }
 .chat-bubble-admin{
   background:#d6ffd6;
-  align-self:flex-end
+  align-self:flex-end;
+  margin-left:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
+  color:#000;
 }
 .chat-time{
   font-size:.75rem;
-  opacity:.7;
+  opacity:.65;
   text-align:right;
-  color:#000
+
+  /* ===== FIX SOLO TESTO NERO ===== */
+  color:#000;
 }
 
 textarea{
+  width:100%;
   height:70px;
   resize:none;
+  border:1px solid #ccc;
   border-radius:12px;
   padding:10px;
-  margin-top:10px
+  margin-top:10px;
+  box-sizing:border-box;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
+  color:#000;
 }
 .btn{
-  margin-top:8px;
+  margin-top:10px;
   padding:12px;
+  width:100%;
+  border:none;
   border-radius:12px;
+  cursor:pointer;
   font-weight:900;
-  cursor:pointer
 }
-.btnSend{background:#00c853;color:#000}
-.btnReset{background:#ff9800;color:#000}
-.btnClose{background:#ccc;color:#000}
+.btnSend{ background:#00c853; color:#111; }
+.btnClose{ background:#ccc; color:#111; }
+.btnResetPin{ background:#ff9800; color:#111; }
 </style>
 </head>
 
@@ -204,128 +301,456 @@ textarea{
 
 <div class="content">
 
+<!-- ================= CHAT (SOPRA SEGNALAZIONI) ================= -->
 <div class="section">
-<h2>💬 CHAT</h2>
+  <h2>💬 CHAT</h2>
 
-<div class="chat-cards">
-  <div class="chat-card" id="cardGuala">
-    <div class="chat-card-head" onclick="toggleCard('guala')">
-      <div>Chat Guala</div><div>▸</div>
+  <div class="chat-cards">
+    <div class="chat-card" id="cardGuala">
+      <div class="chat-card-head" onclick="toggleChatCard('guala')">
+        <div>Chat Guala</div>
+        <div id="chevGuala">▸</div>
+      </div>
+      <div class="chat-card-sub">
+        <span>Apri per vedere tutte le chat del complesso Guala (amministrazione + parti comuni).</span>
+        <span class="card-unread-pill" id="pillGuala">Nuovi: 0</span>
+      </div>
+      <div class="chat-list" id="listGuala">Caricamento…</div>
     </div>
-    <div class="chat-card-sub">
-      <span>Complesso Guala</span>
-      <span class="card-pill" id="pillGuala"></span>
-    </div>
-    <div class="chat-list" id="listGuala"></div>
-  </div>
 
-  <div class="chat-card" id="cardPiobesi">
-    <div class="chat-card-head" onclick="toggleCard('piobesi')">
-      <div>Chat Piobesi</div><div>▸</div>
+    <div class="chat-card" id="cardPiobesi">
+      <div class="chat-card-head" onclick="toggleChatCard('piobesi')">
+        <div>Chat Piobesi</div>
+        <div id="chevPiobesi">▸</div>
+      </div>
+      <div class="chat-card-sub">
+        <span>Apri per vedere tutte le chat del complesso Piobesi (amministrazione + parti comuni).</span>
+        <span class="card-unread-pill" id="pillPiobesi">Nuovi: 0</span>
+      </div>
+      <div class="chat-list" id="listPiobesi">Caricamento…</div>
     </div>
-    <div class="chat-card-sub">
-      <span>Complesso Piobesi</span>
-      <span class="card-pill" id="pillPiobesi"></span>
-    </div>
-    <div class="chat-list" id="listPiobesi"></div>
   </div>
 </div>
-</div>
 
+<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
 <div class="section">
-<h2>📋 TUTTE LE SEGNALAZIONI</h2>
-<table class="table">
-<thead>
-<tr>
-<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+  <h2>📋 TUTTE LE SEGNALAZIONI</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+        <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 </div>
 
 </div>
 
+<!-- ================= MODALE CHAT ================= -->
 <div class="modal" id="modalChat">
-<div class="modal-content">
-<h3 id="chatTitle"></h3>
-<div id="chatMessages"></div>
-<textarea id="chatInput"></textarea>
-<button class="btn btnSend" onclick="sendAdmin()">Invia</button>
-<button class="btn btnReset" onclick="resetPin()">RESET PIN</button>
-<button class="btn btnClose" onclick="closeChat()">Chiudi</button>
-</div>
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+    <div id="chatDocHint"></div>
+    <div id="chatMessages"></div>
+    <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
+    <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
+    <button class="btn btnResetPin" onclick="resetPinSuperAdmin()">RESET PIN UTENTE</button>
+    <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
+  </div>
 </div>
 
 <script>
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-/* ===== LOGICA CHAT STABILE (immutata) ===== */
-const dbx=firebase.firestore();
-let openChat=null,unsub=null;
+/* ==========================================================
+   CHAT – SUPERADMIN CORRETTO + UI ALERT
+   - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
+   - 1 listener messages alla volta (solo modale aperta)
+   - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
+   - Reset PIN (SOLO superadmin): meta.pinHash = null
+   - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
+   - Alert: chat item
+       1-2 nuovi -> verde
+       3-6 nuovi -> arancione
+       >=7 nuovi -> rosso
+========================================================== */
 
-function toggleCard(c){
- const l=document.getElementById(c==="guala"?"listGuala":"listPiobesi");
- l.style.display=l.style.display==="block"?"none":"block"
+const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
+
+const listGuala = document.getElementById("listGuala");
+const listPiobesi = document.getElementById("listPiobesi");
+
+const cardGuala = document.getElementById("cardGuala");
+const cardPiobesi = document.getElementById("cardPiobesi");
+const pillGuala = document.getElementById("pillGuala");
+const pillPiobesi = document.getElementById("pillPiobesi");
+
+const modalChat = document.getElementById("modalChat");
+const chatTitle = document.getElementById("chatTitle");
+const chatDocHint = document.getElementById("chatDocHint");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+
+let chatOpenDocId = null;
+let chatOpenMeta = null;
+let unsubscribeOpenChat = null;
+
+/* listeners per calcolo "nuovi messaggi" (senza cambiare la logica chat) */
+const perChatListener = new Map();     // docId -> unsubscribe
+const perChatUnread = new Map();       // docId -> unreadCount (user messages)
+const perChatLastSeen = new Map();     // docId -> lastReadMs (local cache)
+let renderCacheG = [];
+let renderCacheP = [];
+
+function toggleChatCard(complesso){
+  const list = (complesso === "guala") ? listGuala : listPiobesi;
+  const chev = document.getElementById(complesso === "guala" ? "chevGuala" : "chevPiobesi");
+  const open = list.style.display === "block";
+  list.style.display = open ? "none" : "block";
+  chev.innerText = open ? "▸" : "▾";
 }
 
-function openChatId(id,meta){
- openChat=id;
- modalChat.style.display="flex";
- chatTitle.innerText=meta.nome;
- chatMessages.innerHTML="";
- if(unsub)unsub();
- unsub=dbx.collection("chats").doc(id).collection("messages")
- .orderBy("timestamp")
- .onSnapshot(s=>{
-  chatMessages.innerHTML="";
-  s.forEach(d=>{
-   const m=d.data();
-   const b=document.createElement("div");
-   b.className="chat-bubble "+(m.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
-   b.innerHTML=`<div>${m.testo}</div><div class="chat-time">${m.timestamp?.toDate()?.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})||""}</div>`;
-   chatMessages.appendChild(b)
+function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
+function toLower(v){ return safeStr(v).toLowerCase(); }
+
+function buildVisualKey(meta){
+  const destinatario = toLower(meta.destinatario);
+  const complesso = toLower(meta.complesso);
+  const scala = toLower(meta.scala);
+  const piano = toLower(meta.piano);
+  const lato = toLower(meta.lato);
+  const nome = toLower(meta.nome);
+  return `${destinatario}||${complesso}||${scala}||${piano}||${lato}||${nome}`;
+}
+
+function pickTimestamp(meta){
+  try{
+    if (meta && meta.createdAt && meta.createdAt.toMillis) return meta.createdAt.toMillis();
+    if (meta && meta.pinSetAt && meta.pinSetAt.toMillis) return meta.pinSetAt.toMillis();
+  }catch(e){}
+  return 0;
+}
+
+function getUnreadClass(n){
+  if (!n || n <= 0) return { cls:"", badge:"", color:"" };
+  if (n <= 2) return { cls:"unread-green", badge:`Nuovi ${n}`, color:"green" };
+  if (n <= 6) return { cls:"unread-orange", badge:`Nuovi ${n}`, color:"orange" };
+  return { cls:"unread-red", badge:`Nuovi ${n}`, color:"red" };
+}
+
+function updateContainerIndicators(){
+  let totG = 0;
+  let totP = 0;
+
+  renderCacheG.forEach(it => { totG += (perChatUnread.get(it.docId) || 0); });
+  renderCacheP.forEach(it => { totP += (perChatUnread.get(it.docId) || 0); });
+
+  if (totG > 0) cardGuala.classList.add("attn"); else cardGuala.classList.remove("attn");
+  if (totP > 0) cardPiobesi.classList.add("attn"); else cardPiobesi.classList.remove("attn");
+
+  if (totG > 0){
+    pillGuala.style.display = "inline-flex";
+    pillGuala.innerText = `Nuovi: ${totG}`;
+  } else {
+    pillGuala.style.display = "none";
+  }
+
+  if (totP > 0){
+    pillPiobesi.style.display = "inline-flex";
+    pillPiobesi.innerText = `Nuovi: ${totP}`;
+  } else {
+    pillPiobesi.style.display = "none";
+  }
+}
+
+/* calcolo nuovi messaggi: conta messaggi "user" recenti (ultimi 50) dopo lastReadAdminAt */
+function ensurePerChatUnreadListener(docId){
+  if (perChatListener.has(docId)) return;
+
+  const unsub = fdb
+    .collection("chats")
+    .doc(docId)
+    .collection("messages")
+    .orderBy("timestamp","desc")
+    .limit(50)
+    .onSnapshot((snap)=>{
+      fdb.collection("chats").doc(docId).get().then((chatSnap)=>{
+        let lastReadMs = 0;
+        const data = chatSnap.exists ? (chatSnap.data() || {}) : {};
+        const meta = data.meta || {};
+        try{
+          if (meta.lastReadAdminAt && meta.lastReadAdminAt.toMillis) lastReadMs = meta.lastReadAdminAt.toMillis();
+        }catch(e){ lastReadMs = 0; }
+
+        const localSeen = perChatLastSeen.get(docId);
+        if (localSeen && localSeen > lastReadMs) lastReadMs = localSeen;
+
+        let unread = 0;
+        snap.forEach((d)=>{
+          const m = d.data() || {};
+          if (m.mittente !== "user") return;
+          let tms = 0;
+          try{
+            if (m.timestamp && m.timestamp.toMillis) tms = m.timestamp.toMillis();
+            else if (m.timestamp && m.timestamp.toDate) tms = m.timestamp.toDate().getTime();
+          }catch(e){ tms = 0; }
+
+          if (tms > lastReadMs) unread += 1;
+        });
+
+        if (chatOpenDocId && chatOpenDocId === docId && modalChat.style.display === "flex"){
+          unread = 0;
+        }
+
+        perChatUnread.set(docId, unread);
+
+        renderChatList(listGuala, renderCacheG);
+        renderChatList(listPiobesi, renderCacheP);
+        updateContainerIndicators();
+      }).catch(()=>{
+        perChatUnread.set(docId, perChatUnread.get(docId) || 0);
+        renderChatList(listGuala, renderCacheG);
+        renderChatList(listPiobesi, renderCacheP);
+        updateContainerIndicators();
+      });
+    });
+
+  perChatListener.set(docId, unsub);
+}
+
+function cleanupPerChatListeners(currentIdsSet){
+  for (const [docId, unsub] of perChatListener.entries()){
+    if (!currentIdsSet.has(docId)){
+      try{ unsub(); }catch(e){}
+      perChatListener.delete(docId);
+      perChatUnread.delete(docId);
+      perChatLastSeen.delete(docId);
+    }
+  }
+}
+
+function renderChatList(targetEl, rows){
+  targetEl.innerHTML = "";
+  if (!rows.length){
+    targetEl.innerText = "Nessuna chat";
+    return;
+  }
+
+  rows.sort((a,b)=>{
+    const an = (a.meta && a.meta.nome) ? a.meta.nome.toLowerCase() : "";
+    const bn = (b.meta && b.meta.nome) ? b.meta.nome.toLowerCase() : "";
+    if (an < bn) return -1;
+    if (an > bn) return 1;
+    return 0;
   });
-  chatMessages.scrollTop=chatMessages.scrollHeight
- });
+
+  rows.forEach(item=>{
+    const m = item.meta || {};
+    const row = document.createElement("div");
+    row.className = "chat-item";
+
+    const destLabel = (toLower(m.destinatario) === "particomuni") ? "PARTI COMUNI" : "AMMIN.";
+    const badgeClass = (toLower(m.destinatario) === "particomuni") ? "badge-pc" : "badge-admin";
+
+    const titolo = safeStr(m.nome);
+    const metaLine = `${safeStr(m.scala)} • ${safeStr(m.piano)} • ${safeStr(m.lato)}`;
+
+    const dupCount = item.dupCount || 0;
+    const unreadCount = perChatUnread.get(item.docId) || 0;
+    const u = getUnreadClass(unreadCount);
+
+    if (unreadCount > 0){
+      row.classList.add("unread-1");
+      row.classList.add(u.cls);
+    }
+
+    row.innerHTML = `
+      <div class="left">
+        <div class="title">${titolo}</div>
+        <div class="meta">${metaLine}</div>
+      </div>
+      <div class="badges">
+        <div class="badge badge-unread ${u.color}">${u.badge || ""}</div>
+        ${dupCount > 0 ? `<div class="badge badge-dup">DUP x${dupCount + 1}</div>` : ``}
+        <div class="badge ${badgeClass}">${destLabel}</div>
+      </div>
+    `;
+
+    const unreadBadge = row.querySelector(".badge-unread");
+    if (unreadBadge){
+      if (unreadCount > 0){
+        unreadBadge.style.display = "inline-flex";
+      } else {
+        unreadBadge.style.display = "none";
+      }
+    }
+
+    row.onclick = () => openChatByDocId(item.docId, m);
+    targetEl.appendChild(row);
+  });
 }
 
-function closeChat(){
- modalChat.style.display="none";
- if(unsub)unsub();
- unsub=null;
- openChat=null
+function markChatRead(docId){
+  perChatLastSeen.set(docId, Date.now());
+  fdb.collection("chats").doc(docId).update({
+    "meta.lastReadAdminAt": firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(()=>{});
+  perChatUnread.set(docId, 0);
 }
 
-function sendAdmin(){
- if(!chatInput.value||!openChat)return;
- dbx.collection("chats").doc(openChat).collection("messages").add({
-  testo:chatInput.value,
-  mittente:"admin",
-  timestamp:firebase.firestore.FieldValue.serverTimestamp()
- });
- chatInput.value=""
+function openChatByDocId(docId, meta){
+  chatOpenDocId = docId;
+  chatOpenMeta = meta || {};
+
+  const titoloDest = (toLower(meta.destinatario) === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  chatTitle.innerText = `Chat • ${titoloDest} • ${safeStr(meta.nome)} • ${safeStr(meta.scala)} • ${safeStr(meta.piano)} • ${safeStr(meta.lato)}`;
+  chatDocHint.innerText = `Documento chat: ${docId}`;
+
+  modalChat.style.display = "flex";
+  chatMessages.innerHTML = "";
+
+  markChatRead(docId);
+  updateContainerIndicators();
+
+  if (unsubscribeOpenChat) unsubscribeOpenChat();
+
+  unsubscribeOpenChat = fdb
+    .collection("chats")
+    .doc(docId)
+    .collection("messages")
+    .orderBy("timestamp","asc")
+    .onSnapshot((s)=>{
+      chatMessages.innerHTML = "";
+      s.forEach((d)=>{
+        const mm = d.data() || {};
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (mm.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = safeStr(mm.testo);
+
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "chat-time";
+        if (mm.timestamp && mm.timestamp.toDate) {
+          timeDiv.innerText = mm.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          timeDiv.innerText = "";
+        }
+
+        bubble.appendChild(textDiv);
+        bubble.appendChild(timeDiv);
+        chatMessages.appendChild(bubble);
+      });
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      if (chatOpenDocId === docId){
+        markChatRead(docId);
+        updateContainerIndicators();
+      }
+    }, (err)=>{
+      alert("Errore lettura chat: " + err.message);
+    });
 }
 
-function resetPin(){
- if(!openChat)return;
- dbx.collection("chats").doc(openChat).update({"meta.pinHash":null});
- alert("PIN resettato")
+function closeChatModal(){
+  modalChat.style.display = "none";
+  chatInput.value = "";
+  chatMessages.innerHTML = "";
+  chatOpenDocId = null;
+  chatOpenMeta = null;
+  if (unsubscribeOpenChat) unsubscribeOpenChat();
+  unsubscribeOpenChat = null;
+  updateContainerIndicators();
 }
 
-dbx.collection("chats").onSnapshot(s=>{
- listGuala.innerHTML="";
- listPiobesi.innerHTML="";
- s.forEach(d=>{
-  const m=d.data().meta||{};
-  const r=document.createElement("div");
-  r.className="chat-item";
-  r.innerHTML=`<div><div class="title">${m.nome||""}</div><div class="meta">${m.scala||""} ${m.piano||""}</div></div><div class="badge ${m.destinatario==="particomuni"?"badge-pc":"badge-admin"}">${m.destinatario||""}</div>`;
-  r.onclick=()=>openChatId(d.id,m);
-  (m.complesso==="piobesi"?listPiobesi:listGuala).appendChild(r)
- })
+function sendAdminMessage(){
+  const text = (chatInput.value || "").trim();
+  if (!text) return;
+  if (!chatOpenDocId) return;
+
+  fdb
+    .collection("chats")
+    .doc(chatOpenDocId)
+    .collection("messages")
+    .add({
+      testo: text,
+      mittente: "admin",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=>{
+      chatInput.value = "";
+      markChatRead(chatOpenDocId);
+      updateContainerIndicators();
+    })
+    .catch((err)=>{
+      alert("Errore invio: " + err.message);
+    });
+}
+
+/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null */
+function resetPinSuperAdmin(){
+  if (!chatOpenDocId) return;
+  if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
+
+  fdb.collection("chats")
+    .doc(chatOpenDocId)
+    .update({ "meta.pinHash": null })
+    .then(()=>{ alert("PIN resettato."); })
+    .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
+}
+
+/* ===== INDICE CHAT: un solo listener su /chats ===== */
+fdb.collection("chats").onSnapshot((snap)=>{
+  const mapG = new Map();
+  const mapP = new Map();
+  const currentIds = new Set();
+
+  snap.forEach(doc=>{
+    const d = doc.data() || {};
+    const m = d.meta || {};
+    const complesso = toLower(m.complesso);
+    if (complesso !== "guala" && complesso !== "piobesi") return;
+
+    currentIds.add(doc.id);
+    ensurePerChatUnreadListener(doc.id);
+
+    const visualKey = buildVisualKey(m);
+    const ts = pickTimestamp(m);
+    const targetMap = (complesso === "guala") ? mapG : mapP;
+
+    if (!targetMap.has(visualKey)){
+      targetMap.set(visualKey, {
+        docId: doc.id,
+        meta: m,
+        bestTs: ts,
+        dupCount: 0
+      });
+    } else {
+      const existing = targetMap.get(visualKey);
+      existing.dupCount += 1;
+      if (ts > (existing.bestTs || 0)){
+        existing.docId = doc.id;
+        existing.meta = m;
+        existing.bestTs = ts;
+      }
+      targetMap.set(visualKey, existing);
+    }
+  });
+
+  cleanupPerChatListeners(currentIds);
+
+  renderCacheG = Array.from(mapG.values());
+  renderCacheP = Array.from(mapP.values());
+
+  renderChatList(listGuala, renderCacheG);
+  renderChatList(listPiobesi, renderCacheP);
+  updateContainerIndicators();
+}, (err)=>{
+  alert("Errore lettura indice chat: " + err.message);
 });
 </script>
 
