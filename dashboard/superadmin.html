@@ -24,7 +24,18 @@
 }
 .section{margin-bottom:30px}
 
-.chat-list{margin-bottom:20px}
+/* ===== CHAT LAYOUT ===== */
+.chat-layout{
+  display:flex;
+  gap:12px;
+}
+
+.chat-list{
+  width:35%;
+  max-height:420px;
+  overflow-y:auto;
+}
+
 .chat-item{
   background:#0f2a3d;
   padding:10px;
@@ -35,16 +46,20 @@
 .chat-item.active{background:#123e5c}
 
 .chat-body{
+  width:65%;
   background:#0e1b2a;
   border-radius:8px;
   padding:10px;
+  display:flex;
+  flex-direction:column;
 }
 
 .chat-box{
-  max-height:200px;
+  flex:1;
   overflow-y:auto;
   margin-bottom:6px;
 }
+
 .chat-msg{margin-bottom:6px;font-size:14px}
 .chat-user{color:#90caf9}
 .chat-admin{color:#00e676}
@@ -61,7 +76,6 @@ textarea{
   border-radius:4px;
   font-weight:bold;
   cursor:pointer;
-  margin-right:4px;
 }
 .btn-send{background:#00c853;color:#000}
 </style>
@@ -79,16 +93,17 @@ textarea{
 <div class="section">
 <h2>💬 CHAT UTENTI</h2>
 
-<div id="chatList" class="chat-list">Caricamento…</div>
+<div class="chat-layout">
+  <div id="chatList" class="chat-list">Caricamento…</div>
 
-<div id="chatBody" class="chat-body" style="display:none">
-  <div id="chatBox" class="chat-box"></div>
-  <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
-  <div style="margin-top:6px">
-    <button class="btn btn-send" onclick="sendAdmin()">INVIA</button>
+  <div id="chatBody" class="chat-body" style="display:none">
+    <div id="chatBox" class="chat-box"></div>
+    <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
+    <div style="margin-top:6px">
+      <button class="btn btn-send" onclick="sendAdmin()">INVIA</button>
+    </div>
   </div>
 </div>
-
 </div>
 
 <!-- ================= SEGNALAZIONI ================= -->
@@ -111,10 +126,7 @@ textarea{
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-/* =====================
-   CHAT – FASE 1 BONIFICA
-===================== */
-
+/* ===== CHAT – STABILE ===== */
 const chatList = document.getElementById("chatList");
 const chatBody = document.getElementById("chatBody");
 const chatBox  = document.getElementById("chatBox");
@@ -133,28 +145,25 @@ firebase.firestore().collection("chats")
   }
 
   snap.forEach(doc=>{
-    const m = (doc.data().meta) || {};
+    const m = doc.data().meta || {};
     const item = document.createElement("div");
     item.className = "chat-item";
     item.innerText = `${m.nome || ""} – ${m.scala || ""} ${m.piano || ""} ${m.lato || ""}`;
-
     item.onclick = () => openChat(doc.id, item);
     chatList.appendChild(item);
   });
 });
 
-/* APERTURA CHAT – UN SOLO LISTENER */
+/* APERTURA CHAT */
 function openChat(chatId, element){
   if(currentChatId === chatId) return;
 
-  // reset UI
   document.querySelectorAll(".chat-item").forEach(i=>i.classList.remove("active"));
   element.classList.add("active");
 
   chatBox.innerHTML = "";
-  chatBody.style.display = "block";
+  chatBody.style.display = "flex";
 
-  // chiudi listener precedente
   if(unsubscribeMessages){
     unsubscribeMessages();
     unsubscribeMessages = null;
@@ -180,7 +189,7 @@ function openChat(chatId, element){
     });
 }
 
-/* INVIO MESSAGGIO ADMIN */
+/* INVIO */
 function sendAdmin(){
   if(!currentChatId) return;
   const txt = chatInput.value.trim();
