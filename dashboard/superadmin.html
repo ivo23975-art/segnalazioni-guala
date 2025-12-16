@@ -17,26 +17,21 @@
 <script src="dashboard.js"></script>
 
 <style>
+/* ================= BASE ================= */
 .logout-btn{
-  position:absolute;
-  top:15px;
-  right:20px;
-  background:#ff0000;
-  color:#fff;
-  padding:10px 18px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:bold
+  position:absolute;top:15px;right:20px;
+  background:#ff0000;color:#fff;
+  padding:10px 18px;border-radius:6px;
+  cursor:pointer;font-weight:bold
 }
-
 .section{margin-bottom:30px}
 
-/* ================= CHAT CARD ================= */
+/* ================= CHAT CARDS ================= */
 .chat-cards{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
-  margin-bottom:18px;
+  margin-bottom:18px
 }
 @media (max-width:900px){
   .chat-cards{grid-template-columns:1fr}
@@ -46,44 +41,68 @@
   background:#0f2a3d;
   border-radius:12px;
   padding:12px;
-  box-shadow:0 4px 14px rgba(0,0,0,.18);
   color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
   border:1px solid rgba(255,255,255,.08)
+}
+
+/* lampeggio contenitore */
+.chat-card.attn{
+  animation: blinkYellow 1.2s infinite;
+  border-color:#ffcc00
+}
+@keyframes blinkYellow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.25)}
 }
 
 .chat-card-head{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  cursor:pointer;
-  user-select:none;
-  font-weight:900
+  font-weight:900;
+  cursor:pointer
 }
 
 .chat-card-sub{
-  color:rgba(255,255,255,.82);
-  margin-top:6px;
-  font-size:13px
+  font-size:13px;
+  opacity:.85;
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px
+}
+
+.card-pill{
+  display:none;
+  background:rgba(255,204,0,.2);
+  border:1px solid rgba(255,204,0,.5);
+  padding:4px 10px;
+  border-radius:999px;
+  font-weight:900
 }
 
 .chat-list{
-  margin-top:10px;
   display:none;
+  margin-top:10px;
   max-height:300px;
   overflow-y:auto
 }
 
+/* ================= CHAT ITEM ================= */
 .chat-item{
   background:#102f45;
   border-radius:10px;
   padding:10px;
   margin-bottom:8px;
-  cursor:pointer;
   display:flex;
   justify-content:space-between;
-  align-items:center
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.06)
 }
 .chat-item:hover{background:#123e5c}
+
+.chat-item.unread-green{box-shadow:0 0 12px rgba(0,200,83,.6)}
+.chat-item.unread-orange{box-shadow:0 0 14px rgba(255,136,0,.7)}
+.chat-item.unread-red{box-shadow:0 0 18px rgba(213,0,0,.8)}
 
 .chat-item .title{font-weight:900}
 .chat-item .meta{font-size:12px;opacity:.85}
@@ -96,6 +115,9 @@
 }
 .badge-admin{background:#0077ff}
 .badge-pc{background:#ffcc00;color:#111}
+.badge-unread.green{background:#00c853;color:#000}
+.badge-unread.orange{background:#ff9800;color:#000}
+.badge-unread.red{background:#d50000;color:#fff}
 
 /* ================= MODALE CHAT ================= */
 .modal{
@@ -119,19 +141,6 @@
   flex-direction:column
 }
 
-#chatTitle{
-  text-align:center;
-  font-weight:900;
-  margin:0
-}
-
-#chatDocHint{
-  font-size:12px;
-  opacity:.7;
-  text-align:center;
-  margin-top:4px
-}
-
 #chatMessages{
   flex:1;
   overflow-y:auto;
@@ -150,20 +159,16 @@
   margin:.35rem 0;
   display:inline-flex;
   flex-direction:column;
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
   color:#000
 }
-
 .chat-bubble-user{
   background:#e6f2ff;
   align-self:flex-start
 }
-
 .chat-bubble-admin{
   background:#d6ffd6;
   align-self:flex-end
 }
-
 .chat-time{
   font-size:.75rem;
   opacity:.7;
@@ -174,19 +179,16 @@
 textarea{
   height:70px;
   resize:none;
-  border:1px solid #ccc;
   border-radius:12px;
   padding:10px;
   margin-top:10px
 }
-
 .btn{
+  margin-top:8px;
   padding:12px;
-  border:none;
   border-radius:12px;
   font-weight:900;
-  cursor:pointer;
-  margin-top:8px
+  cursor:pointer
 }
 .btnSend{background:#00c853;color:#000}
 .btnReset{background:#ff9800;color:#000}
@@ -206,19 +208,25 @@ textarea{
 <h2>💬 CHAT</h2>
 
 <div class="chat-cards">
-  <div class="chat-card">
-    <div class="chat-card-head" onclick="toggleChatCard('guala')">
-      <div>Chat Guala</div><div id="chevGuala">▸</div>
+  <div class="chat-card" id="cardGuala">
+    <div class="chat-card-head" onclick="toggleCard('guala')">
+      <div>Chat Guala</div><div>▸</div>
     </div>
-    <div class="chat-card-sub">Tutte le chat Guala</div>
+    <div class="chat-card-sub">
+      <span>Complesso Guala</span>
+      <span class="card-pill" id="pillGuala"></span>
+    </div>
     <div class="chat-list" id="listGuala"></div>
   </div>
 
-  <div class="chat-card">
-    <div class="chat-card-head" onclick="toggleChatCard('piobesi')">
-      <div>Chat Piobesi</div><div id="chevPiobesi">▸</div>
+  <div class="chat-card" id="cardPiobesi">
+    <div class="chat-card-head" onclick="toggleCard('piobesi')">
+      <div>Chat Piobesi</div><div>▸</div>
     </div>
-    <div class="chat-card-sub">Tutte le chat Piobesi</div>
+    <div class="chat-card-sub">
+      <span>Complesso Piobesi</span>
+      <span class="card-pill" id="pillPiobesi"></span>
+    </div>
     <div class="chat-list" id="listPiobesi"></div>
   </div>
 </div>
@@ -242,12 +250,11 @@ textarea{
 <div class="modal" id="modalChat">
 <div class="modal-content">
 <h3 id="chatTitle"></h3>
-<div id="chatDocHint"></div>
 <div id="chatMessages"></div>
-<textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
-<button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-<button class="btn btnReset" onclick="resetUserPin()">RESET PIN UTENTE</button>
-<button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
+<textarea id="chatInput"></textarea>
+<button class="btn btnSend" onclick="sendAdmin()">Invia</button>
+<button class="btn btnReset" onclick="resetPin()">RESET PIN</button>
+<button class="btn btnClose" onclick="closeChat()">Chiudi</button>
 </div>
 </div>
 
@@ -255,25 +262,22 @@ textarea{
 requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
-const fdb = firebase.firestore();
-let chatOpenDocId=null;
-let unsub=null;
+/* ===== LOGICA CHAT STABILE (immutata) ===== */
+const dbx=firebase.firestore();
+let openChat=null,unsub=null;
 
-function toggleChatCard(c){
- const l=c==="guala"?listGuala:listPiobesi;
- const ch=document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
- l.style.display=l.style.display==="block"?"none":"block";
- ch.innerText=l.style.display==="block"?"▾":"▸"
+function toggleCard(c){
+ const l=document.getElementById(c==="guala"?"listGuala":"listPiobesi");
+ l.style.display=l.style.display==="block"?"none":"block"
 }
 
-function openChatByDocId(id,meta){
- chatOpenDocId=id;
- chatTitle.innerText=meta.nome;
- chatDocHint.innerText=id;
+function openChatId(id,meta){
+ openChat=id;
  modalChat.style.display="flex";
+ chatTitle.innerText=meta.nome;
  chatMessages.innerHTML="";
  if(unsub)unsub();
- unsub=fdb.collection("chats").doc(id).collection("messages")
+ unsub=dbx.collection("chats").doc(id).collection("messages")
  .orderBy("timestamp")
  .onSnapshot(s=>{
   chatMessages.innerHTML="";
@@ -288,17 +292,16 @@ function openChatByDocId(id,meta){
  });
 }
 
-function closeChatModal(){
+function closeChat(){
  modalChat.style.display="none";
- chatInput.value="";
  if(unsub)unsub();
  unsub=null;
- chatOpenDocId=null
+ openChat=null
 }
 
-function sendAdminMessage(){
- if(!chatInput.value||!chatOpenDocId)return;
- fdb.collection("chats").doc(chatOpenDocId).collection("messages").add({
+function sendAdmin(){
+ if(!chatInput.value||!openChat)return;
+ dbx.collection("chats").doc(openChat).collection("messages").add({
   testo:chatInput.value,
   mittente:"admin",
   timestamp:firebase.firestore.FieldValue.serverTimestamp()
@@ -306,26 +309,23 @@ function sendAdminMessage(){
  chatInput.value=""
 }
 
-function resetUserPin(){
- if(!chatOpenDocId)return;
- fdb.collection("chats").doc(chatOpenDocId).set({
-  meta:{pinHash:null}
- },{merge:true});
- alert("PIN utente resettato")
+function resetPin(){
+ if(!openChat)return;
+ dbx.collection("chats").doc(openChat).update({"meta.pinHash":null});
+ alert("PIN resettato")
 }
 
-fdb.collection("chats").onSnapshot(s=>{
- const g=[],p=[];
+dbx.collection("chats").onSnapshot(s=>{
+ listGuala.innerHTML="";
+ listPiobesi.innerHTML="";
  s.forEach(d=>{
   const m=d.data().meta||{};
-  const row=document.createElement("div");
-  row.className="chat-item";
-  row.innerHTML=`<div><div class="title">${m.nome||""}</div><div class="meta">${m.scala||""} ${m.piano||""} ${m.lato||""}</div></div><div class="badge ${m.destinatario==="particomuni"?"badge-pc":"badge-admin"}">${m.destinatario||""}</div>`;
-  row.onclick=()=>openChatByDocId(d.id,m);
-  (m.complesso==="piobesi"?p:g).push(row)
- });
- listGuala.innerHTML="";g.forEach(r=>listGuala.appendChild(r));
- listPiobesi.innerHTML="";p.forEach(r=>listPiobesi.appendChild(r))
+  const r=document.createElement("div");
+  r.className="chat-item";
+  r.innerHTML=`<div><div class="title">${m.nome||""}</div><div class="meta">${m.scala||""} ${m.piano||""}</div></div><div class="badge ${m.destinatario==="particomuni"?"badge-pc":"badge-admin"}">${m.destinatario||""}</div>`;
+  r.onclick=()=>openChatId(d.id,m);
+  (m.complesso==="piobesi"?listPiobesi:listGuala).appendChild(r)
+ })
 });
 </script>
 
