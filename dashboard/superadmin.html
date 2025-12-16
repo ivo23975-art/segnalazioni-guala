@@ -5,6 +5,7 @@
 <title>SUPER ADMIN – Chat + Segnalazioni</title>
 
 <link rel="stylesheet" href="dashboard.css">
+<link rel="icon" href="data:,">
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -41,6 +42,7 @@
   padding:12px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.18);
   color:#fff;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .chat-card-head{
@@ -49,12 +51,12 @@
   align-items:center;
   cursor:pointer;
   user-select:none;
-  font-weight:800;
+  font-weight:900;
   letter-spacing:.2px;
 }
 
 .chat-card-sub{
-  opacity:.85;
+  color: rgba(255,255,255,0.82);
   margin-top:6px;
   font-size:13px;
 }
@@ -62,20 +64,22 @@
 .chat-list{
   margin-top:10px;
   display:none;
-  max-height:260px;
+  max-height:300px;
   overflow-y:auto;
   padding-right:4px;
 }
+
 .chat-item{
   background:#102f45;
   border-radius:10px;
-  padding:10px;
+  padding:10px 10px;
   margin-bottom:8px;
   cursor:pointer;
   display:flex;
   justify-content:space-between;
   gap:10px;
   align-items:center;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .chat-item:hover{ background:#123e5c; }
 .chat-item .left{
@@ -85,29 +89,37 @@
   min-width:0;
 }
 .chat-item .title{
-  font-weight:800;
+  color:#ffffff;
+  font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 .chat-item .meta{
+  color: rgba(255,255,255,0.85);
   font-size:12px;
-  opacity:.85;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+.badges{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
 }
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
-  font-weight:800;
+  font-weight:900;
   white-space:nowrap;
 }
 .badge-admin{ background:#0077ff; color:#fff; }
 .badge-pc{ background:#ffcc00; color:#111; }
+.badge-dup{ background:#ff6b00; color:#111; }
 
-/* ===== MODALE CHAT (stile index pubblico, ma admin) ===== */
+/* ===== MODALE CHAT (stile bubble alternato) ===== */
 .modal{
   position:fixed;
   inset:0;
@@ -132,6 +144,12 @@
   margin:0;
   text-align:center;
   font-weight:900;
+}
+#chatDocHint{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.75;
+  text-align:center;
 }
 #chatMessages{
   flex:1;
@@ -247,6 +265,7 @@ textarea{
 <div class="modal" id="modalChat">
   <div class="modal-content">
     <h3 id="chatTitle"></h3>
+    <div id="chatDocHint"></div>
     <div id="chatMessages"></div>
     <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
     <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
@@ -259,35 +278,28 @@ requireRole("superadmin");
 loadSegnalazioni(r=>true,true);
 
 /* ==========================================================
-   CHAT – SUPERADMIN ALLINEATO A INDEX PUBBLICO
-   - chatId deterministico: c_<sha256(destinatario||complesso||scala||piano||lato||nome)>
-   - 2 contenitori: guala / piobesi
+   CHAT – SUPERADMIN CORRETTO
+   - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
    - 1 listener messages alla volta (solo modale aperta)
+   - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
+     (apre sempre il doc.id canonico, quindi scrive/legge davvero)
+   - Fix errore console favicon: link rel icon data:,
 ========================================================== */
+
+const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
 
 const listGuala = document.getElementById("listGuala");
 const listPiobesi = document.getElementById("listPiobesi");
 
 const modalChat = document.getElementById("modalChat");
 const chatTitle = document.getElementById("chatTitle");
+const chatDocHint = document.getElementById("chatDocHint");
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 
-let chatOpenId = null;
+let chatOpenDocId = null;
 let unsubscribeOpenChat = null;
 
-/* ===== util SHA256 (stesso metodo dell'index) ===== */
-async function sha256Hex(str){
-  const data = new TextEncoder().encode(str);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
-}
-
-function buildChatKeyString(meta){
-  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
-}
-
-/* ===== UI card open/close ===== */
 function toggleChatCard(complesso){
   const list = (complesso === "guala") ? listGuala : listPiobesi;
   const chev = document.getElementById(complesso === "guala" ? "chevGuala" : "chevPiobesi");
@@ -296,103 +308,107 @@ function toggleChatCard(complesso){
   chev.innerText = open ? "▸" : "▾";
 }
 
-/* ===== LISTA CHAT (solo meta) =====
-   NOTA: qui non "inventiamo" documenti: mostriamo chat esistenti in /chats
-*/
-function renderChatList(targetEl, chats){
+function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
+function toLower(v){ return safeStr(v).toLowerCase(); }
+
+/* Deduplica VISIVA: stessa unità (meta) + destinatario + complesso */
+function buildVisualKey(meta){
+  const destinatario = toLower(meta.destinatario);
+  const complesso = toLower(meta.complesso);
+  const scala = toLower(meta.scala);
+  const piano = toLower(meta.piano);
+  const lato = toLower(meta.lato);
+  const nome = toLower(meta.nome);
+  return `${destinatario}||${complesso}||${scala}||${piano}||${lato}||${nome}`;
+}
+
+function pickTimestamp(meta){
+  // scegliamo un "peso" per decidere il canonico, senza inventare:
+  // 1) meta.createdAt se esiste ed è Timestamp
+  // 2) meta.pinSetAt se esiste
+  // 3) 0
+  try{
+    if (meta && meta.createdAt && meta.createdAt.toMillis) return meta.createdAt.toMillis();
+    if (meta && meta.pinSetAt && meta.pinSetAt.toMillis) return meta.pinSetAt.toMillis();
+  }catch(e){}
+  return 0;
+}
+
+function renderChatList(targetEl, rows){
   targetEl.innerHTML = "";
-  if (!chats.length){
+  if (!rows.length){
     targetEl.innerText = "Nessuna chat";
     return;
   }
 
-  chats.sort((a,b)=>{
-    const an = (a.meta.nome || "").toLowerCase();
-    const bn = (b.meta.nome || "").toLowerCase();
+  rows.sort((a,b)=>{
+    const an = (a.meta && a.meta.nome) ? a.meta.nome.toLowerCase() : "";
+    const bn = (b.meta && b.meta.nome) ? b.meta.nome.toLowerCase() : "";
     if (an < bn) return -1;
     if (an > bn) return 1;
     return 0;
   });
 
-  chats.forEach(item=>{
+  rows.forEach(item=>{
     const m = item.meta || {};
     const row = document.createElement("div");
     row.className = "chat-item";
-    const destLabel = (m.destinatario === "particomuni") ? "PARTI COMUNI" : "AMMIN.";
-    const badgeClass = (m.destinatario === "particomuni") ? "badge-pc" : "badge-admin";
+
+    const destLabel = (toLower(m.destinatario) === "particomuni") ? "PARTI COMUNI" : "AMMIN.";
+    const badgeClass = (toLower(m.destinatario) === "particomuni") ? "badge-pc" : "badge-admin";
+
+    const titolo = safeStr(m.nome);
+    const metaLine = `${safeStr(m.scala)} • ${safeStr(m.piano)} • ${safeStr(m.lato)}`;
+
+    const dupCount = item.dupCount || 0;
 
     row.innerHTML = `
       <div class="left">
-        <div class="title">${m.nome || ""}</div>
-        <div class="meta">${m.scala || ""} • ${m.piano || ""} • ${m.lato || ""}</div>
+        <div class="title">${titolo}</div>
+        <div class="meta">${metaLine}</div>
       </div>
-      <div class="badge ${badgeClass}">${destLabel}</div>
+      <div class="badges">
+        ${dupCount > 0 ? `<div class="badge badge-dup">DUP x${dupCount + 1}</div>` : ``}
+        <div class="badge ${badgeClass}">${destLabel}</div>
+      </div>
     `;
 
-    row.onclick = () => openChatFromMeta(m);
+    row.onclick = () => openChatByDocId(item.docId, m);
     targetEl.appendChild(row);
   });
 }
 
-/* ===== Caricamento indice chat: leggiamo /chats e filtriamo per complesso ===== */
-firebase.firestore().collection("chats").onSnapshot((snap)=>{
-  const g = [];
-  const p = [];
+function openChatByDocId(docId, meta){
+  chatOpenDocId = docId;
 
-  snap.forEach(doc=>{
-    const d = doc.data() || {};
-    const m = d.meta || {};
-    if (!m.complesso) return;
-
-    if (m.complesso === "guala") g.push({ id: doc.id, meta: m });
-    if (m.complesso === "piobesi") p.push({ id: doc.id, meta: m });
-  });
-
-  renderChatList(listGuala, g);
-  renderChatList(listPiobesi, p);
-});
-
-/* ===== Apertura chat usando chiave deterministica (come index) ===== */
-async function openChatFromMeta(meta){
-  // costruiamo chatId come index pubblico, senza interpretazioni
-  const key = buildChatKeyString(meta);
-  const hash = await sha256Hex(key);
-  const chatId = `c_${hash}`;
-
-  openChatModal(chatId, meta);
-}
-
-/* ===== Modale + listener singolo ===== */
-function openChatModal(chatId, meta){
-  chatOpenId = chatId;
-
-  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
-  chatTitle.innerText = `Chat • ${titoloDest} • ${meta.nome || ""} • ${meta.scala || ""} • ${meta.piano || ""} • ${meta.lato || ""}`;
+  const titoloDest = (toLower(meta.destinatario) === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  chatTitle.innerText = `Chat • ${titoloDest} • ${safeStr(meta.nome)} • ${safeStr(meta.scala)} • ${safeStr(meta.piano)} • ${safeStr(meta.lato)}`;
+  chatDocHint.innerText = `Documento chat: ${docId}`;
 
   modalChat.style.display = "flex";
   chatMessages.innerHTML = "";
 
   if (unsubscribeOpenChat) unsubscribeOpenChat();
 
-  unsubscribeOpenChat = firebase.firestore()
+  unsubscribeOpenChat = fdb
     .collection("chats")
-    .doc(chatId)
+    .doc(docId)
     .collection("messages")
     .orderBy("timestamp","asc")
     .onSnapshot((s)=>{
       chatMessages.innerHTML = "";
       s.forEach((d)=>{
-        const m = d.data() || {};
+        const mm = d.data() || {};
         const bubble = document.createElement("div");
-        bubble.className = "chat-bubble " + (m.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
+        bubble.className = "chat-bubble " + (mm.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
 
         const textDiv = document.createElement("div");
-        textDiv.innerText = m.testo || "";
+        textDiv.innerText = safeStr(mm.testo);
 
         const timeDiv = document.createElement("div");
         timeDiv.className = "chat-time";
-        if (m.timestamp && m.timestamp.toDate) {
-          timeDiv.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        if (mm.timestamp && mm.timestamp.toDate) {
+          timeDiv.innerText = mm.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
         } else {
           timeDiv.innerText = "";
         }
@@ -403,6 +419,8 @@ function openChatModal(chatId, meta){
       });
 
       chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, (err)=>{
+      alert("Errore lettura chat: " + err.message);
     });
 }
 
@@ -410,20 +428,19 @@ function closeChatModal(){
   modalChat.style.display = "none";
   chatInput.value = "";
   chatMessages.innerHTML = "";
-  chatOpenId = null;
+  chatOpenDocId = null;
   if (unsubscribeOpenChat) unsubscribeOpenChat();
   unsubscribeOpenChat = null;
 }
 
-/* ===== Invio admin ===== */
 function sendAdminMessage(){
   const text = (chatInput.value || "").trim();
   if (!text) return;
-  if (!chatOpenId) return;
+  if (!chatOpenDocId) return;
 
-  firebase.firestore()
+  fdb
     .collection("chats")
-    .doc(chatOpenId)
+    .doc(chatOpenDocId)
     .collection("messages")
     .add({
       testo: text,
@@ -437,6 +454,52 @@ function sendAdminMessage(){
       alert("Errore invio: " + err.message);
     });
 }
+
+/* ===== INDICE CHAT: un solo listener su /chats ===== */
+fdb.collection("chats").onSnapshot((snap)=>{
+  const mapG = new Map(); // visualKey -> item
+  const mapP = new Map();
+
+  snap.forEach(doc=>{
+    const d = doc.data() || {};
+    const m = d.meta || {};
+    const complesso = toLower(m.complesso);
+    if (complesso !== "guala" && complesso !== "piobesi") return;
+
+    const visualKey = buildVisualKey(m);
+    const ts = pickTimestamp(m);
+
+    const targetMap = (complesso === "guala") ? mapG : mapP;
+
+    if (!targetMap.has(visualKey)){
+      targetMap.set(visualKey, {
+        docId: doc.id,
+        meta: m,
+        bestTs: ts,
+        dupCount: 0
+      });
+    } else {
+      const existing = targetMap.get(visualKey);
+      existing.dupCount += 1;
+
+      // scegliamo il "canonico" in modo deterministico e prudente:
+      // prendiamo quello con timestamp meta più recente (se disponibile)
+      // altrimenti teniamo il primo (non inventiamo nulla).
+      if (ts > (existing.bestTs || 0)){
+        existing.docId = doc.id;
+        existing.meta = m;
+        existing.bestTs = ts;
+      }
+
+      targetMap.set(visualKey, existing);
+    }
+  });
+
+  renderChatList(listGuala, Array.from(mapG.values()));
+  renderChatList(listPiobesi, Array.from(mapP.values()));
+}, (err)=>{
+  alert("Errore lettura indice chat: " + err.message);
+});
 </script>
 
 </body>
