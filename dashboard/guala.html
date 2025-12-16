@@ -32,33 +32,6 @@
             cursor: pointer;
             z-index: 9999;
         }
-
-        .chat-admin-box {
-            margin-top: 30px;
-            border-top: 2px solid #333;
-            padding-top: 20px;
-        }
-
-        .chat-list button {
-            margin: 5px;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-
-        .chat-window {
-            margin-top: 10px;
-            border: 1px solid #333;
-            padding: 10px;
-            background: #111;
-        }
-
-        .chat-msg.admin { color: #00e676; }
-        .chat-msg.user { color: #90caf9; }
-
-        textarea {
-            width: 100%;
-            margin-top: 10px;
-        }
     </style>
 </head>
 
@@ -90,22 +63,6 @@
 <tbody id="tbody"></tbody>
 </table>
 
-<!-- =======================
-     CHAT UTENTI – GUALA
-======================= -->
-<div class="chat-admin-box">
-    <h2>💬 Chat utenti – Guala</h2>
-
-    <div class="chat-list" id="chatList">Caricamento chat…</div>
-
-    <div class="chat-window" id="chatWindow" style="display:none;">
-        <h3 id="chatTitle"></h3>
-        <div id="chatMessages"></div>
-        <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
-        <button onclick="sendAdminMsg()">Invia</button>
-    </div>
-</div>
-
 </div>
 
 <script>
@@ -115,81 +72,6 @@ requireRole("guala");
 loadSegnalazioni(
     r => r.stato === "attiva" && r.complesso === "guala"
 );
-
-/* =========================
-   CHAT (chats/) – SOLO GUALA
-========================= */
-let currentChatId = null;
-let unsubscribeChat = null;
-
-const chatList = document.getElementById("chatList");
-const chatWindow = document.getElementById("chatWindow");
-const chatMessages = document.getElementById("chatMessages");
-
-db.collection("chats")
-  .where("meta.complesso", "==", "guala")
-  .orderBy("meta.nome")
-  .onSnapshot(snap => {
-
-    chatList.innerHTML = "";
-
-    if (snap.empty) {
-        chatList.innerText = "Nessuna chat attiva";
-        return;
-    }
-
-    snap.forEach(doc => {
-        const d = doc.data();
-        const btn = document.createElement("button");
-        btn.innerText = d.meta.nome;
-        btn.onclick = () => openChat(doc.id, d.meta);
-        chatList.appendChild(btn);
-    });
-});
-
-function openChat(id, meta) {
-    currentChatId = id;
-    chatWindow.style.display = "block";
-
-    document.getElementById("chatTitle").innerText =
-        `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
-
-    if (unsubscribeChat) unsubscribeChat();
-
-    unsubscribeChat = db.collection("chats")
-        .doc(id)
-        .collection("messages")
-        .orderBy("timestamp")
-        .onSnapshot(snap => {
-
-            chatMessages.innerHTML = "";
-
-            snap.forEach(m => {
-                const msg = m.data();
-                const div = document.createElement("div");
-                div.className = "chat-msg " + msg.mittente;
-                div.innerText = msg.testo;
-                chatMessages.appendChild(div);
-            });
-        });
-}
-
-function sendAdminMsg() {
-    const input = document.getElementById("chatInput");
-    const text = input.value.trim();
-    if (!text || !currentChatId) return;
-
-    db.collection("chats")
-      .doc(currentChatId)
-      .collection("messages")
-      .add({
-          testo: text,
-          mittente: "admin",
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-    input.value = "";
-}
 </script>
 
 </body>
