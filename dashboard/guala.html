@@ -20,7 +20,7 @@
     <script src="dashboard.js"></script>
 
     <style>
-        .logout-btn{
+        .logout-btn {
             position: fixed;
             top: 12px;
             right: 20px;
@@ -33,28 +33,44 @@
             z-index: 9999;
         }
 
-        /* ===== CHAT GUALA ===== */
+        /* ===== CHAT GUALA (BLOCCO ISOLATO) ===== */
         .chat-card{
             background:#0f2a3d;
             color:#fff;
             border-radius:12px;
             padding:14px;
             margin-bottom:20px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .chat-card-head{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
             cursor:pointer;
+            user-select:none;
+            font-weight:900;
         }
 
         .chat-list{
             margin-top:10px;
             display:none;
+            max-height:300px;
+            overflow-y:auto;
+            padding-right:4px;
         }
 
         .chat-item{
             background:#102f45;
             padding:10px;
-            border-radius:8px;
+            border-radius:10px;
             margin-bottom:8px;
             cursor:pointer;
+            border: 1px solid rgba(255,255,255,0.06);
         }
+
+        .chat-item:hover{ background:#123e5c; }
 
         .chat-modal{
             position:fixed;
@@ -68,35 +84,101 @@
 
         .chat-modal-content{
             background:#fff;
-            width:90%;
-            max-width:500px;
-            height:70vh;
-            border-radius:12px;
-            padding:12px;
+            width:92%;
+            max-width:520px;
+            height:78vh;
+            max-height:78vh;
+            border-radius:16px;
+            padding:14px;
             display:flex;
             flex-direction:column;
+        }
+
+        #chatTitle{
+            margin:0;
+            text-align:center;
+            font-weight:900;
+            color:#000;
+        }
+
+        #chatDocHint{
+            margin-top:6px;
+            font-size:12px;
+            opacity:.75;
+            text-align:center;
+            color:#000;
         }
 
         .chat-messages{
             flex:1;
             overflow-y:auto;
-            margin:10px 0;
-            background:#f5f5f5;
+            margin:10px 0 0 0;
+            background:#fafafa;
             padding:10px;
-            border-radius:8px;
+            border-radius:12px;
+            border:1px solid #e2e2e2;
             color:#000;
         }
 
-        .msg-user{color:#000;}
-        .msg-guala{color:#000;font-weight:bold;}
+        .chat-bubble{
+            max-width:82%;
+            padding:.6rem .75rem;
+            border-radius:.9rem;
+            margin:.35rem 0;
+            display:inline-flex;
+            flex-direction:column;
+            gap:.25rem;
+            box-shadow:0 2px 10px rgba(0,0,0,.08);
+            word-wrap:break-word;
+            white-space:pre-wrap;
+            color:#000;
+        }
 
-        textarea{
+        .chat-bubble-user{
+            background:#e6f2ff;
+            align-self:flex-start;
+            margin-right:auto;
+            color:#000;
+        }
+
+        .chat-bubble-guala{
+            background:#d6ffd6;
+            align-self:flex-end;
+            margin-left:auto;
+            color:#000;
+        }
+
+        .chat-time{
+            font-size:.75rem;
+            opacity:.65;
+            text-align:right;
+            color:#000;
+        }
+
+        .chat-input{
             width:100%;
-            height:60px;
-            border-radius:8px;
-            padding:8px;
+            height:70px;
+            resize:none;
+            border:1px solid #ccc;
+            border-radius:12px;
+            padding:10px;
+            margin-top:10px;
+            box-sizing:border-box;
             color:#000;
         }
+
+        .btn{
+            margin-top:10px;
+            padding:12px;
+            width:100%;
+            border:none;
+            border-radius:12px;
+            cursor:pointer;
+            font-weight:900;
+        }
+
+        .btnSend{ background:#00c853; color:#111; }
+        .btnClose{ background:#ccc; color:#111; }
     </style>
 </head>
 
@@ -108,13 +190,18 @@
 
 <div class="content">
 
-<!-- ================= CHAT GUALA (ISOLATA) ================= -->
-<div class="chat-card" onclick="toggleChat()">
-    💬 Chat Guala
-    <div class="chat-list" id="chatList">Caricamento chat…</div>
+<!-- ================= CHAT GUALA (ISOLATA, NON TOCCA SEGNALAZIONI) ================= -->
+<div class="chat-card">
+    <div class="chat-card-head" onclick="toggleChatGuala()">
+        <div>💬 Chat Guala</div>
+        <div id="chevGuala">▸</div>
+    </div>
+    <div class="chat-list" id="chatListGuala">Caricamento chat…</div>
 </div>
 
-<!-- ======================= SEGNALAZIONI (INTOCCATE) ======================= -->
+<!-- =======================
+     SEGNALAZIONI (INVARIATE)
+======================= -->
 <table class="table">
 <thead>
 <tr>
@@ -135,92 +222,148 @@
 </div>
 
 <!-- ================= MODALE CHAT ================= -->
-<div class="chat-modal" id="chatModal">
+<div class="chat-modal" id="chatModalGuala">
     <div class="chat-modal-content">
-        <h3 id="chatTitle"></h3>
-        <div class="chat-messages" id="chatMessages"></div>
-        <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
-        <button onclick="sendMsg()">Invia</button>
-        <button onclick="closeChat()">Chiudi</button>
+        <h3 id="chatTitleGuala"></h3>
+        <div id="chatDocHintGuala"></div>
+        <div class="chat-messages" id="chatMessagesGuala"></div>
+        <textarea class="chat-input" id="chatInputGuala" placeholder="Scrivi messaggio..."></textarea>
+        <button class="btn btnSend" onclick="sendMsgGuala()">Invia</button>
+        <button class="btn btnClose" onclick="closeChatGuala()">Chiudi</button>
     </div>
 </div>
 
 <script>
 requireRole("guala");
 
-/* ================= SEGNALAZIONI (IDENTICHE) ================= */
+/* SEGNALAZIONI (INVARIATE) */
 loadSegnalazioni(
     r => r.stato === "attiva" && r.complesso === "guala"
 );
 
-/* ================= CHAT GUALA ================= */
-const db = firebase.firestore();
-let currentChatId = null;
-let unsub = null;
+/* ==========================================================
+   CHAT GUALA (BLOCCO ISOLATO)
+   - NON ridefinisce "db"
+   - usa window.db se esiste (firebase-config.js)
+   - filtro SOLO complesso guala + destinatario guala
+   - mittente: "guala"
+========================================================== */
+const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
 
-function toggleChat(){
-    const el = document.getElementById("chatList");
-    el.style.display = el.style.display === "block" ? "none" : "block";
+const chatListGuala = document.getElementById("chatListGuala");
+const modalGuala = document.getElementById("chatModalGuala");
+const chatTitleGuala = document.getElementById("chatTitleGuala");
+const chatDocHintGuala = document.getElementById("chatDocHintGuala");
+const chatMessagesGuala = document.getElementById("chatMessagesGuala");
+const chatInputGuala = document.getElementById("chatInputGuala");
+
+let currentChatIdGuala = null;
+let unsubGuala = null;
+
+function toggleChatGuala(){
+    const open = chatListGuala.style.display === "block";
+    chatListGuala.style.display = open ? "none" : "block";
+    document.getElementById("chevGuala").innerText = open ? "▸" : "▾";
 }
 
-db.collection("chats")
-  .where("meta.complesso","==","guala")
-  .onSnapshot(snap=>{
-    const list = document.getElementById("chatList");
-    list.innerHTML = "";
-    snap.forEach(doc=>{
-        const m = doc.data().meta;
-        const div = document.createElement("div");
-        div.className = "chat-item";
-        div.innerText = `${m.nome} – ${m.scala} ${m.piano} ${m.lato}`;
-        div.onclick = ()=>openChat(doc.id,m);
-        list.appendChild(div);
+function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
+
+fdb.collection("chats")
+  .where("meta.complesso", "==", "guala")
+  .where("meta.destinatario", "==", "guala")
+  .onSnapshot((snap)=>{
+    chatListGuala.innerHTML = "";
+    if (snap.empty){
+      chatListGuala.innerText = "Nessuna chat";
+      return;
+    }
+
+    snap.forEach((doc)=>{
+      const data = doc.data() || {};
+      const meta = data.meta || {};
+
+      const div = document.createElement("div");
+      div.className = "chat-item";
+      div.innerText = `${safeStr(meta.nome)} – ${safeStr(meta.scala)} ${safeStr(meta.piano)} ${safeStr(meta.lato)}`;
+      div.onclick = (e) => {
+        e.stopPropagation();
+        openChatGuala(doc.id, meta);
+      };
+
+      chatListGuala.appendChild(div);
     });
+  }, (err)=>{
+    chatListGuala.innerText = "Errore caricamento chat: " + err.message;
   });
 
-function openChat(id,meta){
-    currentChatId = id;
-    document.getElementById("chatTitle").innerText =
-        `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
-    document.getElementById("chatModal").style.display = "flex";
-    const box = document.getElementById("chatMessages");
-    box.innerHTML = "";
+function openChatGuala(docId, meta){
+  currentChatIdGuala = docId;
 
-    if(unsub) unsub();
+  chatTitleGuala.innerText = `${safeStr(meta.nome)} – ${safeStr(meta.scala)} ${safeStr(meta.piano)} ${safeStr(meta.lato)}`;
+  chatDocHintGuala.innerText = `Documento chat: ${docId}`;
 
-    unsub = db.collection("chats")
-      .doc(id).collection("messages")
-      .orderBy("timestamp")
-      .onSnapshot(s=>{
-        box.innerHTML="";
-        s.forEach(d=>{
-            const msg = d.data();
-            const div = document.createElement("div");
-            div.className = msg.mittente === "user" ? "msg-user" : "msg-guala";
-            div.innerText = msg.testo;
-            box.appendChild(div);
-        });
-        box.scrollTop = box.scrollHeight;
+  modalGuala.style.display = "flex";
+  chatMessagesGuala.innerHTML = "";
+
+  if (unsubGuala) unsubGuala();
+
+  unsubGuala = fdb.collection("chats")
+    .doc(docId)
+    .collection("messages")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((s)=>{
+      chatMessagesGuala.innerHTML = "";
+      s.forEach((d)=>{
+        const m = d.data() || {};
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (m.mittente === "guala" ? "chat-bubble-guala" : "chat-bubble-user");
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = safeStr(m.testo);
+
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "chat-time";
+        if (m.timestamp && m.timestamp.toDate){
+          timeDiv.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          timeDiv.innerText = "";
+        }
+
+        bubble.appendChild(textDiv);
+        bubble.appendChild(timeDiv);
+        chatMessagesGuala.appendChild(bubble);
       });
+
+      chatMessagesGuala.scrollTop = chatMessagesGuala.scrollHeight;
+    }, (err)=>{
+      alert("Errore lettura chat: " + err.message);
+    });
 }
 
-function closeChat(){
-    document.getElementById("chatModal").style.display="none";
-    if(unsub) unsub();
+function closeChatGuala(){
+  modalGuala.style.display = "none";
+  chatInputGuala.value = "";
+  chatMessagesGuala.innerHTML = "";
+  currentChatIdGuala = null;
+  if (unsubGuala) unsubGuala();
+  unsubGuala = null;
 }
 
-function sendMsg(){
-    const t = chatInput.value.trim();
-    if(!t || !currentChatId) return;
-    db.collection("chats")
-      .doc(currentChatId)
-      .collection("messages")
-      .add({
-        testo:t,
-        mittente:"guala",
-        timestamp:firebase.firestore.FieldValue.serverTimestamp()
-      });
-    chatInput.value="";
+function sendMsgGuala(){
+  const text = (chatInputGuala.value || "").trim();
+  if (!text) return;
+  if (!currentChatIdGuala) return;
+
+  fdb.collection("chats")
+    .doc(currentChatIdGuala)
+    .collection("messages")
+    .add({
+      testo: text,
+      mittente: "guala",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=>{ chatInputGuala.value = ""; })
+    .catch((err)=>{ alert("Errore invio: " + err.message); });
 }
 </script>
 
