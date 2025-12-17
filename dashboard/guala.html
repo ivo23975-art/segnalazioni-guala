@@ -1,185 +1,148 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>Guala – Segnalazioni attive</title>
+<meta charset="UTF-8">
+<title>Guala – Segnalazioni attive</title>
 
-    <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="dashboard.css">
+<link rel="icon" href="data:,">
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- CONFIG -->
-    <script src="firebase-config.js"></script>
+<!-- CONFIG -->
+<script src="firebase-config.js"></script>
 
-    <!-- AUTH -->
-    <script src="admin-auth.js"></script>
+<!-- AUTH -->
+<script src="admin-auth.js"></script>
 
-    <!-- DASHBOARD -->
-    <script src="dashboard.js"></script>
+<!-- DASHBOARD -->
+<script src="dashboard.js"></script>
 
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 12px;
-            right: 20px;
-            background: #ff4444;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 9999;
-        }
+<style>
+.logout-btn{
+  position:fixed;
+  top:12px;
+  right:20px;
+  background:#ff4444;
+  color:white;
+  padding:8px 16px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
+}
 
-        /* ===== CHAT GUALA (BLOCCO ISOLATO) ===== */
-        .chat-card{
-            background:#0f2a3d;
-            color:#fff;
-            border-radius:12px;
-            padding:14px;
-            margin-bottom:20px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
+/* ===== CHAT CARD ===== */
+.chat-card{
+  background:#0f2a3d;
+  color:#fff;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:20px;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+}
+.chat-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  font-weight:900;
+}
+.chat-list{
+  display:none;
+  margin-top:10px;
+  max-height:260px;
+  overflow-y:auto;
+}
+.chat-item{
+  background:#102f45;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+.chat-item:hover{ background:#123e5c; }
 
-        .chat-card-head{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            cursor:pointer;
-            user-select:none;
-            font-weight:900;
-        }
-
-        .chat-list{
-            margin-top:10px;
-            display:none;
-            max-height:300px;
-            overflow-y:auto;
-            padding-right:4px;
-        }
-
-        .chat-item{
-            background:#102f45;
-            padding:10px;
-            border-radius:10px;
-            margin-bottom:8px;
-            cursor:pointer;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .chat-item:hover{ background:#123e5c; }
-
-        .chat-modal{
-            position:fixed;
-            inset:0;
-            background:rgba(0,0,0,.5);
-            display:none;
-            align-items:center;
-            justify-content:center;
-            z-index:9999;
-        }
-
-        .chat-modal-content{
-            background:#fff;
-            width:92%;
-            max-width:520px;
-            height:78vh;
-            max-height:78vh;
-            border-radius:16px;
-            padding:14px;
-            display:flex;
-            flex-direction:column;
-        }
-
-        #chatTitle{
-            margin:0;
-            text-align:center;
-            font-weight:900;
-            color:#000;
-        }
-
-        #chatDocHint{
-            margin-top:6px;
-            font-size:12px;
-            opacity:.75;
-            text-align:center;
-            color:#000;
-        }
-
-        .chat-messages{
-            flex:1;
-            overflow-y:auto;
-            margin:10px 0 0 0;
-            background:#fafafa;
-            padding:10px;
-            border-radius:12px;
-            border:1px solid #e2e2e2;
-            color:#000;
-        }
-
-        .chat-bubble{
-            max-width:82%;
-            padding:.6rem .75rem;
-            border-radius:.9rem;
-            margin:.35rem 0;
-            display:inline-flex;
-            flex-direction:column;
-            gap:.25rem;
-            box-shadow:0 2px 10px rgba(0,0,0,.08);
-            word-wrap:break-word;
-            white-space:pre-wrap;
-            color:#000;
-        }
-
-        .chat-bubble-user{
-            background:#e6f2ff;
-            align-self:flex-start;
-            margin-right:auto;
-            color:#000;
-        }
-
-        .chat-bubble-guala{
-            background:#d6ffd6;
-            align-self:flex-end;
-            margin-left:auto;
-            color:#000;
-        }
-
-        .chat-time{
-            font-size:.75rem;
-            opacity:.65;
-            text-align:right;
-            color:#000;
-        }
-
-        .chat-input{
-            width:100%;
-            height:70px;
-            resize:none;
-            border:1px solid #ccc;
-            border-radius:12px;
-            padding:10px;
-            margin-top:10px;
-            box-sizing:border-box;
-            color:#000;
-        }
-
-        .btn{
-            margin-top:10px;
-            padding:12px;
-            width:100%;
-            border:none;
-            border-radius:12px;
-            cursor:pointer;
-            font-weight:900;
-        }
-
-        .btnSend{ background:#00c853; color:#111; }
-        .btnClose{ background:#ccc; color:#111; }
-    </style>
+/* ===== MODALE CHAT ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal-content{
+  background:#fff;
+  width:92%;
+  max-width:520px;
+  height:78vh;
+  border-radius:16px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+}
+#chatTitle{
+  margin:0;
+  text-align:center;
+  font-weight:900;
+  color:#000;
+}
+#chatMessages{
+  flex:1;
+  overflow-y:auto;
+  margin-top:10px;
+  background:#fafafa;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #e2e2e2;
+}
+.chat-bubble{
+  max-width:82%;
+  padding:.6rem .75rem;
+  border-radius:.9rem;
+  margin:.35rem 0;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  color:#000;
+}
+.chat-bubble-user{
+  background:#e6f2ff;
+  align-self:flex-start;
+}
+.chat-bubble-guala{
+  background:#d6ffd6;
+  align-self:flex-end;
+}
+.chat-time{
+  font-size:.75rem;
+  opacity:.6;
+  text-align:right;
+}
+textarea{
+  width:100%;
+  height:70px;
+  resize:none;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+  border:1px solid #ccc;
+  color:#000;
+}
+.btn{
+  margin-top:10px;
+  padding:12px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+}
+.btnSend{ background:#00c853; color:#111; }
+.btnClose{ background:#ccc; color:#111; }
+</style>
 </head>
 
 <body>
@@ -190,30 +153,21 @@
 
 <div class="content">
 
-<!-- ================= CHAT GUALA (ISOLATA, NON TOCCA SEGNALAZIONI) ================= -->
+<!-- ================= CHAT GUALA ================= -->
 <div class="chat-card">
-    <div class="chat-card-head" onclick="toggleChatGuala()">
-        <div>💬 Chat Guala</div>
-        <div id="chevGuala">▸</div>
-    </div>
-    <div class="chat-list" id="chatListGuala">Caricamento chat…</div>
+  <div class="chat-card-head" onclick="toggleChat()">
+    <div>💬 Chat Guala</div>
+    <div id="chev">▸</div>
+  </div>
+  <div class="chat-list" id="chatList">Caricamento chat…</div>
 </div>
 
-<!-- =======================
-     SEGNALAZIONI (INVARIATE)
-======================= -->
+<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
 <table class="table">
 <thead>
 <tr>
-    <th>Data</th>
-    <th>Scala</th>
-    <th>Piano</th>
-    <th>Lato</th>
-    <th>Nome</th>
-    <th>Temp</th>
-    <th>Tipo</th>
-    <th>Descrizione</th>
-    <th>Azioni</th>
+  <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+  <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -222,148 +176,99 @@
 </div>
 
 <!-- ================= MODALE CHAT ================= -->
-<div class="chat-modal" id="chatModalGuala">
-    <div class="chat-modal-content">
-        <h3 id="chatTitleGuala"></h3>
-        <div id="chatDocHintGuala"></div>
-        <div class="chat-messages" id="chatMessagesGuala"></div>
-        <textarea class="chat-input" id="chatInputGuala" placeholder="Scrivi messaggio..."></textarea>
-        <button class="btn btnSend" onclick="sendMsgGuala()">Invia</button>
-        <button class="btn btnClose" onclick="closeChatGuala()">Chiudi</button>
-    </div>
+<div class="modal" id="chatModal">
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+    <div id="chatMessages"></div>
+    <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
+    <button class="btn btnSend" onclick="sendMsg()">Invia</button>
+    <button class="btn btnClose" onclick="closeChat()">Chiudi</button>
+  </div>
 </div>
 
 <script>
 requireRole("guala");
 
-/* SEGNALAZIONI (INVARIATE) */
-loadSegnalazioni(
-    r => r.stato === "attiva" && r.complesso === "guala"
-);
+/* SEGNALAZIONI */
+loadSegnalazioni(r => r.stato === "attiva" && r.complesso === "guala");
 
-/* ==========================================================
-   CHAT GUALA (BLOCCO ISOLATO)
-   - NON ridefinisce "db"
-   - usa window.db se esiste (firebase-config.js)
-   - filtro SOLO complesso guala + destinatario guala
-   - mittente: "guala"
-========================================================== */
-const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
+/* ===== CHAT GUALA ===== */
+const fdb = window.db;
+const chatList = document.getElementById("chatList");
+const modal = document.getElementById("chatModal");
+const chatTitle = document.getElementById("chatTitle");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
 
-const chatListGuala = document.getElementById("chatListGuala");
-const modalGuala = document.getElementById("chatModalGuala");
-const chatTitleGuala = document.getElementById("chatTitleGuala");
-const chatDocHintGuala = document.getElementById("chatDocHintGuala");
-const chatMessagesGuala = document.getElementById("chatMessagesGuala");
-const chatInputGuala = document.getElementById("chatInputGuala");
+let currentChatId = null;
+let unsub = null;
 
-let currentChatIdGuala = null;
-let unsubGuala = null;
-
-function toggleChatGuala(){
-    const open = chatListGuala.style.display === "block";
-    chatListGuala.style.display = open ? "none" : "block";
-    document.getElementById("chevGuala").innerText = open ? "▸" : "▾";
+function toggleChat(){
+  const open = chatList.style.display === "block";
+  chatList.style.display = open ? "none" : "block";
+  document.getElementById("chev").innerText = open ? "▸" : "▾";
 }
-
-function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
 
 fdb.collection("chats")
-  .where("meta.complesso", "==", "guala")
-  .where("meta.destinatario", "==", "guala")
-  .onSnapshot((snap)=>{
-    chatListGuala.innerHTML = "";
-    if (snap.empty){
-      chatListGuala.innerText = "Nessuna chat";
-      return;
-    }
-
-    snap.forEach((doc)=>{
-      const data = doc.data() || {};
-      const meta = data.meta || {};
-
-      const div = document.createElement("div");
-      div.className = "chat-item";
-      div.innerText = `${safeStr(meta.nome)} – ${safeStr(meta.scala)} ${safeStr(meta.piano)} ${safeStr(meta.lato)}`;
-      div.onclick = (e) => {
-        e.stopPropagation();
-        openChatGuala(doc.id, meta);
-      };
-
-      chatListGuala.appendChild(div);
-    });
-  }, (err)=>{
-    chatListGuala.innerText = "Errore caricamento chat: " + err.message;
+.where("meta.complesso","==","guala")
+.where("meta.destinatario","==","guala")
+.onSnapshot(snap=>{
+  chatList.innerHTML="";
+  if(snap.empty){
+    chatList.innerText="Nessuna chat";
+    return;
+  }
+  snap.forEach(doc=>{
+    const m = doc.data().meta;
+    const d = document.createElement("div");
+    d.className="chat-item";
+    d.innerText = `${m.nome} – ${m.scala} ${m.piano} ${m.lato}`;
+    d.onclick=()=>openChat(doc.id,m);
+    chatList.appendChild(d);
   });
+});
 
-function openChatGuala(docId, meta){
-  currentChatIdGuala = docId;
+function openChat(id,meta){
+  currentChatId=id;
+  chatTitle.innerText = `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
+  modal.style.display="flex";
+  chatMessages.innerHTML="";
 
-  chatTitleGuala.innerText = `${safeStr(meta.nome)} – ${safeStr(meta.scala)} ${safeStr(meta.piano)} ${safeStr(meta.lato)}`;
-  chatDocHintGuala.innerText = `Documento chat: ${docId}`;
-
-  modalGuala.style.display = "flex";
-  chatMessagesGuala.innerHTML = "";
-
-  if (unsubGuala) unsubGuala();
-
-  unsubGuala = fdb.collection("chats")
-    .doc(docId)
-    .collection("messages")
-    .orderBy("timestamp", "asc")
-    .onSnapshot((s)=>{
-      chatMessagesGuala.innerHTML = "";
-      s.forEach((d)=>{
-        const m = d.data() || {};
-        const bubble = document.createElement("div");
-        bubble.className = "chat-bubble " + (m.mittente === "guala" ? "chat-bubble-guala" : "chat-bubble-user");
-
-        const textDiv = document.createElement("div");
-        textDiv.innerText = safeStr(m.testo);
-
-        const timeDiv = document.createElement("div");
-        timeDiv.className = "chat-time";
-        if (m.timestamp && m.timestamp.toDate){
-          timeDiv.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
-        } else {
-          timeDiv.innerText = "";
-        }
-
-        bubble.appendChild(textDiv);
-        bubble.appendChild(timeDiv);
-        chatMessagesGuala.appendChild(bubble);
+  if(unsub) unsub();
+  unsub = fdb.collection("chats")
+    .doc(id).collection("messages")
+    .orderBy("timestamp")
+    .onSnapshot(s=>{
+      chatMessages.innerHTML="";
+      s.forEach(d=>{
+        const m=d.data();
+        const b=document.createElement("div");
+        b.className="chat-bubble "+(m.mittente==="guala"?"chat-bubble-guala":"chat-bubble-user");
+        b.innerHTML=`${m.testo}<div class="chat-time">${m.timestamp?.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})||""}</div>`;
+        chatMessages.appendChild(b);
       });
-
-      chatMessagesGuala.scrollTop = chatMessagesGuala.scrollHeight;
-    }, (err)=>{
-      alert("Errore lettura chat: " + err.message);
+      chatMessages.scrollTop=chatMessages.scrollHeight;
     });
 }
 
-function closeChatGuala(){
-  modalGuala.style.display = "none";
-  chatInputGuala.value = "";
-  chatMessagesGuala.innerHTML = "";
-  currentChatIdGuala = null;
-  if (unsubGuala) unsubGuala();
-  unsubGuala = null;
+function closeChat(){
+  modal.style.display="none";
+  chatInput.value="";
+  if(unsub) unsub();
+  unsub=null;
 }
 
-function sendMsgGuala(){
-  const text = (chatInputGuala.value || "").trim();
-  if (!text) return;
-  if (!currentChatIdGuala) return;
-
-  fdb.collection("chats")
-    .doc(currentChatIdGuala)
+function sendMsg(){
+  const t=chatInput.value.trim();
+  if(!t||!currentChatId) return;
+  fdb.collection("chats").doc(currentChatId)
     .collection("messages")
     .add({
-      testo: text,
-      mittente: "guala",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(()=>{ chatInputGuala.value = ""; })
-    .catch((err)=>{ alert("Errore invio: " + err.message); });
+      testo:t,
+      mittente:"guala",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  chatInput.value="";
 }
 </script>
 
