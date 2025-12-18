@@ -23,7 +23,7 @@
 <style>
 .logout-btn{
   position:fixed;top:12px;right:20px;
-  background:#ff4444;color:white;
+  background:#ff4444;color:#fff;
   padding:8px 16px;border-radius:8px;
   font-weight:bold;cursor:pointer;
   z-index:9999;
@@ -44,6 +44,7 @@
 @keyframes blink{
   50%{ filter:brightness(1.25); }
 }
+
 .chat-head{
   display:flex;
   justify-content:space-between;
@@ -54,16 +55,34 @@
   display:none;
   margin-top:10px;
 }
+
 .chat-item{
   background:#102f45;
   padding:10px;
   border-radius:10px;
   margin-bottom:8px;
   cursor:pointer;
+  color:#fff;
 }
-.chat-item.unread-green{ box-shadow:0 0 0 2px #00c853; }
-.chat-item.unread-orange{ box-shadow:0 0 0 2px #ff9800; }
-.chat-item.unread-red{ box-shadow:0 0 0 2px #d50000; }
+.chat-item.unread-green{
+  animation:pulseGreen 1.4s infinite;
+}
+.chat-item.unread-orange{
+  animation:pulseOrange 1.1s infinite;
+}
+.chat-item.unread-red{
+  animation:pulseRed .9s infinite;
+}
+
+@keyframes pulseGreen{
+  50%{ box-shadow:0 0 0 3px rgba(0,200,83,.6); }
+}
+@keyframes pulseOrange{
+  50%{ box-shadow:0 0 0 3px rgba(255,152,0,.7); }
+}
+@keyframes pulseRed{
+  50%{ box-shadow:0 0 0 3px rgba(213,0,0,.8); }
+}
 
 /* ===== MODALE CHAT ===== */
 .modal{
@@ -92,6 +111,8 @@
   padding:10px;
   background:#fafafa;
 }
+
+/* ===== BOLLE CHAT – TESTO NERO ===== */
 .chat-bubble{
   padding:8px 10px;
   border-radius:12px;
@@ -99,8 +120,14 @@
   max-width:80%;
   color:#000;
 }
-.user{ background:#e6f2ff; }
-.admin{ background:#d6ffd6; margin-left:auto; }
+.chat-bubble.user{
+  background:#e6f2ff;
+}
+.chat-bubble.admin{
+  background:#d6ffd6;
+  margin-left:auto;
+}
+
 textarea{
   width:100%;
   height:60px;
@@ -109,9 +136,17 @@ textarea{
   padding:8px;
   color:#000;
 }
-.btn{ margin-top:6px;padding:10px;border:none;border-radius:10px;cursor:pointer;font-weight:900; }
-.btnSend{ background:#00c853; }
-.btnClose{ background:#ccc; }
+
+.btn{
+  margin-top:6px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:900;
+}
+.btnSend{ background:#00c853; color:#111; }
+.btnClose{ background:#ccc; color:#111; }
 </style>
 </head>
 
@@ -150,7 +185,7 @@ textarea{
   <div class="modal-content">
     <h3 id="chatTitle"></h3>
     <div id="chatMessages"></div>
-    <textarea id="chatInput"></textarea>
+    <textarea id="chatInput" placeholder="Scrivi messaggio..."></textarea>
     <button class="btn btnSend" onclick="sendMsg()">Invia</button>
     <button class="btn btnClose" onclick="closeChat()">Chiudi</button>
   </div>
@@ -178,21 +213,26 @@ dbx.collection("chats")
   const list=document.getElementById("chatList");
   list.innerHTML="";
   if(s.empty){ list.innerText="Nessuna chat"; return; }
+
   s.forEach(d=>{
     const m=d.data().meta;
     const div=document.createElement("div");
-    div.className="chat-item";
+    div.className="chat-item unread-green";
     div.innerText=`${m.nome} – ${m.scala} ${m.piano} ${m.lato}`;
-    div.onclick=()=>openChat(d.id,m);
+    div.onclick=()=>openChat(d.id,m,div);
     list.appendChild(div);
   });
+
+  document.getElementById("chatCard").classList.add("attn");
 });
 
-function openChat(id,meta){
+function openChat(id,meta,row){
   openChatId=id;
   document.getElementById("chatTitle").innerText=
     `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
   document.getElementById("chatModal").style.display="flex";
+  row.className="chat-item";
+
   if(unsub)unsub();
   unsub=dbx.collection("chats").doc(id).collection("messages")
     .orderBy("timestamp")
@@ -214,8 +254,11 @@ function sendMsg(){
   const t=document.getElementById("chatInput").value.trim();
   if(!t||!openChatId)return;
   dbx.collection("chats").doc(openChatId).collection("messages")
-    .add({ testo:t, mittente:"admin",
-      timestamp:firebase.firestore.FieldValue.serverTimestamp() });
+    .add({
+      testo:t,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
   document.getElementById("chatInput").value="";
 }
 
