@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Parti Comuni – Segnalazioni attive</title>
+<title>Parti Comuni – Chat + Segnalazioni</title>
 
 <link rel="stylesheet" href="dashboard.css">
+<link rel="icon" href="data:,">
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -21,42 +22,152 @@
 
 <style>
 .logout-btn{
-  position:absolute;
-  top:15px;
-  right:20px;
-  background:#ff0000;
-  color:white;
-  padding:10px 18px;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
+  position:fixed;top:12px;right:20px;
+  background:#ff0000;color:#fff;
+  padding:8px 16px;border-radius:8px;
+  font-weight:bold;cursor:pointer;z-index:9999
 }
+.section{margin-bottom:18px}
+
+/* ===== CHAT CARD ===== */
+.chat-cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px
+}
+@media(max-width:900px){
+  .chat-cards{grid-template-columns:1fr}
+}
+.chat-card{
+  background:#0f2a3d;
+  border-radius:12px;
+  padding:12px;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.08)
+}
+.chat-card.attn{
+  animation:blink 1.2s infinite;
+  border-color:rgba(255,204,0,.6)
+}
+@keyframes blink{50%{filter:brightness(1.25)}}
+
+.chat-card-head{
+  display:flex;justify-content:space-between;
+  font-weight:900;cursor:pointer
+}
+.chat-card-sub{
+  font-size:13px;opacity:.85;
+  display:flex;justify-content:space-between;
+  margin-top:6px
+}
+.card-unread-pill{
+  display:none;
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(255,204,0,.2);
+  font-weight:900
+}
+.chat-list{
+  display:none;margin-top:10px;
+  max-height:320px;overflow-y:auto
+}
+.chat-item{
+  background:#102f45;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+  display:flex;justify-content:space-between;
+  cursor:pointer
+}
+.chat-item.unread{animation:pulse 1.2s infinite}
+@keyframes pulse{50%{filter:brightness(1.2)}}
+.chat-item .title{font-weight:900}
+.chat-item .meta{font-size:12px;opacity:.8}
+.badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-weight:900
+}
+.badge-pc{background:#ffcc00;color:#111}
+
+/* ===== MODAL CHAT ===== */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;justify-content:center;align-items:center
+}
+.modal-content{
+  background:#fff;
+  width:92%;max-width:520px;
+  height:78vh;border-radius:16px;
+  padding:14px;display:flex;flex-direction:column
+}
+#chatTitle,#chatDocHint{color:#000;text-align:center}
+#chatMessages{
+  flex:1;overflow-y:auto;
+  background:#fafafa;border-radius:12px;
+  padding:10px;margin-top:10px
+}
+.chat-bubble{
+  max-width:82%;padding:.6rem;
+  border-radius:.9rem;margin:.3rem 0;
+  color:#000
+}
+.chat-bubble-user{background:#e6f2ff}
+.chat-bubble-admin{background:#d6ffd6;margin-left:auto}
+.chat-time{font-size:.75rem;opacity:.65;text-align:right;color:#000}
+textarea{color:#000}
+.btn{margin-top:10px;padding:12px;border-radius:12px;font-weight:900}
+.btnSend{background:#00c853}
+.btnClose{background:#ccc}
 </style>
 </head>
 
 <body>
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
-
-<div class="header">Parti Comuni – Segnalazioni attive</div>
+<div class="header">Parti Comuni – Chat + Segnalazioni</div>
 
 <div class="content">
 
-<!-- ======================
-     SEGNALAZIONI (INVARIATE)
-====================== -->
+<!-- ===== CHAT ===== -->
+<div class="section">
+<div class="chat-cards">
+
+<div class="chat-card" id="cardGuala">
+  <div class="chat-card-head" onclick="toggleCard('guala')">
+    <div>💬 Chat Guala</div><div id="chevGuala">▸</div>
+  </div>
+  <div class="chat-card-sub">
+    <span>Chat Parti Comuni – Guala</span>
+    <span class="card-unread-pill" id="pillGuala"></span>
+  </div>
+  <div class="chat-list" id="listGuala"></div>
+</div>
+
+<div class="chat-card" id="cardPiobesi">
+  <div class="chat-card-head" onclick="toggleCard('piobesi')">
+    <div>💬 Chat Piobesi</div><div id="chevPiobesi">▸</div>
+  </div>
+  <div class="chat-card-sub">
+    <span>Chat Parti Comuni – Piobesi</span>
+    <span class="card-unread-pill" id="pillPiobesi"></span>
+  </div>
+  <div class="chat-list" id="listPiobesi"></div>
+</div>
+
+</div>
+</div>
+
+<!-- ===== SEGNALAZIONI INVARIATE ===== -->
 <table class="table">
 <thead>
 <tr>
-<th>Data</th>
-<th>Scala</th>
-<th>Piano</th>
-<th>Lato</th>
-<th>Nome</th>
-<th>Temp</th>
-<th>Tipo</th>
-<th>Descrizione</th>
-<th>Risolvi</th>
+<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th>
+<th>Descrizione</th><th>Risolvi</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -64,13 +175,91 @@
 
 </div>
 
+<!-- ===== MODAL CHAT ===== -->
+<div class="modal" id="modalChat">
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+    <div id="chatDocHint"></div>
+    <div id="chatMessages"></div>
+    <textarea id="chatInput"></textarea>
+    <button class="btn btnSend" onclick="sendMsg()">Invia</button>
+    <button class="btn btnClose" onclick="closeChat()">Chiudi</button>
+  </div>
+</div>
+
 <script>
 requireRole("particomuni");
 
 /* SEGNALAZIONI */
 loadSegnalazioni(
-  r => (r.tipo === "Parti comuni" || r.tipo === "particomuni") && r.stato === "attiva"
+  r => (r.tipo==="Parti comuni"||r.tipo==="particomuni") && r.stato==="attiva"
 );
+
+/* ===== CHAT LOGICA IDENTICA SUPERADMIN (destinatario particomuni) ===== */
+const db = firebase.firestore();
+const lists={guala:listGuala,piobesi:listPiobesi};
+let openChat=null,unsub=null;
+
+function toggleCard(c){
+  const l=lists[c];
+  l.style.display=l.style.display==="block"?"none":"block";
+  document.getElementById("chev"+cap(c)).innerText=l.style.display==="block"?"▾":"▸";
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+db.collection("chats")
+.where("meta.destinatario","==","particomuni")
+.onSnapshot(s=>{
+  const map={guala:new Map(),piobesi:new Map()};
+  s.forEach(d=>{
+    const m=d.data().meta||{};
+    if(!map[m.complesso])return;
+    const k=`${m.scala}|${m.piano}|${m.lato}|${m.nome}`;
+    if(!map[m.complesso].has(k))map[m.complesso].set(k,{id:d.id,meta:m});
+  });
+  ["guala","piobesi"].forEach(c=>{
+    lists[c].innerHTML="";
+    map[c].forEach(o=>{
+      const el=document.createElement("div");
+      el.className="chat-item";
+      el.innerHTML=`<div><div class=title>${o.meta.nome}</div>
+      <div class=meta>${o.meta.scala} • ${o.meta.piano} • ${o.meta.lato}</div></div>
+      <div class="badge badge-pc">PC</div>`;
+      el.onclick=()=>openChatFn(o.id,o.meta);
+      lists[c].appendChild(el);
+    });
+  });
+});
+
+function openChatFn(id,m){
+  openChat=id;
+  modalChat.style.display="flex";
+  chatTitle.innerText=`Chat • ${m.nome}`;
+  chatDocHint.innerText=id;
+  chatMessages.innerHTML="";
+  if(unsub)unsub();
+  unsub=db.collection("chats").doc(id).collection("messages")
+  .orderBy("timestamp").onSnapshot(s=>{
+    chatMessages.innerHTML="";
+    s.forEach(d=>{
+      const mm=d.data();
+      const b=document.createElement("div");
+      b.className="chat-bubble "+(mm.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
+      b.innerHTML=`${mm.testo}<div class=chat-time>${mm.timestamp?.toDate().toLocaleTimeString()}</div>`;
+      chatMessages.appendChild(b);
+    });
+    chatMessages.scrollTop=999999;
+  });
+}
+function closeChat(){modalChat.style.display="none";if(unsub)unsub()}
+function sendMsg(){
+  if(!openChat||!chatInput.value)return;
+  db.collection("chats").doc(openChat).collection("messages").add({
+    testo:chatInput.value,mittente:"admin",
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  chatInput.value="";
+}
 </script>
 
 </body>
