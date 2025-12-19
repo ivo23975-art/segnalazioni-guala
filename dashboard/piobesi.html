@@ -21,44 +21,59 @@
   <script src="dashboard.js"></script>
 
   <style>
-    .logout-btn{
-      position:fixed;
-      top:12px;
-      right:20px;
-      background:#ff4444;
-      color:white;
-      padding:8px 16px;
-      border-radius:8px;
-      font-weight:bold;
-      cursor:pointer;
-      z-index:9999;
+    .logout-btn {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      background: #ff4444;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 9999;
     }
 
-    .section{margin-bottom:18px}
+    .section { margin-bottom: 18px; }
 
-    /* ===== CHAT CARD ===== */
     .chat-card{
       background:#0f2a3d;
       border-radius:12px;
       padding:12px;
-      box-shadow:0 4px 14px rgba(0,0,0,.18);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
       color:#fff;
-      border:1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .chat-card.attn{
-      animation:blink 1.2s infinite;
-      border-color:rgba(255,204,0,.6);
+      animation: cardBlinkYellow 1.2s infinite;
+      border-color: rgba(255,204,0,0.65);
     }
-    @keyframes blink{
-      0%,100%{filter:brightness(1)}
-      50%{filter:brightness(1.25)}
+
+    @keyframes cardBlinkYellow{
+      0%,100%{ filter: brightness(1); }
+      50%{ filter: brightness(1.25); }
     }
 
     .chat-card-head{
       display:flex;
       justify-content:space-between;
       cursor:pointer;
+      font-weight:900;
+    }
+
+    .chat-card-sub{
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      margin-top:6px;
+    }
+
+    .card-unread-pill{
+      display:none;
+      padding:4px 10px;
+      border-radius:999px;
+      background: rgba(255,204,0,0.25);
       font-weight:900;
     }
 
@@ -75,32 +90,34 @@
       padding:10px;
       margin-bottom:8px;
       cursor:pointer;
-      border:1px solid rgba(255,255,255,.06);
-    }
-    .chat-item:hover{background:#123e5c}
-
-    .chat-item.unread{
-      animation:pulse 1.2s infinite;
-      border-color:#ffcc00;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1)}
-      50%{transform:scale(1.02)}
+      display:flex;
+      justify-content:space-between;
     }
 
-    .chat-title{font-weight:900}
-    .chat-meta{font-size:12px;opacity:.85}
+    .chat-item.unread-green{ border:2px solid #00c853; }
+    .chat-item.unread-orange{ border:2px solid #ff8800; }
+    .chat-item.unread-red{ border:2px solid #d50000; }
 
-    /* ===== MODALE ===== */
+    .badge{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:900;
+    }
+
+    .badge-admin{ background:#0077ff; color:#fff; }
+    .badge-pc{ background:#ffcc00; color:#111; }
+
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.45);
+      background: rgba(0,0,0,.45);
       display:none;
       justify-content:center;
       align-items:center;
       z-index:9999;
     }
+
     .modal-content{
       background:white;
       width:92%;
@@ -111,43 +128,44 @@
       display:flex;
       flex-direction:column;
     }
-    #chatTitle,#chatDocHint{color:#000;text-align:center}
+
+    #chatTitle,#chatDocHint,.chat-bubble,.chat-time,textarea{ color:#000; }
+
     #chatMessages{
       flex:1;
       overflow-y:auto;
-      border:1px solid #ddd;
+      border:1px solid #e2e2e2;
       border-radius:12px;
       padding:10px;
       background:#fafafa;
       margin-top:10px;
     }
-    .bubble{
-      max-width:80%;
-      padding:8px 10px;
-      border-radius:12px;
-      margin:6px 0;
-      color:#000;
+
+    .chat-bubble{
+      max-width:82%;
+      padding:.6rem;
+      border-radius:.9rem;
+      margin:.35rem 0;
     }
-    .user{background:#e6f2ff;align-self:flex-start}
-    .admin{background:#d6ffd6;align-self:flex-end}
+
+    .chat-bubble-user{ background:#e6f2ff; }
+    .chat-bubble-admin{ background:#d6ffd6; align-self:flex-end; }
 
     textarea{
-      width:100%;
       height:70px;
       border-radius:12px;
       padding:10px;
-      color:#000;
     }
+
     .btn{
-      margin-top:8px;
+      margin-top:10px;
       padding:12px;
-      border:none;
       border-radius:12px;
       font-weight:900;
       cursor:pointer;
     }
-    .send{background:#00c853}
-    .close{background:#ccc}
+    .btnSend{ background:#00c853; }
+    .btnClose{ background:#ccc; }
   </style>
 </head>
 
@@ -159,18 +177,20 @@
 
 <div class="content">
 
-  <!-- CHAT -->
   <div class="section">
-    <div class="chat-card" id="card">
-      <div class="chat-card-head" onclick="toggleChat()">
+    <div class="chat-card" id="cardPiobesi">
+      <div class="chat-card-head" onclick="toggleChatCard()">
         <div>💬 Chat Piobesi</div>
         <div id="chev">▸</div>
       </div>
-      <div class="chat-list" id="chatList">Caricamento…</div>
+      <div class="chat-card-sub">
+        <span>Chat complesso Piobesi</span>
+        <span class="card-unread-pill" id="pill">Nuovi</span>
+      </div>
+      <div class="chat-list" id="list">Caricamento chat…</div>
     </div>
   </div>
 
-  <!-- SEGNALAZIONI (INVARIATE) -->
   <table class="table">
     <thead>
       <tr>
@@ -183,95 +203,82 @@
 
 </div>
 
-<!-- MODALE -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <h3 id="chatTitle"></h3>
     <div id="chatDocHint"></div>
     <div id="chatMessages"></div>
     <textarea id="chatInput"></textarea>
-    <button class="btn send" onclick="sendMsg()">Invia</button>
-    <button class="btn close" onclick="closeChat()">Chiudi</button>
+    <button class="btn btnSend" onclick="sendMsg()">Invia</button>
+    <button class="btn btnClose" onclick="closeModal()">Chiudi</button>
   </div>
 </div>
 
 <script>
 requireRole("piobesi");
-loadSegnalazioni(r=>r.stato==="attiva" && r.complesso==="piobesi");
+loadSegnalazioni(r => r.stato==="attiva" && r.complesso==="piobesi");
 
-const db=firebase.firestore();
-const chatList=document.getElementById("chatList");
-const modal=document.getElementById("modal");
-const msgs=document.getElementById("chatMessages");
-const input=document.getElementById("chatInput");
-const title=document.getElementById("chatTitle");
-const hint=document.getElementById("chatDocHint");
-const card=document.getElementById("card");
+const db = firebase.firestore();
+const list=document.getElementById("list");
+const card=document.getElementById("cardPiobesi");
+const pill=document.getElementById("pill");
 
-let openId=null, unsub=null;
+let openChat=null, unsub=null;
 
-function toggleChat(){
-  chatList.style.display = chatList.style.display==="block"?"none":"block";
-  document.getElementById("chev").innerText = chatList.style.display==="block"?"▾":"▸";
+function toggleChatCard(){
+  const o=list.style.display==="block";
+  list.style.display=o?"none":"block";
+  document.getElementById("chev").innerText=o?"▸":"▾";
 }
 
-db.collection("chats")
-  .where("meta.complesso","==","piobesi")
-  .onSnapshot(s=>{
-    chatList.innerHTML="";
-    card.classList.remove("attn");
-    s.forEach(d=>{
-      const m=d.data().meta||{};
-      const div=document.createElement("div");
-      div.className="chat-item";
-      div.innerHTML=`<div class="chat-title">${m.nome||""}</div>
-                     <div class="chat-meta">${m.scala||""} ${m.piano||""} ${m.lato||""}</div>`;
-      div.onclick=()=>openChat(d.id,m);
-      chatList.appendChild(div);
-      card.classList.add("attn");
-    });
-    if(!s.size) chatList.innerText="Nessuna chat";
-  });
-
-function openChat(id,m){
-  openId=id;
-  modal.style.display="flex";
-  msgs.innerHTML="";
-  title.innerText=`Chat • ${m.nome||""}`;
-  hint.innerText=`Documento: ${id}`;
-  card.classList.remove("attn");
-
-  if(unsub) unsub();
-  unsub=db.collection("chats").doc(id).collection("messages")
-    .orderBy("timestamp")
+function openChat(id,meta){
+  openChat=id;
+  document.getElementById("modal").style.display="flex";
+  document.getElementById("chatTitle").innerText=meta.nome;
+  document.getElementById("chatDocHint").innerText=id;
+  const box=document.getElementById("chatMessages");
+  box.innerHTML="";
+  if(unsub)unsub();
+  unsub=db.collection("chats").doc(id).collection("messages").orderBy("timestamp")
     .onSnapshot(s=>{
-      msgs.innerHTML="";
+      box.innerHTML="";
       s.forEach(d=>{
-        const b=document.createElement("div");
-        b.className="bubble "+(d.data().mittente==="admin"?"admin":"user");
-        b.innerText=d.data().testo;
-        msgs.appendChild(b);
+        const m=d.data();
+        const div=document.createElement("div");
+        div.className="chat-bubble "+(m.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
+        div.innerText=m.testo;
+        box.appendChild(div);
       });
-      msgs.scrollTop=msgs.scrollHeight;
     });
 }
 
-function closeChat(){
-  modal.style.display="none";
-  if(unsub) unsub();
-  unsub=null;
-  openId=null;
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+  openChat=null;
+  if(unsub)unsub();
 }
 
 function sendMsg(){
-  if(!openId || !input.value.trim()) return;
-  db.collection("chats").doc(openId).collection("messages").add({
-    testo:input.value,
-    mittente:"admin",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  const t=document.getElementById("chatInput").value.trim();
+  if(!t||!openChat)return;
+  db.collection("chats").doc(openChat).collection("messages").add({
+    testo:t,mittente:"admin",timestamp:firebase.firestore.FieldValue.serverTimestamp()
   });
-  input.value="";
+  document.getElementById("chatInput").value="";
 }
+
+db.collection("chats").where("meta.complesso","==","piobesi")
+.onSnapshot(s=>{
+  list.innerHTML="";
+  s.forEach(doc=>{
+    const m=doc.data().meta;
+    const row=document.createElement("div");
+    row.className="chat-item";
+    row.innerHTML=`<div>${m.nome}</div><div class="badge ${m.destinatario==='particomuni'?'badge-pc':'badge-admin'}">${m.destinatario}</div>`;
+    row.onclick=()=>openChat(doc.id,m);
+    list.appendChild(row);
+  });
+});
 </script>
 
 </body>
