@@ -29,7 +29,7 @@
 }
 .section{margin-bottom:18px}
 
-/* ===== CHAT CARD ===== */
+/* ===== CHAT ===== */
 .chat-cards{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -46,12 +46,6 @@
   color:#fff;
   border:1px solid rgba(255,255,255,.08)
 }
-.chat-card.attn{
-  animation:blink 1.2s infinite;
-  border-color:rgba(255,204,0,.6)
-}
-@keyframes blink{50%{filter:brightness(1.25)}}
-
 .chat-card-head{
   display:flex;justify-content:space-between;
   font-weight:900;cursor:pointer
@@ -60,13 +54,6 @@
   font-size:13px;opacity:.85;
   display:flex;justify-content:space-between;
   margin-top:6px
-}
-.card-unread-pill{
-  display:none;
-  padding:4px 10px;
-  border-radius:999px;
-  background:rgba(255,204,0,.2);
-  font-weight:900
 }
 .chat-list{
   display:none;margin-top:10px;
@@ -80,17 +67,15 @@
   display:flex;justify-content:space-between;
   cursor:pointer
 }
-.chat-item.unread{animation:pulse 1.2s infinite}
-@keyframes pulse{50%{filter:brightness(1.2)}}
 .chat-item .title{font-weight:900}
 .chat-item .meta{font-size:12px;opacity:.8}
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
-  font-weight:900
+  font-weight:900;
+  background:#ffcc00;color:#111
 }
-.badge-pc{background:#ffcc00;color:#111}
 
 /* ===== MODAL CHAT ===== */
 .modal{
@@ -136,24 +121,22 @@ textarea{color:#000}
 <div class="section">
 <div class="chat-cards">
 
-<div class="chat-card" id="cardGuala">
+<div class="chat-card">
   <div class="chat-card-head" onclick="toggleCard('guala')">
     <div>💬 Chat Guala</div><div id="chevGuala">▸</div>
   </div>
   <div class="chat-card-sub">
     <span>Chat Parti Comuni – Guala</span>
-    <span class="card-unread-pill" id="pillGuala"></span>
   </div>
   <div class="chat-list" id="listGuala"></div>
 </div>
 
-<div class="chat-card" id="cardPiobesi">
+<div class="chat-card">
   <div class="chat-card-head" onclick="toggleCard('piobesi')">
     <div>💬 Chat Piobesi</div><div id="chevPiobesi">▸</div>
   </div>
   <div class="chat-card-sub">
     <span>Chat Parti Comuni – Piobesi</span>
-    <span class="card-unread-pill" id="pillPiobesi"></span>
   </div>
   <div class="chat-list" id="listPiobesi"></div>
 </div>
@@ -161,7 +144,7 @@ textarea{color:#000}
 </div>
 </div>
 
-<!-- ===== SEGNALAZIONI ===== -->
+<!-- ===== SEGNALAZIONI (INVARIATE) ===== -->
 <table class="table">
 <thead>
 <tr>
@@ -190,22 +173,26 @@ textarea{color:#000}
 <script>
 requireRole("particomuni");
 
-/* SEGNALAZIONI */
+/* SEGNALAZIONI – NON TOCCATE */
 loadSegnalazioni(
   r => (r.tipo==="Parti comuni"||r.tipo==="particomuni") && r.stato==="attiva"
 );
 
 /* ===== CHAT ===== */
-const db = firebase.firestore();
+const fdb = firebase.firestore();
+
 const listGuala = document.getElementById("listGuala");
 const listPiobesi = document.getElementById("listPiobesi");
-const cardGuala = document.getElementById("cardGuala");
-const cardPiobesi = document.getElementById("cardPiobesi");
+const modalChat = document.getElementById("modalChat");
+const chatTitle = document.getElementById("chatTitle");
+const chatDocHint = document.getElementById("chatDocHint");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
 
 let openChatId = null;
 let unsubChat = null;
 
-/* FIX DEFINITIVO: funzione esiste ed è unica */
+/* FIX: funzione ESISTENTE e UNICA */
 function toggleCard(c){
   const list = c==="guala" ? listGuala : listPiobesi;
   const chev = document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
@@ -214,7 +201,8 @@ function toggleCard(c){
   chev.innerText = open ? "▸" : "▾";
 }
 
-db.collection("chats")
+/* INDICE CHAT PARTI COMUNI */
+fdb.collection("chats")
 .where("meta.destinatario","==","particomuni")
 .onSnapshot(snap=>{
   listGuala.innerHTML="";
@@ -231,7 +219,7 @@ db.collection("chats")
         <div class="title">${m.nome||""}</div>
         <div class="meta">${m.scala||""} • ${m.piano||""} • ${m.lato||""}</div>
       </div>
-      <div class="badge badge-pc">PC</div>
+      <div class="badge">PC</div>
     `;
     row.onclick=()=>openChat(doc.id,m);
 
@@ -240,6 +228,7 @@ db.collection("chats")
   });
 });
 
+/* APERTURA CHAT */
 function openChat(id,meta){
   openChatId=id;
   modalChat.style.display="flex";
@@ -248,9 +237,9 @@ function openChat(id,meta){
   chatMessages.innerHTML="";
 
   if(unsubChat) unsubChat();
-  unsubChat = db.collection("chats").doc(id)
+  unsubChat = fdb.collection("chats").doc(id)
     .collection("messages")
-    .orderBy("timestamp")
+    .orderBy("timestamp","asc")
     .onSnapshot(s=>{
       chatMessages.innerHTML="";
       s.forEach(d=>{
@@ -272,7 +261,7 @@ function closeChat(){
 
 function sendMsg(){
   if(!openChatId||!chatInput.value) return;
-  db.collection("chats").doc(openChatId)
+  fdb.collection("chats").doc(openChatId)
     .collection("messages")
     .add({
       testo:chatInput.value,
