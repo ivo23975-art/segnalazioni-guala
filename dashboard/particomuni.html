@@ -44,8 +44,21 @@
   border-radius:12px;
   padding:12px;
   color:#fff;
-  border:1px solid rgba(255,255,255,.08)
+  border:1px solid rgba(255,255,255,.08);
+  transform:translateZ(0)
 }
+
+/* ===== LAMPEGGIO ===== */
+.chat-card.attn{
+  animation:blink 1.2s infinite;
+  border-color:rgba(255,204,0,.7);
+  box-shadow:0 0 22px rgba(255,204,0,.35)
+}
+@keyframes blink{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.25)}
+}
+
 .chat-card-head{
   display:flex;justify-content:space-between;
   font-weight:900;cursor:pointer
@@ -77,7 +90,7 @@
   background:#ffcc00;color:#111
 }
 
-/* ===== MODAL CHAT ===== */
+/* ===== MODAL ===== */
 .modal{
   position:fixed;inset:0;
   background:rgba(0,0,0,.45);
@@ -121,23 +134,19 @@ textarea{color:#000}
 <div class="section">
 <div class="chat-cards">
 
-<div class="chat-card">
+<div class="chat-card" id="cardGuala">
   <div class="chat-card-head" onclick="toggleCard('guala')">
     <div>💬 Chat Guala</div><div id="chevGuala">▸</div>
   </div>
-  <div class="chat-card-sub">
-    <span>Chat Parti Comuni – Guala</span>
-  </div>
+  <div class="chat-card-sub">Chat Parti Comuni – Guala</div>
   <div class="chat-list" id="listGuala"></div>
 </div>
 
-<div class="chat-card">
+<div class="chat-card" id="cardPiobesi">
   <div class="chat-card-head" onclick="toggleCard('piobesi')">
     <div>💬 Chat Piobesi</div><div id="chevPiobesi">▸</div>
   </div>
-  <div class="chat-card-sub">
-    <span>Chat Parti Comuni – Piobesi</span>
-  </div>
+  <div class="chat-card-sub">Chat Parti Comuni – Piobesi</div>
   <div class="chat-list" id="listPiobesi"></div>
 </div>
 
@@ -158,7 +167,7 @@ textarea{color:#000}
 
 </div>
 
-<!-- ===== MODAL CHAT ===== -->
+<!-- ===== MODAL ===== -->
 <div class="modal" id="modalChat">
   <div class="modal-content">
     <h3 id="chatTitle"></h3>
@@ -173,7 +182,7 @@ textarea{color:#000}
 <script>
 requireRole("particomuni");
 
-/* SEGNALAZIONI – NON TOCCATE */
+/* SEGNALAZIONI */
 loadSegnalazioni(
   r => (r.tipo==="Parti comuni"||r.tipo==="particomuni") && r.stato==="attiva"
 );
@@ -183,63 +192,38 @@ const fdb = firebase.firestore();
 
 const listGuala = document.getElementById("listGuala");
 const listPiobesi = document.getElementById("listPiobesi");
+const cardGuala = document.getElementById("cardGuala");
+const cardPiobesi = document.getElementById("cardPiobesi");
+
 const modalChat = document.getElementById("modalChat");
 const chatTitle = document.getElementById("chatTitle");
 const chatDocHint = document.getElementById("chatDocHint");
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 
-let openChatId = null;
-let unsubChat = null;
+let openChatId=null;
+let unsubChat=null;
 
-/* FIX: funzione ESISTENTE e UNICA */
 function toggleCard(c){
-  const list = c==="guala" ? listGuala : listPiobesi;
-  const chev = document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
-  const open = list.style.display==="block";
-  list.style.display = open ? "none" : "block";
-  chev.innerText = open ? "▸" : "▾";
+  const list=c==="guala"?listGuala:listPiobesi;
+  const chev=document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
+  const open=list.style.display==="block";
+  list.style.display=open?"none":"block";
+  chev.innerText=open?"▸":"▾";
 }
 
-/* INDICE CHAT PARTI COMUNI */
-fdb.collection("chats")
-.where("meta.destinatario","==","particomuni")
-.onSnapshot(snap=>{
-  listGuala.innerHTML="";
-  listPiobesi.innerHTML="";
-
-  snap.forEach(doc=>{
-    const m = (doc.data()||{}).meta||{};
-    if(!m.complesso) return;
-
-    const row = document.createElement("div");
-    row.className="chat-item";
-    row.innerHTML=`
-      <div>
-        <div class="title">${m.nome||""}</div>
-        <div class="meta">${m.scala||""} • ${m.piano||""} • ${m.lato||""}</div>
-      </div>
-      <div class="badge">PC</div>
-    `;
-    row.onclick=()=>openChat(doc.id,m);
-
-    if(m.complesso==="guala") listGuala.appendChild(row);
-    if(m.complesso==="piobesi") listPiobesi.appendChild(row);
-  });
-});
-
-/* APERTURA CHAT */
 function openChat(id,meta){
   openChatId=id;
   modalChat.style.display="flex";
   chatTitle.innerText=`Chat • ${meta.nome||""}`;
   chatDocHint.innerText=id;
   chatMessages.innerHTML="";
+  cardGuala.classList.remove("attn");
+  cardPiobesi.classList.remove("attn");
 
-  if(unsubChat) unsubChat();
-  unsubChat = fdb.collection("chats").doc(id)
-    .collection("messages")
-    .orderBy("timestamp","asc")
+  if(unsubChat)unsubChat();
+  unsubChat=fdb.collection("chats").doc(id)
+    .collection("messages").orderBy("timestamp","asc")
     .onSnapshot(s=>{
       chatMessages.innerHTML="";
       s.forEach(d=>{
@@ -255,12 +239,12 @@ function openChat(id,meta){
 
 function closeChat(){
   modalChat.style.display="none";
-  if(unsubChat) unsubChat();
+  if(unsubChat)unsubChat();
   unsubChat=null;
 }
 
 function sendMsg(){
-  if(!openChatId||!chatInput.value) return;
+  if(!openChatId||!chatInput.value)return;
   fdb.collection("chats").doc(openChatId)
     .collection("messages")
     .add({
@@ -270,6 +254,37 @@ function sendMsg(){
     });
   chatInput.value="";
 }
+
+/* ===== INDICE + LAMPEGGIO ===== */
+fdb.collection("chats")
+.where("meta.destinatario","==","particomuni")
+.onSnapshot(snap=>{
+  listGuala.innerHTML="";
+  listPiobesi.innerHTML="";
+  let blinkG=false, blinkP=false;
+
+  snap.forEach(doc=>{
+    const m=(doc.data()||{}).meta||{};
+    if(!m.complesso)return;
+
+    const row=document.createElement("div");
+    row.className="chat-item";
+    row.innerHTML=`
+      <div>
+        <div class="title">${m.nome||""}</div>
+        <div class="meta">${m.scala||""} • ${m.piano||""} • ${m.lato||""}</div>
+      </div>
+      <div class="badge">PC</div>
+    `;
+    row.onclick=()=>openChat(doc.id,m);
+
+    if(m.complesso==="guala"){listGuala.appendChild(row);blinkG=true}
+    if(m.complesso==="piobesi"){listPiobesi.appendChild(row);blinkP=true}
+  });
+
+  if(blinkG)cardGuala.classList.add("attn");
+  if(blinkP)cardPiobesi.classList.add("attn");
+});
 </script>
 
 </body>
