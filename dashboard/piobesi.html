@@ -2,10 +2,9 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Piobesi – Chat + Segnalazioni</title>
+<title>Piobesi – Segnalazioni + Chat</title>
 
 <link rel="stylesheet" href="dashboard.css">
-<link rel="icon" href="data:,">
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -21,93 +20,96 @@
   position:fixed;top:12px;right:20px;
   background:#ff4444;color:#fff;
   padding:8px 16px;border-radius:8px;
-  font-weight:bold;cursor:pointer;z-index:9999
+  font-weight:bold;cursor:pointer;z-index:9999;
 }
+
 .section{margin-bottom:30px}
 
 /* ===== CHAT CARD ===== */
 .chat-card{
   background:#0f2a3d;
   border-radius:12px;
-  padding:12px;
+  padding:14px;
   margin-bottom:20px;
   color:#fff;
-  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,0.1);
 }
+
 .chat-card.attn{
-  animation:blink 1.2s infinite;
+  animation: blink 1.2s infinite;
+  border-color:#ffcc00;
 }
 @keyframes blink{
   0%,100%{filter:brightness(1)}
   50%{filter:brightness(1.25)}
 }
 
-.chat-card-head{
-  display:flex;justify-content:space-between;
-  font-weight:900;cursor:pointer
+.chat-list{
+  margin-top:10px;
+  max-height:280px;
+  overflow-y:auto;
 }
-.chat-list{display:none;margin-top:10px}
 
-/* ===== CHAT ITEM ===== */
 .chat-item{
   background:#102f45;
-  padding:10px;border-radius:10px;
-  margin-bottom:8px;cursor:pointer;
-  display:flex;justify-content:space-between;
-  border:1px solid rgba(255,255,255,.08)
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  cursor:pointer;
 }
-.chat-item.unread-green{animation:blink 1.6s infinite}
-.chat-item.unread-orange{animation:blink 1.2s infinite}
-.chat-item.unread-red{animation:blink .9s infinite}
-
-.chat-item .title,
-.chat-item .meta{color:#fff}
+.chat-item:hover{background:#123e5c}
 
 /* ===== MODALE CHAT ===== */
 .modal{
   position:fixed;inset:0;
   background:rgba(0,0,0,.45);
-  display:none;justify-content:center;
-  align-items:center;z-index:9999
+  display:none;justify-content:center;align-items:center;
+  z-index:9999;
 }
 .modal-content{
   background:#fff;
   width:92%;max-width:520px;
-  height:78vh;border-radius:16px;
-  padding:14px;display:flex;
-  flex-direction:column
+  height:78vh;
+  border-radius:16px;
+  padding:14px;
+  display:flex;flex-direction:column;
 }
-#chatTitle,
-#chatDocHint,
-.chat-bubble,
-.chat-time,
-textarea{color:#000}
 
 #chatMessages{
-  flex:1;overflow-y:auto;
+  flex:1;
+  overflow-y:auto;
   border:1px solid #ddd;
   border-radius:12px;
-  padding:10px;background:#fafafa;
-  margin-top:10px
+  padding:10px;
+  background:#fafafa;
+  margin-top:10px;
 }
+
 .chat-bubble{
-  padding:.6rem .75rem;
-  border-radius:.9rem;
-  margin:.35rem 0;
-  max-width:82%
+  max-width:80%;
+  padding:8px 10px;
+  border-radius:10px;
+  margin:6px 0;
+  color:#000;
 }
-.chat-bubble-user{background:#e6f2ff}
-.chat-bubble-admin{background:#d6ffd6;margin-left:auto}
+.chat-user{background:#e6f2ff}
+.chat-admin{background:#d6ffd6;margin-left:auto}
 
 textarea{
   width:100%;height:70px;
-  border-radius:12px;
-  padding:10px;margin-top:10px
+  border-radius:10px;
+  padding:10px;
+  margin-top:10px;
+  color:#000;
 }
+
 .btn{
   margin-top:10px;
-  padding:12px;border-radius:12px;
-  font-weight:900;border:none;cursor:pointer
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
 }
 .btnSend{background:#00c853}
 .btnClose{background:#ccc}
@@ -117,28 +119,27 @@ textarea{
 <body>
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
-<div class="header">Piobesi – Chat + Segnalazioni</div>
+
+<div class="header">Piobesi – Segnalazioni attive</div>
 
 <div class="content">
 
-<!-- CHAT -->
+<!-- ===== CHAT ===== -->
 <div class="section">
+  <h2>💬 Chat utenti – Piobesi</h2>
+
   <div class="chat-card" id="chatCard">
-    <div class="chat-card-head" onclick="toggleChat()">
-      <span>💬 Chat Piobesi</span><span id="chev">▸</span>
-    </div>
-    <div class="chat-list" id="chatList"></div>
+    <div class="chat-list" id="chatList">Caricamento…</div>
   </div>
 </div>
 
-<!-- SEGNALAZIONI (INVARIATE) -->
+<!-- ===== SEGNALAZIONI (INALTERATE) ===== -->
 <div class="section">
 <table class="table">
 <thead>
 <tr>
 <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-<th>Nome</th><th>Temp</th><th>Tipo</th>
-<th>Descrizione</th><th>Azioni</th>
+<th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Azioni</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -147,87 +148,122 @@ textarea{
 
 </div>
 
-<!-- MODALE -->
-<div class="modal" id="modal">
-<div class="modal-content">
-<h3 id="chatTitle"></h3>
-<div id="chatMessages"></div>
-<textarea id="chatInput"></textarea>
-<button class="btn btnSend" onclick="sendMsg()">Invia</button>
-<button class="btn btnClose" onclick="closeChat()">Chiudi</button>
-</div>
+<!-- ===== MODALE CHAT ===== -->
+<div class="modal" id="chatModal">
+  <div class="modal-content">
+    <h3 id="chatTitle"></h3>
+    <div id="chatMessages"></div>
+    <textarea id="chatInput" placeholder="Scrivi risposta..."></textarea>
+    <button class="btn btnSend" onclick="sendMsg()">Invia</button>
+    <button class="btn btnClose" onclick="closeChat()">Chiudi</button>
+  </div>
 </div>
 
 <script>
 requireRole("piobesi");
-loadSegnalazioni(r=>r.stato==="attiva"&&r.complesso==="piobesi");
+
+/* SEGNALAZIONI */
+loadSegnalazioni(r=>r.stato==="attiva" && r.complesso==="piobesi");
 
 const dbi = firebase.firestore();
-const chatList=document.getElementById("chatList");
-const card=document.getElementById("chatCard");
-const modal=document.getElementById("modal");
-const chatMessages=document.getElementById("chatMessages");
-const chatTitle=document.getElementById("chatTitle");
-const chatInput=document.getElementById("chatInput");
+const chatList = document.getElementById("chatList");
+const chatCard = document.getElementById("chatCard");
+const chatModal = document.getElementById("chatModal");
+const chatMessages = document.getElementById("chatMessages");
 
-let openChatId=null,unsub=null;
+let currentChatId = null;
+let unsubMessages = null;
+let hasUnread = false;
 
-function toggleChat(){
- chatList.style.display=
- chatList.style.display==="block"?"none":"block";
-}
-
+/* ===== LISTA CHAT (UNA SOLA PER UNITÀ) ===== */
 dbi.collection("chats")
 .where("meta.complesso","==","piobesi")
-.onSnapshot(s=>{
- chatList.innerHTML="";
- s.forEach(d=>{
-  const div=document.createElement("div");
-  div.className="chat-item unread-green";
-  div.innerHTML=`<div class="title">${d.data().meta.nome}</div>`;
-  div.onclick=()=>openChat(d.id,d.data().meta);
-  chatList.appendChild(div);
-  card.classList.add("attn");
- });
+.onSnapshot(snap=>{
+  chatList.innerHTML="";
+  hasUnread = false;
+
+  snap.forEach(doc=>{
+    const m = doc.data().meta || {};
+    const div = document.createElement("div");
+    div.className="chat-item";
+    div.innerText=`${m.nome || ""} – ${m.scala || ""} ${m.piano || ""} ${m.lato || ""}`;
+    div.onclick=()=>openChat(doc.id,m);
+    chatList.appendChild(div);
+
+    listenUnread(doc.id);
+  });
+
+  if(hasUnread) chatCard.classList.add("attn");
+  else chatCard.classList.remove("attn");
 });
 
-function openChat(id,meta){
- openChatId=id;
- card.classList.remove("attn");
- modal.style.display="flex";
- chatTitle.innerText=meta.nome;
- chatMessages.innerHTML="";
- if(unsub)unsub();
- unsub=dbi.collection("chats").doc(id)
- .collection("messages")
- .orderBy("timestamp")
- .onSnapshot(s=>{
-  chatMessages.innerHTML="";
-  s.forEach(m=>{
-   const b=document.createElement("div");
-   b.className="chat-bubble "+(m.data().mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
-   b.innerText=m.data().testo;
-   chatMessages.appendChild(b);
+/* ===== UNREAD LOGIC (DEFINITIVA) ===== */
+function listenUnread(id){
+  dbi.collection("chats").doc(id)
+  .collection("messages")
+  .orderBy("timestamp","desc")
+  .limit(1)
+  .onSnapshot(s=>{
+    s.forEach(d=>{
+      if(d.data().mittente==="user" && id!==currentChatId){
+        hasUnread=true;
+        chatCard.classList.add("attn");
+      }
+    });
   });
- });
 }
 
-function closeChat(){
- modal.style.display="none";
- chatMessages.innerHTML="";
- openChatId=null;
+/* ===== APRI CHAT ===== */
+function openChat(id,meta){
+  currentChatId=id;
+  hasUnread=false;
+  chatCard.classList.remove("attn");
+
+  document.getElementById("chatTitle").innerText=
+    `${meta.nome} – ${meta.scala} ${meta.piano} ${meta.lato}`;
+
+  chatModal.style.display="flex";
+  chatMessages.innerHTML="";
+
+  if(unsubMessages) unsubMessages();
+
+  unsubMessages=dbi.collection("chats")
+    .doc(id).collection("messages")
+    .orderBy("timestamp")
+    .onSnapshot(s=>{
+      chatMessages.innerHTML="";
+      s.forEach(m=>{
+        const d=m.data();
+        const div=document.createElement("div");
+        div.className="chat-bubble "+(d.mittente==="admin"?"chat-admin":"chat-user");
+        div.innerText=d.testo;
+        chatMessages.appendChild(div);
+      });
+      chatMessages.scrollTop=chatMessages.scrollHeight;
+    });
 }
 
+/* ===== INVIO ===== */
 function sendMsg(){
- if(!openChatId)return;
- dbi.collection("chats").doc(openChatId)
- .collection("messages")
- .add({
-  testo:chatInput.value,
-  mittente:"admin",
-  timestamp:firebase.firestore.FieldValue.serverTimestamp()
- });
- chatInput.value="";
+  const txt=document.getElementById("chatInput").value.trim();
+  if(!txt||!currentChatId)return;
+
+  dbi.collection("chats").doc(currentChatId)
+    .collection("messages")
+    .add({
+      testo:txt,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  document.getElementById("chatInput").value="";
+}
+
+/* ===== CHIUDI ===== */
+function closeChat(){
+  chatModal.style.display="none";
+  currentChatId=null;
+  if(unsubMessages) unsubMessages();
 }
 </script>
 
