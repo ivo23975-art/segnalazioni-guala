@@ -22,144 +22,329 @@
 
 <style>
 .logout-btn{
-  position:fixed;top:12px;right:20px;
-  background:#ff0000;color:#fff;
-  padding:8px 16px;border-radius:8px;
-  font-weight:bold;cursor:pointer;z-index:9999
+  position:fixed;
+  top:12px;
+  right:20px;
+  background:#ff0000;
+  color:white;
+  padding:8px 16px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
 }
 .section{margin-bottom:18px}
 
-/* ===== CHAT ===== */
+/* ===== CHAT – 2 CARD SOPRA SEGNALAZIONI ===== */
 .chat-cards{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap:14px;
-  margin-bottom:18px
+  margin-bottom:18px;
 }
-@media(max-width:900px){
-  .chat-cards{grid-template-columns:1fr}
+@media (max-width: 900px){
+  .chat-cards{ grid-template-columns: 1fr; }
 }
+
 .chat-card{
   background:#0f2a3d;
   border-radius:12px;
   padding:12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
   color:#fff;
-  border:1px solid rgba(255,255,255,.08);
-  transform:translateZ(0)
+  border: 1px solid rgba(255,255,255,0.08);
+  transform: translateZ(0);
 }
 
-/* ===== LAMPEGGIO ===== */
+/* lampeggio contenitore (giallo) SOLO se ci sono nuovi messaggi */
 .chat-card.attn{
-  animation:blink 1.2s infinite;
-  border-color:rgba(255,204,0,.7);
-  box-shadow:0 0 22px rgba(255,204,0,.35)
+  animation: pc_cardBlinkYellow 1.2s infinite;
+  border-color: rgba(255,204,0,0.65);
+  box-shadow: 0 8px 24px rgba(255,204,0,0.25), 0 4px 14px rgba(0,0,0,0.18);
 }
-@keyframes blink{
-  0%,100%{filter:brightness(1)}
-  50%{filter:brightness(1.25)}
+@keyframes pc_cardBlinkYellow{
+  0%,100%{ filter: brightness(1); }
+  50%{ filter: brightness(1.25); }
 }
 
 .chat-card-head{
-  display:flex;justify-content:space-between;
-  font-weight:900;cursor:pointer
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+  font-weight:900;
+  letter-spacing:.2px;
 }
+
 .chat-card-sub{
-  font-size:13px;opacity:.85;
-  display:flex;justify-content:space-between;
-  margin-top:6px
+  color: rgba(255,255,255,0.82);
+  margin-top:6px;
+  font-size:13px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
 }
+
+.card-unread-pill{
+  display:none;
+  font-size:12px;
+  font-weight:900;
+  padding:4px 10px;
+  border-radius:999px;
+  background: rgba(255,204,0,0.18);
+  border: 1px solid rgba(255,204,0,0.45);
+  color:#fff;
+  white-space:nowrap;
+}
+
 .chat-list{
-  display:none;margin-top:10px;
-  max-height:320px;overflow-y:auto
+  margin-top:10px;
+  display:none;
+  max-height:320px;
+  overflow-y:auto;
+  padding-right:4px;
 }
+
 .chat-item{
   background:#102f45;
   border-radius:10px;
-  padding:10px;
+  padding:10px 10px;
   margin-bottom:8px;
-  display:flex;justify-content:space-between;
-  cursor:pointer
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  border: 1px solid rgba(255,255,255,0.06);
+  transform: translateZ(0);
 }
-.chat-item .title{font-weight:900}
-.chat-item .meta{font-size:12px;opacity:.8}
+.chat-item:hover{ background:#123e5c; }
+
+.chat-item .left{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.chat-item .title{
+  color:#ffffff;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.chat-item .meta{
+  color: rgba(255,255,255,0.85);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.badges{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
 .badge{
   font-size:11px;
   padding:4px 8px;
   border-radius:999px;
   font-weight:900;
-  background:#ffcc00;color:#111
+  white-space:nowrap;
 }
 
-/* ===== MODAL ===== */
+/* badge complesso */
+.badge-guala{ background:#0077ff; color:#fff; }
+.badge-piobesi{ background:#ffcc00; color:#111; }
+
+/* ===== unread badge + effetto wow ===== */
+.badge-unread{
+  display:none;
+  border:1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  transform: perspective(600px) rotateX(6deg);
+}
+
+.chat-item.unread-green{
+  border-color: rgba(0,200,83,0.35);
+  box-shadow: 0 10px 26px rgba(0,200,83,0.10), 0 4px 14px rgba(0,0,0,0.18);
+  animation: pc_wowPulse 1.6s infinite;
+}
+.chat-item.unread-orange{
+  border-color: rgba(255,136,0,0.45);
+  box-shadow: 0 12px 28px rgba(255,136,0,0.18), 0 4px 14px rgba(0,0,0,0.18);
+  animation: pc_wowPulse 1.2s infinite;
+}
+.chat-item.unread-red{
+  border-color: rgba(213,0,0,0.55);
+  box-shadow: 0 14px 32px rgba(213,0,0,0.22), 0 4px 14px rgba(0,0,0,0.18);
+  animation: pc_wowPulse 0.9s infinite;
+}
+@keyframes pc_wowPulse{
+  0%,100%{ transform: translateZ(0) scale(1); filter: brightness(1); }
+  50%{ transform: translateZ(0) scale(1.012); filter: brightness(1.18); }
+}
+.badge-unread.green{ background:#00c853; color:#081b10; }
+.badge-unread.orange{ background:#ff8800; color:#111; }
+.badge-unread.red{ background:#d50000; color:#fff; }
+
+/* ===== MODALE CHAT ===== */
 .modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;justify-content:center;align-items:center
+  position:fixed;
+  inset:0;
+  background: rgba(0,0,0,.45);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
 }
 .modal-content{
-  background:#fff;
-  width:92%;max-width:520px;
-  height:78vh;border-radius:16px;
-  padding:14px;display:flex;flex-direction:column
+  background:white;
+  width:92%;
+  max-width:520px;
+  height:78vh;
+  max-height:78vh;
+  border-radius:16px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
 }
-#chatTitle,#chatDocHint{color:#000;text-align:center}
-#chatMessages{
-  flex:1;overflow-y:auto;
-  background:#fafafa;border-radius:12px;
-  padding:10px;margin-top:10px
+#pcChatTitle{
+  margin:0;
+  text-align:center;
+  font-weight:900;
+  color:#000;
 }
-.chat-bubble{
-  max-width:82%;padding:.6rem;
-  border-radius:.9rem;margin:.3rem 0;
-  color:#000
+#pcChatDocHint{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.75;
+  text-align:center;
+  color:#000;
 }
-.chat-bubble-user{background:#e6f2ff}
-.chat-bubble-admin{background:#d6ffd6;margin-left:auto}
-.chat-time{font-size:.75rem;opacity:.65;text-align:right;color:#000}
-textarea{color:#000}
-.btn{margin-top:10px;padding:12px;border-radius:12px;font-weight:900}
-.btnSend{background:#00c853}
-.btnClose{background:#ccc}
+#pcChatMessages{
+  flex:1;
+  overflow-y:auto;
+  border:1px solid #e2e2e2;
+  border-radius:12px;
+  padding:10px;
+  background:#fafafa;
+  margin-top:10px;
+}
+.pc-chat-bubble{
+  max-width:82%;
+  padding:.6rem .75rem;
+  border-radius:.9rem;
+  margin:.35rem 0;
+  display:inline-flex;
+  flex-direction:column;
+  gap:.25rem;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  word-wrap:break-word;
+  white-space:pre-wrap;
+  color:#000; /* testo nero */
+}
+.pc-chat-bubble-user{
+  background:#e6f2ff;
+  align-self:flex-start;
+  margin-right:auto;
+}
+.pc-chat-bubble-admin{
+  background:#d6ffd6;
+  align-self:flex-end;
+  margin-left:auto;
+}
+.pc-chat-time{
+  font-size:.75rem;
+  opacity:.65;
+  text-align:right;
+  color:#000; /* testo nero */
+}
+
+#pcChatInput{
+  width:100%;
+  height:70px;
+  resize:none;
+  border:1px solid #ccc;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+  box-sizing:border-box;
+  color:#000; /* testo nero */
+}
+
+.btn{
+  margin-top:10px;
+  padding:12px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+}
+.btnSend{ background:#00c853; color:#111; }
+.btnClose{ background:#ccc; color:#111; }
 </style>
 </head>
 
 <body>
 
 <a class="logout-btn" onclick="adminLogout()">Logout</a>
+
 <div class="header">Parti Comuni – Chat + Segnalazioni</div>
 
 <div class="content">
 
-<!-- ===== CHAT ===== -->
+<!-- ================= CHAT (SOPRA SEGNALAZIONI) ================= -->
 <div class="section">
-<div class="chat-cards">
+  <div class="chat-cards">
 
-<div class="chat-card" id="cardGuala">
-  <div class="chat-card-head" onclick="toggleCard('guala')">
-    <div>💬 Chat Guala</div><div id="chevGuala">▸</div>
+    <div class="chat-card" id="pcCardGuala">
+      <div class="chat-card-head" onclick="pc_toggleCard('guala')">
+        <div>💬 Chat Guala</div>
+        <div id="pcChevGuala">▸</div>
+      </div>
+      <div class="chat-card-sub">
+        <span>Chat Parti Comuni – Guala</span>
+        <span class="card-unread-pill" id="pcPillGuala">Nuovi: 0</span>
+      </div>
+      <div class="chat-list" id="pcListGuala">Caricamento chat…</div>
+    </div>
+
+    <div class="chat-card" id="pcCardPiobesi">
+      <div class="chat-card-head" onclick="pc_toggleCard('piobesi')">
+        <div>💬 Chat Piobesi</div>
+        <div id="pcChevPiobesi">▸</div>
+      </div>
+      <div class="chat-card-sub">
+        <span>Chat Parti Comuni – Piobesi</span>
+        <span class="card-unread-pill" id="pcPillPiobesi">Nuovi: 0</span>
+      </div>
+      <div class="chat-list" id="pcListPiobesi">Caricamento chat…</div>
+    </div>
+
   </div>
-  <div class="chat-card-sub">Chat Parti Comuni – Guala</div>
-  <div class="chat-list" id="listGuala"></div>
 </div>
 
-<div class="chat-card" id="cardPiobesi">
-  <div class="chat-card-head" onclick="toggleCard('piobesi')">
-    <div>💬 Chat Piobesi</div><div id="chevPiobesi">▸</div>
-  </div>
-  <div class="chat-card-sub">Chat Parti Comuni – Piobesi</div>
-  <div class="chat-list" id="listPiobesi"></div>
-</div>
-
-</div>
-</div>
-
-<!-- ===== SEGNALAZIONI (INVARIATE) ===== -->
+<!-- ======================
+     SEGNALAZIONI (INVARIATE)
+====================== -->
 <table class="table">
 <thead>
 <tr>
-<th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-<th>Nome</th><th>Temp</th><th>Tipo</th>
-<th>Descrizione</th><th>Risolvi</th>
+<th>Data</th>
+<th>Scala</th>
+<th>Piano</th>
+<th>Lato</th>
+<th>Nome</th>
+<th>Temp</th>
+<th>Tipo</th>
+<th>Descrizione</th>
+<th>Risolvi</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -167,124 +352,370 @@ textarea{color:#000}
 
 </div>
 
-<!-- ===== MODAL ===== -->
-<div class="modal" id="modalChat">
+<!-- ================= MODALE CHAT ================= -->
+<div class="modal" id="pcModalChat">
   <div class="modal-content">
-    <h3 id="chatTitle"></h3>
-    <div id="chatDocHint"></div>
-    <div id="chatMessages"></div>
-    <textarea id="chatInput"></textarea>
-    <button class="btn btnSend" onclick="sendMsg()">Invia</button>
-    <button class="btn btnClose" onclick="closeChat()">Chiudi</button>
+    <h3 id="pcChatTitle"></h3>
+    <div id="pcChatDocHint"></div>
+    <div id="pcChatMessages"></div>
+    <textarea id="pcChatInput" placeholder="Scrivi come admin..."></textarea>
+    <button class="btn btnSend" onclick="pc_sendAdminMessage()">Invia</button>
+    <button class="btn btnClose" onclick="pc_closeChatModal()">Chiudi</button>
   </div>
 </div>
 
 <script>
 requireRole("particomuni");
 
-/* SEGNALAZIONI */
+/* SEGNALAZIONI (INVARIATE) */
 loadSegnalazioni(
-  r => (r.tipo==="Parti comuni"||r.tipo==="particomuni") && r.stato==="attiva"
+  r => (r.tipo === "Parti comuni" || r.tipo === "particomuni") && r.stato === "attiva"
 );
 
-/* ===== CHAT ===== */
-const fdb = firebase.firestore();
+/* =========================
+   CHAT PARTI COMUNI (2 CARD)
+   - destinatario: "particomuni"
+   - complesso: "guala" / "piobesi"
+   - lampeggio SOLO se unread > 0
+   - reset lampeggio persistente: meta.lastReadAdminAt aggiornato su apertura chat
+========================= */
 
-const listGuala = document.getElementById("listGuala");
-const listPiobesi = document.getElementById("listPiobesi");
-const cardGuala = document.getElementById("cardGuala");
-const cardPiobesi = document.getElementById("cardPiobesi");
+const pc_fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
 
-const modalChat = document.getElementById("modalChat");
-const chatTitle = document.getElementById("chatTitle");
-const chatDocHint = document.getElementById("chatDocHint");
-const chatMessages = document.getElementById("chatMessages");
-const chatInput = document.getElementById("chatInput");
+const pcListGuala = document.getElementById("pcListGuala");
+const pcListPiobesi = document.getElementById("pcListPiobesi");
 
-let openChatId=null;
-let unsubChat=null;
+const pcCardGuala = document.getElementById("pcCardGuala");
+const pcCardPiobesi = document.getElementById("pcCardPiobesi");
+const pcPillGuala = document.getElementById("pcPillGuala");
+const pcPillPiobesi = document.getElementById("pcPillPiobesi");
 
-function toggleCard(c){
-  const list=c==="guala"?listGuala:listPiobesi;
-  const chev=document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
-  const open=list.style.display==="block";
-  list.style.display=open?"none":"block";
-  chev.innerText=open?"▸":"▾";
+const pcModalChat = document.getElementById("pcModalChat");
+const pcChatTitle = document.getElementById("pcChatTitle");
+const pcChatDocHint = document.getElementById("pcChatDocHint");
+const pcChatMessages = document.getElementById("pcChatMessages");
+const pcChatInput = document.getElementById("pcChatInput");
+
+let pc_openDocId = null;
+let pc_unsubOpenChat = null;
+
+const pc_perChatListener = new Map(); // docId -> unsub
+const pc_perChatUnread = new Map();   // docId -> unreadCount
+const pc_perChatLastSeen = new Map(); // docId -> lastReadMs local
+let pc_cacheG = [];
+let pc_cacheP = [];
+
+function pc_toggleCard(complesso){
+  const list = (complesso === "guala") ? pcListGuala : pcListPiobesi;
+  const chev = document.getElementById(complesso === "guala" ? "pcChevGuala" : "pcChevPiobesi");
+  const open = list.style.display === "block";
+  list.style.display = open ? "none" : "block";
+  chev.innerText = open ? "▸" : "▾";
 }
 
-function openChat(id,meta){
-  openChatId=id;
-  modalChat.style.display="flex";
-  chatTitle.innerText=`Chat • ${meta.nome||""}`;
-  chatDocHint.innerText=id;
-  chatMessages.innerHTML="";
-  cardGuala.classList.remove("attn");
-  cardPiobesi.classList.remove("attn");
+function pc_safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
+function pc_toLower(v){ return pc_safeStr(v).toLowerCase(); }
 
-  if(unsubChat)unsubChat();
-  unsubChat=fdb.collection("chats").doc(id)
-    .collection("messages").orderBy("timestamp","asc")
-    .onSnapshot(s=>{
-      chatMessages.innerHTML="";
-      s.forEach(d=>{
-        const m=d.data();
-        const b=document.createElement("div");
-        b.className="chat-bubble "+(m.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
-        b.innerHTML=`${m.testo||""}<div class="chat-time">${m.timestamp?.toDate().toLocaleTimeString()}</div>`;
-        chatMessages.appendChild(b);
-      });
-      chatMessages.scrollTop=999999;
-    });
+function pc_buildVisualKey(meta){
+  const destinatario = pc_toLower(meta.destinatario);
+  const complesso = pc_toLower(meta.complesso);
+  const scala = pc_toLower(meta.scala);
+  const piano = pc_toLower(meta.piano);
+  const lato = pc_toLower(meta.lato);
+  const nome = pc_toLower(meta.nome);
+  return `${destinatario}||${complesso}||${scala}||${piano}||${lato}||${nome}`;
 }
 
-function closeChat(){
-  modalChat.style.display="none";
-  if(unsubChat)unsubChat();
-  unsubChat=null;
+function pc_pickTimestamp(meta){
+  try{
+    if (meta && meta.createdAt && meta.createdAt.toMillis) return meta.createdAt.toMillis();
+    if (meta && meta.pinSetAt && meta.pinSetAt.toMillis) return meta.pinSetAt.toMillis();
+  }catch(e){}
+  return 0;
 }
 
-function sendMsg(){
-  if(!openChatId||!chatInput.value)return;
-  fdb.collection("chats").doc(openChatId)
+function pc_getUnreadClass(n){
+  if (!n || n <= 0) return { cls:"", badge:"", color:"" };
+  if (n <= 2) return { cls:"unread-green", badge:`Nuovi ${n}`, color:"green" };
+  if (n <= 6) return { cls:"unread-orange", badge:`Nuovi ${n}`, color:"orange" };
+  return { cls:"unread-red", badge:`Nuovi ${n}`, color:"red" };
+}
+
+function pc_updateContainerIndicators(){
+  let totG = 0;
+  let totP = 0;
+
+  pc_cacheG.forEach(it => { totG += (pc_perChatUnread.get(it.docId) || 0); });
+  pc_cacheP.forEach(it => { totP += (pc_perChatUnread.get(it.docId) || 0); });
+
+  if (totG > 0) pcCardGuala.classList.add("attn"); else pcCardGuala.classList.remove("attn");
+  if (totP > 0) pcCardPiobesi.classList.add("attn"); else pcCardPiobesi.classList.remove("attn");
+
+  if (totG > 0){
+    pcPillGuala.style.display = "inline-flex";
+    pcPillGuala.innerText = `Nuovi: ${totG}`;
+  } else {
+    pcPillGuala.style.display = "none";
+  }
+
+  if (totP > 0){
+    pcPillPiobesi.style.display = "inline-flex";
+    pcPillPiobesi.innerText = `Nuovi: ${totP}`;
+  } else {
+    pcPillPiobesi.style.display = "none";
+  }
+}
+
+/* calcolo nuovi: conta SOLO messaggi user dopo meta.lastReadAdminAt */
+function pc_ensureUnreadListener(docId){
+  if (pc_perChatListener.has(docId)) return;
+
+  const unsub = pc_fdb.collection("chats").doc(docId)
     .collection("messages")
-    .add({
-      testo:chatInput.value,
-      mittente:"admin",
-      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    .orderBy("timestamp","desc")
+    .limit(50)
+    .onSnapshot((snap)=>{
+      pc_fdb.collection("chats").doc(docId).get().then((chatSnap)=>{
+        let lastReadMs = 0;
+        const data = chatSnap.exists ? (chatSnap.data() || {}) : {};
+        const meta = data.meta || {};
+
+        try{
+          if (meta.lastReadAdminAt && meta.lastReadAdminAt.toMillis) lastReadMs = meta.lastReadAdminAt.toMillis();
+        }catch(e){ lastReadMs = 0; }
+
+        const localSeen = pc_perChatLastSeen.get(docId);
+        if (localSeen && localSeen > lastReadMs) lastReadMs = localSeen;
+
+        let unread = 0;
+        snap.forEach((d)=>{
+          const m = d.data() || {};
+          if (m.mittente !== "user") return;
+
+          let tms = 0;
+          try{
+            if (m.timestamp && m.timestamp.toMillis) tms = m.timestamp.toMillis();
+            else if (m.timestamp && m.timestamp.toDate) tms = m.timestamp.toDate().getTime();
+          }catch(e){ tms = 0; }
+
+          if (tms > lastReadMs) unread += 1;
+        });
+
+        if (pc_openDocId && pc_openDocId === docId && pcModalChat.style.display === "flex"){
+          unread = 0;
+        }
+
+        pc_perChatUnread.set(docId, unread);
+
+        pc_renderChatList(pcListGuala, pc_cacheG, "guala");
+        pc_renderChatList(pcListPiobesi, pc_cacheP, "piobesi");
+        pc_updateContainerIndicators();
+      }).catch(()=>{
+        pc_perChatUnread.set(docId, pc_perChatUnread.get(docId) || 0);
+        pc_renderChatList(pcListGuala, pc_cacheG, "guala");
+        pc_renderChatList(pcListPiobesi, pc_cacheP, "piobesi");
+        pc_updateContainerIndicators();
+      });
     });
-  chatInput.value="";
+
+  pc_perChatListener.set(docId, unsub);
 }
 
-/* ===== INDICE + LAMPEGGIO ===== */
-fdb.collection("chats")
-.where("meta.destinatario","==","particomuni")
-.onSnapshot(snap=>{
-  listGuala.innerHTML="";
-  listPiobesi.innerHTML="";
-  let blinkG=false, blinkP=false;
+function pc_cleanupUnreadListeners(currentIdsSet){
+  for (const [docId, unsub] of pc_perChatListener.entries()){
+    if (!currentIdsSet.has(docId)){
+      try{ unsub(); }catch(e){}
+      pc_perChatListener.delete(docId);
+      pc_perChatUnread.delete(docId);
+      pc_perChatLastSeen.delete(docId);
+    }
+  }
+}
 
-  snap.forEach(doc=>{
-    const m=(doc.data()||{}).meta||{};
-    if(!m.complesso)return;
+function pc_renderChatList(targetEl, rows, complesso){
+  targetEl.innerHTML = "";
+  if (!rows.length){
+    targetEl.innerText = "Nessuna chat";
+    return;
+  }
 
-    const row=document.createElement("div");
-    row.className="chat-item";
-    row.innerHTML=`
-      <div>
-        <div class="title">${m.nome||""}</div>
-        <div class="meta">${m.scala||""} • ${m.piano||""} • ${m.lato||""}</div>
-      </div>
-      <div class="badge">PC</div>
-    `;
-    row.onclick=()=>openChat(doc.id,m);
-
-    if(m.complesso==="guala"){listGuala.appendChild(row);blinkG=true}
-    if(m.complesso==="piobesi"){listPiobesi.appendChild(row);blinkP=true}
+  rows.sort((a,b)=>{
+    const an = (a.meta && a.meta.nome) ? a.meta.nome.toLowerCase() : "";
+    const bn = (b.meta && b.meta.nome) ? b.meta.nome.toLowerCase() : "";
+    if (an < bn) return -1;
+    if (an > bn) return 1;
+    return 0;
   });
 
-  if(blinkG)cardGuala.classList.add("attn");
-  if(blinkP)cardPiobesi.classList.add("attn");
-});
+  rows.forEach(item=>{
+    const m = item.meta || {};
+    const row = document.createElement("div");
+    row.className = "chat-item";
+
+    const titolo = pc_safeStr(m.nome);
+    const metaLine = `${pc_safeStr(m.scala)} • ${pc_safeStr(m.piano)} • ${pc_safeStr(m.lato)}`;
+
+    const unreadCount = pc_perChatUnread.get(item.docId) || 0;
+    const u = pc_getUnreadClass(unreadCount);
+
+    if (unreadCount > 0) row.classList.add(u.cls);
+
+    const badgeCls = (complesso === "guala") ? "badge-guala" : "badge-piobesi";
+    const badgeTxt = (complesso === "guala") ? "GUALA" : "PIOBESI";
+
+    row.innerHTML = `
+      <div class="left">
+        <div class="title">${titolo}</div>
+        <div class="meta">${metaLine}</div>
+      </div>
+      <div class="badges">
+        <div class="badge badge-unread ${u.color}" style="${unreadCount>0?'display:inline-flex':'display:none'}">${u.badge || ""}</div>
+        <div class="badge ${badgeCls}">${badgeTxt}</div>
+      </div>
+    `;
+
+    row.onclick = () => pc_openChatByDocId(item.docId, m, complesso);
+    targetEl.appendChild(row);
+  });
+}
+
+function pc_markChatRead(docId){
+  pc_perChatLastSeen.set(docId, Date.now());
+  pc_fdb.collection("chats").doc(docId).update({
+    "meta.lastReadAdminAt": firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(()=>{});
+  pc_perChatUnread.set(docId, 0);
+}
+
+function pc_openChatByDocId(docId, meta, complesso){
+  pc_openDocId = docId;
+
+  const compl = (complesso === "guala") ? "Guala" : "Piobesi";
+  pcChatTitle.innerText = `Chat • Parti Comuni • ${compl} • ${pc_safeStr(meta.nome)} • ${pc_safeStr(meta.scala)} • ${pc_safeStr(meta.piano)} • ${pc_safeStr(meta.lato)}`;
+  pcChatDocHint.innerText = `Documento chat: ${docId}`;
+
+  pcModalChat.style.display = "flex";
+  pcChatMessages.innerHTML = "";
+
+  pc_markChatRead(docId);
+  pc_updateContainerIndicators();
+
+  if (pc_unsubOpenChat) pc_unsubOpenChat();
+
+  pc_unsubOpenChat = pc_fdb.collection("chats").doc(docId)
+    .collection("messages")
+    .orderBy("timestamp","asc")
+    .onSnapshot((s)=>{
+      pcChatMessages.innerHTML = "";
+      s.forEach((d)=>{
+        const mm = d.data() || {};
+        const bubble = document.createElement("div");
+        bubble.className = "pc-chat-bubble " + (mm.mittente === "admin" ? "pc-chat-bubble-admin" : "pc-chat-bubble-user");
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = pc_safeStr(mm.testo);
+
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "pc-chat-time";
+        if (mm.timestamp && mm.timestamp.toDate) {
+          timeDiv.innerText = mm.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          timeDiv.innerText = "";
+        }
+
+        bubble.appendChild(textDiv);
+        bubble.appendChild(timeDiv);
+        pcChatMessages.appendChild(bubble);
+      });
+
+      pcChatMessages.scrollTop = pcChatMessages.scrollHeight;
+
+      if (pc_openDocId === docId){
+        pc_markChatRead(docId);
+        pc_updateContainerIndicators();
+      }
+    }, (err)=>{
+      alert("Errore lettura chat: " + err.message);
+    });
+}
+
+function pc_closeChatModal(){
+  pcModalChat.style.display = "none";
+  pcChatInput.value = "";
+  pcChatMessages.innerHTML = "";
+  pc_openDocId = null;
+  if (pc_unsubOpenChat) pc_unsubOpenChat();
+  pc_unsubOpenChat = null;
+  pc_updateContainerIndicators();
+}
+
+function pc_sendAdminMessage(){
+  const text = (pcChatInput.value || "").trim();
+  if (!text) return;
+  if (!pc_openDocId) return;
+
+  pc_fdb.collection("chats").doc(pc_openDocId)
+    .collection("messages")
+    .add({
+      testo: text,
+      mittente: "admin",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=>{
+      pcChatInput.value = "";
+      pc_markChatRead(pc_openDocId);
+      pc_updateContainerIndicators();
+    })
+    .catch((err)=>{
+      alert("Errore invio: " + err.message);
+    });
+}
+
+/* ===== INDICE CHAT: destinatario partocomuni, split per complesso ===== */
+pc_fdb.collection("chats")
+  .where("meta.destinatario","==","particomuni")
+  .onSnapshot((snap)=>{
+    const mapG = new Map();
+    const mapP = new Map();
+    const currentIds = new Set();
+
+    snap.forEach(doc=>{
+      const d = doc.data() || {};
+      const m = d.meta || {};
+      const complesso = pc_toLower(m.complesso);
+      if (complesso !== "guala" && complesso !== "piobesi") return;
+
+      currentIds.add(doc.id);
+      pc_ensureUnreadListener(doc.id);
+
+      const visualKey = pc_buildVisualKey(m);
+      const ts = pc_pickTimestamp(m);
+      const targetMap = (complesso === "guala") ? mapG : mapP;
+
+      if (!targetMap.has(visualKey)){
+        targetMap.set(visualKey, { docId: doc.id, meta: m, bestTs: ts });
+      } else {
+        const existing = targetMap.get(visualKey);
+        if (ts > (existing.bestTs || 0)){
+          existing.docId = doc.id;
+          existing.meta = m;
+          existing.bestTs = ts;
+        }
+        targetMap.set(visualKey, existing);
+      }
+    });
+
+    pc_cleanupUnreadListeners(currentIds);
+
+    pc_cacheG = Array.from(mapG.values());
+    pc_cacheP = Array.from(mapP.values());
+
+    pc_renderChatList(pcListGuala, pc_cacheG, "guala");
+    pc_renderChatList(pcListPiobesi, pc_cacheP, "piobesi");
+    pc_updateContainerIndicators();
+  }, (err)=>{
+    alert("Errore indice chat: " + err.message);
+  });
 </script>
 
 </body>
