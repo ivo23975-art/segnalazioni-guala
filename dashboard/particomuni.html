@@ -161,7 +161,7 @@ textarea{color:#000}
 </div>
 </div>
 
-<!-- ===== SEGNALAZIONI INVARIATE ===== -->
+<!-- ===== SEGNALAZIONI ===== -->
 <table class="table">
 <thead>
 <tr>
@@ -195,69 +195,90 @@ loadSegnalazioni(
   r => (r.tipo==="Parti comuni"||r.tipo==="particomuni") && r.stato==="attiva"
 );
 
-/* ===== CHAT LOGICA IDENTICA SUPERADMIN (destinatario particomuni) ===== */
+/* ===== CHAT ===== */
 const db = firebase.firestore();
-const lists={guala:listGuala,piobesi:listPiobesi};
-let openChat=null,unsub=null;
+const listGuala = document.getElementById("listGuala");
+const listPiobesi = document.getElementById("listPiobesi");
+const cardGuala = document.getElementById("cardGuala");
+const cardPiobesi = document.getElementById("cardPiobesi");
 
+let openChatId = null;
+let unsubChat = null;
+
+/* FIX DEFINITIVO: funzione esiste ed è unica */
 function toggleCard(c){
-  const l=lists[c];
-  l.style.display=l.style.display==="block"?"none":"block";
-  document.getElementById("chev"+cap(c)).innerText=l.style.display==="block"?"▾":"▸";
+  const list = c==="guala" ? listGuala : listPiobesi;
+  const chev = document.getElementById(c==="guala"?"chevGuala":"chevPiobesi");
+  const open = list.style.display==="block";
+  list.style.display = open ? "none" : "block";
+  chev.innerText = open ? "▸" : "▾";
 }
-function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
 db.collection("chats")
 .where("meta.destinatario","==","particomuni")
-.onSnapshot(s=>{
-  const map={guala:new Map(),piobesi:new Map()};
-  s.forEach(d=>{
-    const m=d.data().meta||{};
-    if(!map[m.complesso])return;
-    const k=`${m.scala}|${m.piano}|${m.lato}|${m.nome}`;
-    if(!map[m.complesso].has(k))map[m.complesso].set(k,{id:d.id,meta:m});
-  });
-  ["guala","piobesi"].forEach(c=>{
-    lists[c].innerHTML="";
-    map[c].forEach(o=>{
-      const el=document.createElement("div");
-      el.className="chat-item";
-      el.innerHTML=`<div><div class=title>${o.meta.nome}</div>
-      <div class=meta>${o.meta.scala} • ${o.meta.piano} • ${o.meta.lato}</div></div>
-      <div class="badge badge-pc">PC</div>`;
-      el.onclick=()=>openChatFn(o.id,o.meta);
-      lists[c].appendChild(el);
-    });
+.onSnapshot(snap=>{
+  listGuala.innerHTML="";
+  listPiobesi.innerHTML="";
+
+  snap.forEach(doc=>{
+    const m = (doc.data()||{}).meta||{};
+    if(!m.complesso) return;
+
+    const row = document.createElement("div");
+    row.className="chat-item";
+    row.innerHTML=`
+      <div>
+        <div class="title">${m.nome||""}</div>
+        <div class="meta">${m.scala||""} • ${m.piano||""} • ${m.lato||""}</div>
+      </div>
+      <div class="badge badge-pc">PC</div>
+    `;
+    row.onclick=()=>openChat(doc.id,m);
+
+    if(m.complesso==="guala") listGuala.appendChild(row);
+    if(m.complesso==="piobesi") listPiobesi.appendChild(row);
   });
 });
 
-function openChatFn(id,m){
-  openChat=id;
+function openChat(id,meta){
+  openChatId=id;
   modalChat.style.display="flex";
-  chatTitle.innerText=`Chat • ${m.nome}`;
+  chatTitle.innerText=`Chat • ${meta.nome||""}`;
   chatDocHint.innerText=id;
   chatMessages.innerHTML="";
-  if(unsub)unsub();
-  unsub=db.collection("chats").doc(id).collection("messages")
-  .orderBy("timestamp").onSnapshot(s=>{
-    chatMessages.innerHTML="";
-    s.forEach(d=>{
-      const mm=d.data();
-      const b=document.createElement("div");
-      b.className="chat-bubble "+(mm.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
-      b.innerHTML=`${mm.testo}<div class=chat-time>${mm.timestamp?.toDate().toLocaleTimeString()}</div>`;
-      chatMessages.appendChild(b);
+
+  if(unsubChat) unsubChat();
+  unsubChat = db.collection("chats").doc(id)
+    .collection("messages")
+    .orderBy("timestamp")
+    .onSnapshot(s=>{
+      chatMessages.innerHTML="";
+      s.forEach(d=>{
+        const m=d.data();
+        const b=document.createElement("div");
+        b.className="chat-bubble "+(m.mittente==="admin"?"chat-bubble-admin":"chat-bubble-user");
+        b.innerHTML=`${m.testo||""}<div class="chat-time">${m.timestamp?.toDate().toLocaleTimeString()}</div>`;
+        chatMessages.appendChild(b);
+      });
+      chatMessages.scrollTop=999999;
     });
-    chatMessages.scrollTop=999999;
-  });
 }
-function closeChat(){modalChat.style.display="none";if(unsub)unsub()}
+
+function closeChat(){
+  modalChat.style.display="none";
+  if(unsubChat) unsubChat();
+  unsubChat=null;
+}
+
 function sendMsg(){
-  if(!openChat||!chatInput.value)return;
-  db.collection("chats").doc(openChat).collection("messages").add({
-    testo:chatInput.value,mittente:"admin",
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
+  if(!openChatId||!chatInput.value) return;
+  db.collection("chats").doc(openChatId)
+    .collection("messages")
+    .add({
+      testo:chatInput.value,
+      mittente:"admin",
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
   chatInput.value="";
 }
 </script>
