@@ -323,6 +323,46 @@ textarea { height: 90px; resize: none; }
   resize: none;
   margin-top: .6rem;
 }
+
+/* ==========================================================
+   STEP 3 – PIN CARD SEGNALAZIONE (NUOVO)
+========================================================== */
+#modalSegPinIntro .modal-content,
+#modalSegPinChange .modal-content{
+  max-width: 420px;
+}
+
+.pinBig {
+  margin-top: .7rem;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: .3rem;
+  text-align: center;
+  padding: .8rem;
+  border-radius: .8rem;
+  border: 2px dashed #cc0000;
+  background: #fff6f6;
+}
+
+.pinSmallHint{
+  margin-top:.5rem;
+  font-size:.9rem;
+  opacity:.85;
+  line-height:1.25rem;
+}
+
+.btnSecondary{
+  margin-top:.6rem;
+  padding:.8rem;
+  width:100%;
+  border:none;
+  background:#111;
+  color:#fff;
+  font-weight:900;
+  border-radius:.6rem;
+  cursor:pointer;
+}
+
 </style>
 
 <!-- FIREBASE -->
@@ -430,7 +470,44 @@ const db = firebase.firestore();
 </div>
 
 <!-- ===============================
-     MODALI CHAT + PIN
+     STEP 3 – MODALI PIN CARD SEGNALAZIONE (NUOVI)
+================================= -->
+
+<div class="modal" id="modalSegPinIntro">
+  <div class="modal-content">
+    <h3 id="segPinIntroTitle">PIN accesso segnalazione</h3>
+    <div class="pinSmallHint">
+      Questo è il <b>PIN temporaneo</b> per rientrare nella <b>tua segnalazione</b>.
+      Al <b>primo accesso</b> ti verrà richiesto di cambiarlo.
+    </div>
+    <div class="pinBig" id="segPinTempValue">----</div>
+
+    <div id="segPinIntroError" class="pinError">Errore</div>
+
+    <button class="btnSecondary" onclick="openSegPinChangeFromIntro()">Cambia PIN ora</button>
+    <button class="btn" onclick="closeSegPinIntro()">Ho salvato il PIN</button>
+  </div>
+</div>
+
+<div class="modal" id="modalSegPinChange">
+  <div class="modal-content">
+    <h3 id="segPinChangeTitle">Cambia PIN segnalazione</h3>
+    <div class="pinHint">Imposta un nuovo codice PIN di <b>4 cifre</b>.</div>
+
+    <div class="pinRow">
+      <input type="password" id="segPinNew1" inputmode="numeric" maxlength="4" placeholder="Nuovo PIN (4 cifre)">
+      <input type="password" id="segPinNew2" inputmode="numeric" maxlength="4" placeholder="Ripeti nuovo PIN">
+    </div>
+
+    <div id="segPinChangeError" class="pinError">Errore</div>
+
+    <button class="btn" onclick="confirmSegPinChange()">Conferma nuovo PIN</button>
+    <button class="btnClose" onclick="closeSegPinChange()">Chiudi</button>
+  </div>
+</div>
+
+<!-- ===============================
+     MODALI CHAT + PIN (GIÀ PRESENTI)
 ================================= -->
 
 <div class="modal" id="modalPinSet">
@@ -605,18 +682,10 @@ const condominio = {
 };
 
 /* ============================================
-   CHAT – STATO GLOBALE
-   - 1 chat per CARD per DESTINATARIO
-   - destinatario: "amministrazione" oppure "particomuni"
+   HELPERS (ESISTENTI + RIUSO)
 ============================================ */
-let chatPendingMeta = null;           // meta della card
-let chatPendingKeyString = null;      // chiave stabile
-let chatCurrentChatId = null;         // docId chats/
-let unsubscribeUserChat = null;
-
-function buildChatKeyString(meta){
-  // REGOLA 1-a-1: destinatario + complesso + card
-  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
+function only4Digits(v){
+  return (v || "").replace(/\D/g, "").slice(0, 4);
 }
 
 async function sha256Hex(str){
@@ -625,10 +694,6 @@ async function sha256Hex(str){
   return Array.from(new Uint8Array(digest))
     .map(b => b.toString(16).padStart(2, "0"))
     .join("");
-}
-
-function only4Digits(v){
-  return (v || "").replace(/\D/g, "").slice(0, 4);
 }
 
 function showEl(id){ document.getElementById(id).style.display = "flex"; }
@@ -643,6 +708,102 @@ function clearPinError(id){
   const el = document.getElementById(id);
   el.style.display = "none";
   el.innerText = "";
+}
+
+/* ============================================
+   STEP 3 – PIN CARD SEGNALAZIONE (NUOVO)
+   - collezione: segnalazioni_pin/{segnalazioneId}
+   - create al momento della creazione segnalazione (subito dopo add)
+   - hash pin
+   - mustChangePin = true (PIN temporaneo)
+   - possibilità di cambiare subito (imposta mustChangePin=false)
+============================================ */
+let lastCreatedSegnalazioneId = null;
+let lastTempSegPin = null;
+
+function genTempPin4(){
+  const n = Math.floor(Math.random() * 10000);
+  return String(n).padStart(4, "0");
+}
+
+function openSegPinIntro(segnalazioneId, tempPin){
+  lastCreatedSegnalazioneId = segnalazioneId;
+  lastTempSegPin = tempPin;
+
+  document.getElementById("segPinTempValue").innerText = tempPin;
+  clearPinError("segPinIntroError");
+  showEl("modalSegPinIntro");
+}
+
+function closeSegPinIntro(){
+  hideEl("modalSegPinIntro");
+  clearPinError("segPinIntroError");
+  // NON azzero segnalazioneId: serve se l’utente decide subito di cambiare in seguito
+}
+
+function openSegPinChangeFromIntro(){
+  hideEl("modalSegPinIntro");
+  document.getElementById("segPinNew1").value = "";
+  document.getElementById("segPinNew2").value = "";
+  clearPinError("segPinChangeError");
+  showEl("modalSegPinChange");
+}
+
+function closeSegPinChange(){
+  hideEl("modalSegPinChange");
+  document.getElementById("segPinNew1").value = "";
+  document.getElementById("segPinNew2").value = "";
+  clearPinError("segPinChangeError");
+}
+
+async function confirmSegPinChange(){
+  clearPinError("segPinChangeError");
+
+  const p1 = only4Digits(document.getElementById("segPinNew1").value);
+  const p2 = only4Digits(document.getElementById("segPinNew2").value);
+
+  document.getElementById("segPinNew1").value = p1;
+  document.getElementById("segPinNew2").value = p2;
+
+  if (p1.length !== 4 || p2.length !== 4){
+    setPinError("segPinChangeError", "Inserisci 4 cifre in entrambi i campi.");
+    return;
+  }
+  if (p1 !== p2){
+    setPinError("segPinChangeError", "I due PIN non coincidono.");
+    return;
+  }
+  if (!lastCreatedSegnalazioneId){
+    setPinError("segPinChangeError", "Errore interno (segnalazione mancante).");
+    return;
+  }
+
+  try{
+    const h = await sha256Hex(p1);
+
+    await db.collection("segnalazioni_pin").doc(lastCreatedSegnalazioneId).set({
+      pinHash: h,
+      mustChangePin: false,
+      pinChangedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    closeSegPinChange();
+
+  }catch(e){
+    setPinError("segPinChangeError", "Errore salvataggio PIN.");
+  }
+}
+
+/* ============================================
+   CHAT – STATO GLOBALE (TUO)
+============================================ */
+let chatPendingMeta = null;
+let chatPendingKeyString = null;
+let chatCurrentChatId = null;
+let unsubscribeUserChat = null;
+
+function buildChatKeyString(meta){
+  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
 }
 
 function closePinSet(){
@@ -720,7 +881,7 @@ async function confirmSetPin(){
 
     await ref.set({
       meta: {
-        destinatario: chatPendingMeta.destinatario,  // "amministrazione" | "particomuni"
+        destinatario: chatPendingMeta.destinatario,
         scala: chatPendingMeta.scala,
         piano: chatPendingMeta.piano,
         lato: chatPendingMeta.lato,
@@ -869,7 +1030,6 @@ function sendUserChatMessage(){
 
 /* ============================================
    GENERA LE CARD (TUO) + ICONE CHAT
-   - 2 icone: AMMINISTRAZIONE (blu) + PARTI COMUNI (gialla)
 ============================================ */
 const container = document.querySelector(".container");
 
@@ -1043,7 +1203,7 @@ function confermaInvio(){
   document.getElementById("modalConferma").style.display = "flex";
 }
 
-function inviaSegnalazioneFinale() {
+async function inviaSegnalazioneFinale() {
 
   const tipo = document.getElementById("tipoInput").value;
   const sotto = document.getElementById("selectPartiComuni").value;
@@ -1082,7 +1242,8 @@ function inviaSegnalazioneFinale() {
     val.innerText = temp + "°C";
   }
 
-  db.collection("segnalazioni").add({
+  try{
+    const docRef = await db.collection("segnalazioni").add({
       scala: scalaSel,
       piano: pianoSel,
       lato: latoSel,
@@ -1095,7 +1256,28 @@ function inviaSegnalazioneFinale() {
       priorita: priorita,
       stato: "attiva",
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
+    });
+
+    // STEP 3 – crea PIN temporaneo per la SEGNALAZIONE appena creata
+    const segnalazioneId = docRef.id;
+    const tempPin = genTempPin4();
+    const tempHash = await sha256Hex(tempPin);
+
+    await db.collection("segnalazioni_pin").doc(segnalazioneId).set({
+      segnalazioneId: segnalazioneId,
+      pinHash: tempHash,
+      mustChangePin: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      pinSetAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Mostra PIN temporaneo all’utente
+    openSegPinIntro(segnalazioneId, tempPin);
+
+  }catch(e){
+    // Non tocco nulla del tuo flusso: segnalo solo errore
+    alert("Errore invio segnalazione/PIN: " + (e && e.message ? e.message : "errore"));
+  }
 
   chiudiConferma();
   chiudiModal();
