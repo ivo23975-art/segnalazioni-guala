@@ -209,12 +209,17 @@
   margin:0;
   text-align:center;
   font-weight:900;
+
+  /* ===== FIX SOLO TESTO NERO (titolo) ===== */
   color:#000;
 }
 #chatDocHint{
   margin-top:6px;
   font-size:12px;
+  opacity:.75;
   text-align:center;
+
+  /* ===== FIX SOLO TESTO NERO (hint) ===== */
   color:#000;
   opacity:1;
 }
@@ -238,24 +243,32 @@
   box-shadow:0 2px 10px rgba(0,0,0,.08);
   word-wrap:break-word;
   white-space:pre-wrap;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-user{
   background:#e6f2ff;
   align-self:flex-start;
   margin-right:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-admin{
   background:#d6ffd6;
   align-self:flex-end;
   margin-left:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-time{
   font-size:.75rem;
   opacity:.65;
   text-align:right;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 
@@ -268,9 +281,10 @@ textarea{
   padding:10px;
   margin-top:10px;
   box-sizing:border-box;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
-
 .btn{
   margin-top:10px;
   padding:12px;
@@ -283,15 +297,6 @@ textarea{
 .btnSend{ background:#00c853; color:#111; }
 .btnClose{ background:#ccc; color:#111; }
 .btnResetPin{ background:#ff9800; color:#111; }
-
-/* 2 pulsanti affiancati */
-.btnRow{
-  display:flex;
-  gap:10px;
-}
-.btnRow .btn{
-  width:50%;
-}
 </style>
 </head>
 
@@ -358,13 +363,7 @@ textarea{
     <div id="chatMessages"></div>
     <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
     <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-
-    <!-- DUE PULSANTI AFFIANCATI -->
-    <div class="btnRow">
-      <button class="btn btnResetPin" onclick="resetPinSuperAdmin()">RESET PIN CHAT</button>
-      <button class="btn btnResetPin" onclick="resetPinSegnalazioneSuperAdmin()">RESET PIN CARD</button>
-    </div>
-
+    <button class="btn btnResetPin" onclick="resetPinSuperAdmin()">RESET PIN UTENTE</button>
     <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
   </div>
 </div>
@@ -378,8 +377,7 @@ loadSegnalazioni(r=>true,true);
    - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
    - 1 listener messages alla volta (solo modale aperta)
    - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
-   - Reset PIN chat (SOLO superadmin): meta.pinHash = null
-   - Reset PIN card: scrive su segnalazioni_pin/{segnalazioneId}
+   - Reset PIN (SOLO superadmin): meta.pinHash = null
    - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
    - Alert: chat item
        1-2 nuovi -> verde
@@ -700,73 +698,16 @@ function sendAdminMessage(){
     });
 }
 
-/* RESET PIN CHAT (SOLO SUPERADMIN): mette meta.pinHash = null */
+/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null */
 function resetPinSuperAdmin(){
   if (!chatOpenDocId) return;
-  if (!confirm("Reset PIN CHAT utente?\nL'utente dovrà reimpostare il PIN per aprire la chat.")) return;
+  if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
 
   fdb.collection("chats")
     .doc(chatOpenDocId)
     .update({ "meta.pinHash": null })
-    .then(()=>{ alert("PIN CHAT resettato."); })
-    .catch((err)=>{ alert("Errore reset PIN CHAT: " + err.message); });
-}
-
-/* RESET PIN CARD (SOLO SUPERADMIN)
-   - trova segnalazioneId cercando la segnalazione associata all'unità (meta)
-   - scrive su segnalazioni_pin/{segnalazioneId}
-   - compatibile con rules: pinHash deve essere STRINGA (qui "")
-*/
-async function resetPinSegnalazioneSuperAdmin(){
-  if (!chatOpenMeta) {
-    alert("Nessuna chat aperta.");
-    return;
-  }
-
-  if (!confirm("Reset PIN CARD segnalazione?\nL'utente dovrà reimpostare il PIN per aprire la card.")) {
-    return;
-  }
-
-  try{
-    const m = chatOpenMeta;
-
-    // Cerca la segnalazione più recente per quell'unità
-    let q = fdb.collection("segnalazioni")
-      .where("complesso", "==", safeStr(m.complesso))
-      .where("scala", "==", safeStr(m.scala))
-      .where("piano", "==", safeStr(m.piano))
-      .where("lato", "==", safeStr(m.lato))
-      .where("nome", "==", safeStr(m.nome))
-      .limit(1);
-
-    const snap = await q.get();
-    if (snap.empty){
-      alert("Nessuna segnalazione trovata per questa unità.\nSe esistono più segnalazioni, potrebbe servire un indice Firestore.");
-      return;
-    }
-
-    const segDoc = snap.docs[0];
-    const segId = segDoc.id;
-
-    const pinRef = fdb.collection("segnalazioni_pin").doc(segId);
-    const pinSnap = await pinRef.get();
-
-    const createdAtVal = (pinSnap.exists && pinSnap.data() && pinSnap.data().createdAt)
-      ? pinSnap.data().createdAt
-      : firebase.firestore.FieldValue.serverTimestamp();
-
-    await pinRef.set({
-      pinHash: "",                // STRINGA: compatibile con rules
-      mustChangePin: true,
-      resetByAdmin: true,
-      createdAt: createdAtVal,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    alert("PIN CARD resettato.");
-  } catch(err){
-    alert("Errore reset PIN CARD: " + err.message);
-  }
+    .then(()=>{ alert("PIN resettato."); })
+    .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
 }
 
 /* ===== INDICE CHAT: un solo listener su /chats ===== */
@@ -822,4 +763,3 @@ fdb.collection("chats").onSnapshot((snap)=>{
 
 </body>
 </html>
-
