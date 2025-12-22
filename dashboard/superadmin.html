@@ -296,7 +296,10 @@ textarea{
 }
 .btnSend{ background:#00c853; color:#111; }
 .btnClose{ background:#ccc; color:#111; }
-.btnResetPin{ background:#ff9800; color:#111; }
+
+/* NUOVI DUE PULSANTI (RESET SEPARATI) */
+.btnResetChat{ background:#ff9800; color:#111; }
+.btnResetCard{ background:#ff5722; color:#fff; }
 </style>
 </head>
 
@@ -363,8 +366,11 @@ textarea{
     <div id="chatMessages"></div>
     <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
     <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-    <!-- HOOK AGGIORNATO: reset totale PIN -->
-    <button class="btn btnResetPin" onclick="resetPinSuperAdminTotale()">RESET PIN UTENTE</button>
+
+    <!-- DUE PULSANTI SEPARATI (RICHIESTI) -->
+    <button class="btn btnResetChat" onclick="resetPinChatsEntrambi()">RESET PIN CHAT (AMMIN. + PARTI COMUNI)</button>
+    <button class="btn btnResetCard" onclick="resetPinCard()">RESET PIN CARD SEGNALAZIONE</button>
+
     <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
   </div>
 </div>
@@ -378,7 +384,6 @@ loadSegnalazioni(r=>true,true);
    - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
    - 1 listener messages alla volta (solo modale aperta)
    - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
-   - Reset PIN (SOLO superadmin): meta.pinHash = null
    - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
    - Alert: chat item
        1-2 nuovi -> verde
@@ -699,22 +704,11 @@ function sendAdminMessage(){
     });
 }
 
-/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null (singolo doc aperto) */
-function resetPinSuperAdmin(){
-  if (!chatOpenDocId) return;
-  if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
-
-  fdb.collection("chats")
-    .doc(chatOpenDocId)
-    .update({ "meta.pinHash": null })
-    .then(()=>{ alert("PIN resettato."); })
-    .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
-}
-
 /* =====================================================
-   AGGIUNTA UNICA: RESET PIN TOTALE (3 ingressi)
-   - SOLO PIN: chat admin + chat parti comuni + card segnalazione
-   - NON cancella nulla, NON tocca messaggi/segnalazioni
+   DUE AZIONI SEPARATE (RICHIESTE)
+   1) RESET PIN CHAT (AMMIN.+PC) della stessa unità
+   2) RESET PIN CARD (segnalazioni_pin) della stessa unità
+   - SOLO PIN, NON tocca messaggi/segnalazioni
 ===================================================== */
 
 async function __sha256Hex(str){
@@ -725,7 +719,7 @@ async function __sha256Hex(str){
     .join("");
 }
 
-function __sameUnit(metaA, metaB){
+function __sameUnitExact(metaA, metaB){
   return (
     safeStr(metaA.complesso) === safeStr(metaB.complesso) &&
     safeStr(metaA.scala) === safeStr(metaB.scala) &&
@@ -735,61 +729,101 @@ function __sameUnit(metaA, metaB){
   );
 }
 
-async function resetPinSuperAdminTotale(){
+/* 1) RESET PIN CHAT (AMMIN. + PARTI COMUNI) */
+async function resetPinChatsEntrambi(){
   if (!chatOpenMeta) return;
-  if (!confirm("RESET TOTALE PIN UTENTE?\n- Chat Amministrazione\n- Chat Parti Comuni\n- Card Segnalazione")) return;
 
   const m = chatOpenMeta;
+  const titolo = `${safeStr(m.nome)} • ${safeStr(m.scala)} • ${safeStr(m.piano)} • ${safeStr(m.lato)} • ${safeStr(m.complesso)}`;
+  if (!confirm("Reset PIN CHAT (Amministrazione + Parti Comuni) per:\n" + titolo)) return;
 
   try{
-    /* 1) RESET PIN CHAT: tutte le chat della stessa unità (admin+pc) */
-    let chatDocs = [];
+    const targets = [];
 
+    // Tentativo "preciso" (può richiedere indice): facciamo due query separate per destinatario
     try{
-      /* tentativo preciso (può richiedere indice composito) */
-      const q = await fdb.collection("chats")
+      const qAdmin = await fdb.collection("chats")
         .where("meta.complesso","==", m.complesso)
         .where("meta.scala","==", m.scala)
         .where("meta.piano","==", m.piano)
         .where("meta.lato","==", m.lato)
         .where("meta.nome","==", m.nome)
+        .where("meta.destinatario","==", "amministrazione")
         .get();
-      chatDocs = q.docs || [];
-    } catch(e){
-      /* fallback robusto: riduce where per evitare indice, filtra client */
+
+      const qPc = await fdb.collection("chats")
+        .where("meta.complesso","==", m.complesso)
+        .where("meta.scala","==", m.scala)
+        .where("meta.piano","==", m.piano)
+        .where("meta.lato","==", m.lato)
+        .where("meta.nome","==", m.nome)
+        .where("meta.destinatario","==", "particomuni")
+        .get();
+
+      (qAdmin.docs || []).forEach(d => targets.push(d));
+      (qPc.docs || []).forEach(d => targets.push(d));
+
+    } catch(ePrec){
+      // Fallback (no indice): filtro client su un set più piccolo
       const q2 = await fdb.collection("chats")
         .where("meta.complesso","==", m.complesso)
         .where("meta.scala","==", m.scala)
         .get();
 
       const docs = q2.docs || [];
-      chatDocs = docs.filter(d=>{
+      docs.forEach(d=>{
         const data = d.data() || {};
         const mm = data.meta || {};
-        return __sameUnit(mm, m);
+        const dest = safeStr(mm.destinatario);
+        if (!__sameUnitExact(mm, m)) return;
+        if (dest !== "amministrazione" && dest !== "particomuni") return;
+        targets.push(d);
       });
     }
 
-    const batch = fdb.batch();
-    chatDocs.forEach(d=>{
-      batch.update(d.ref, { "meta.pinHash": null });
-    });
+    if (!targets.length){
+      alert("Nessuna chat trovata per questa unità (admin/parti comuni).");
+      return;
+    }
 
-    /* 2) RESET PIN CARD: segnalazioni_pin/s_<hashUnità>.pinHash = null */
+    // Update uno-per-uno (evita batch misti, e isola eventuali errori rules/doc)
+    let ok = 0;
+    for (const d of targets){
+      try{
+        await d.ref.update({ "meta.pinHash": null });
+        ok += 1;
+      } catch(upErr){
+        // se fallisce anche una, lo segnaliamo ma continuiamo sugli altri
+      }
+    }
+
+    alert("RESET PIN CHAT completato. Aggiornati: " + ok + " doc.");
+  }catch(err){
+    alert("Errore RESET PIN CHAT: " + err.message);
+  }
+}
+
+/* 2) RESET PIN CARD SEGNALAZIONE */
+async function resetPinCard(){
+  if (!chatOpenMeta) return;
+
+  const m = chatOpenMeta;
+  const titolo = `${safeStr(m.nome)} • ${safeStr(m.scala)} • ${safeStr(m.piano)} • ${safeStr(m.lato)} • ${safeStr(m.complesso)}`;
+  if (!confirm("Reset PIN CARD SEGNALAZIONE per:\n" + titolo)) return;
+
+  try{
     const segKey = `${safeStr(m.complesso)}||${safeStr(m.scala)}||${safeStr(m.piano)}||${safeStr(m.lato)}||${safeStr(m.nome)}`;
     const segHash = await __sha256Hex(segKey);
     const segPinId = `s_${segHash}`;
 
-    batch.set(
-      fdb.collection("segnalazioni_pin").doc(segPinId),
+    await fdb.collection("segnalazioni_pin").doc(segPinId).set(
       { pinHash: null },
       { merge: true }
     );
 
-    await batch.commit();
-    alert("RESET PIN TOTALE COMPLETATO.");
+    alert("RESET PIN CARD completato.");
   }catch(err){
-    alert("Errore RESET PIN TOTALE: " + err.message);
+    alert("Errore RESET PIN CARD: " + err.message);
   }
 }
 
