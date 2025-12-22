@@ -16,13 +16,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // ============================
-// APP CHECK — DEBUG MODE
+// APP CHECK — PRODUZIONE (reCAPTCHA v3)
 // ============================
 const appCheck = firebase.appCheck();
 
 appCheck.activate(
-  '4EFDFFA2-96CC-4A48-80A7-22F494C2D110',
-  true
+  "6LdopTMsAAAAAF0bcwo1BDRtDkl4xplujrZZhGi4", // SITE KEY reCAPTCHA
+  false // ⚠️ PRODUZIONE: NO DEBUG
 );
 
 // ============================
