@@ -209,6 +209,8 @@
   margin:0;
   text-align:center;
   font-weight:900;
+
+  /* ===== FIX SOLO TESTO NERO (titolo) ===== */
   color:#000;
 }
 #chatDocHint{
@@ -216,6 +218,8 @@
   font-size:12px;
   opacity:.75;
   text-align:center;
+
+  /* ===== FIX SOLO TESTO NERO (hint) ===== */
   color:#000;
   opacity:1;
 }
@@ -239,24 +243,32 @@
   box-shadow:0 2px 10px rgba(0,0,0,.08);
   word-wrap:break-word;
   white-space:pre-wrap;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-user{
   background:#e6f2ff;
   align-self:flex-start;
   margin-right:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-admin{
   background:#d6ffd6;
   align-self:flex-end;
   margin-left:auto;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-time{
   font-size:.75rem;
   opacity:.65;
   text-align:right;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 
@@ -269,6 +281,8 @@ textarea{
   padding:10px;
   margin-top:10px;
   box-sizing:border-box;
+
+  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .btn{
@@ -349,10 +363,7 @@ textarea{
     <div id="chatMessages"></div>
     <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
     <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-
-    <!-- RESET UNICO -->
-    <button class="btn btnResetPin" onclick="resetAllSuperAdmin()">RESET ACCESSI UTENTE</button>
-
+    <button class="btn btnResetPin" onclick="resetPinSuperAdmin()">RESET PIN UTENTE</button>
     <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
   </div>
 </div>
@@ -363,10 +374,15 @@ loadSegnalazioni(r=>true,true);
 
 /* ==========================================================
    CHAT – SUPERADMIN CORRETTO + UI ALERT
-   (TUTTO INVARIATO) + RESET UNICO
-   - Reset chat: chats/{chatId}.meta.pinHash = null
-   - Reset card: segnalazioni_pin/{segnalazioneId} set({pinHash:"", createdAt: serverTimestamp()})
-   - Ricerca segnalazione: prima prova query precisa; se manca indice, fallback senza indici (solo complesso)
+   - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
+   - 1 listener messages alla volta (solo modale aperta)
+   - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
+   - Reset PIN (SOLO superadmin): meta.pinHash = null
+   - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
+   - Alert: chat item
+       1-2 nuovi -> verde
+       3-6 nuovi -> arancione
+       >=7 nuovi -> rosso
 ========================================================== */
 
 const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
@@ -682,97 +698,16 @@ function sendAdminMessage(){
     });
 }
 
-/* ============================
-   RESET UNICO (SOLO SUPERADMIN)
-   - Reset PIN chat (meta.pinHash=null)
-   - Reset PIN card segnalazione (segnalazioni_pin/{id})
-   NOTE: scrive SOLO {pinHash, createdAt} per compatibilità rules
-============================ */
+/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null */
+function resetPinSuperAdmin(){
+  if (!chatOpenDocId) return;
+  if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
 
-async function findSegnalazioneIdByMeta(meta){
-  const m = meta || {};
-  const complesso = safeStr(m.complesso);
-  const scala = safeStr(m.scala);
-  const piano = safeStr(m.piano);
-  const lato = safeStr(m.lato);
-  const nome = safeStr(m.nome);
-
-  // 1) Tenta query precisa (se avete indice, è la più veloce)
-  try{
-    const q = await fdb.collection("segnalazioni")
-      .where("complesso", "==", complesso)
-      .where("scala", "==", scala)
-      .where("piano", "==", piano)
-      .where("lato", "==", lato)
-      .where("nome", "==", nome)
-      .limit(1)
-      .get();
-
-    if (!q.empty) return q.docs[0].id;
-  }catch(err){
-    // se manca indice o altro, si passa al fallback
-  }
-
-  // 2) Fallback SENZA INDICI: una sola where (complesso) e filtro client
-  // (evita errori "requires an index")
-  const snap = await fdb.collection("segnalazioni")
-    .where("complesso", "==", complesso)
-    .limit(300)
-    .get();
-
-  let bestId = null;
-  snap.forEach((d)=>{
-    const s = d.data() || {};
-    if (safeStr(s.scala) !== scala) return;
-    if (safeStr(s.piano) !== piano) return;
-    if (safeStr(s.lato) !== lato) return;
-    if (safeStr(s.nome) !== nome) return;
-    bestId = d.id;
-  });
-
-  return bestId;
-}
-
-async function resetAllSuperAdmin(){
-  if (!chatOpenDocId || !chatOpenMeta) return;
-  if (!confirm("RESET COMPLETO?
-
-- Reset PIN CHAT
-- Reset PIN CARD segnalazione
-
-Confermi?")) return;
-
-  try{
-    // 1) Reset PIN CHAT
-    await fdb.collection("chats")
-      .doc(chatOpenDocId)
-      .update({ "meta.pinHash": null });
-
-    // 2) Reset PIN CARD (solo 2 campi per rules)
-    const segId = await findSegnalazioneIdByMeta(chatOpenMeta);
-    if (!segId){
-      alert("Reset chat OK.
-
-ATTENZIONE: nessuna segnalazione trovata per questa unità (quindi reset card NON eseguito).
-
-Se la segnalazione esiste, verifica i campi complesso/scala/piano/lato/nome salvati in Firestore.");
-      return;
-    }
-
-    await fdb.collection("segnalazioni_pin")
-      .doc(segId)
-      .set({
-        pinHash: "",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-    alert("Reset completo eseguito (chat + card).
-
-ID segnalazione: " + segId);
-  }catch(err){
-    const code = err && err.code ? err.code : "";
-    alert("Errore reset completo: " + (code ? (code + " — ") : "") + (err && err.message ? err.message : err));
-  }
+  fdb.collection("chats")
+    .doc(chatOpenDocId)
+    .update({ "meta.pinHash": null })
+    .then(()=>{ alert("PIN resettato."); })
+    .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
 }
 
 /* ===== INDICE CHAT: un solo listener su /chats ===== */
