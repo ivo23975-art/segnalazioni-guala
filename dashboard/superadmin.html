@@ -363,7 +363,8 @@ textarea{
     <div id="chatMessages"></div>
     <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
     <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-    <button class="btn btnResetPin" onclick="resetPinSuperAdmin()">RESET PIN UTENTE</button>
+    <!-- HOOK AGGIORNATO: reset totale PIN -->
+    <button class="btn btnResetPin" onclick="resetPinSuperAdminTotale()">RESET PIN UTENTE</button>
     <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
   </div>
 </div>
@@ -698,7 +699,7 @@ function sendAdminMessage(){
     });
 }
 
-/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null */
+/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null (singolo doc aperto) */
 function resetPinSuperAdmin(){
   if (!chatOpenDocId) return;
   if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
@@ -708,6 +709,88 @@ function resetPinSuperAdmin(){
     .update({ "meta.pinHash": null })
     .then(()=>{ alert("PIN resettato."); })
     .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
+}
+
+/* =====================================================
+   AGGIUNTA UNICA: RESET PIN TOTALE (3 ingressi)
+   - SOLO PIN: chat admin + chat parti comuni + card segnalazione
+   - NON cancella nulla, NON tocca messaggi/segnalazioni
+===================================================== */
+
+async function __sha256Hex(str){
+  const data = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function __sameUnit(metaA, metaB){
+  return (
+    safeStr(metaA.complesso) === safeStr(metaB.complesso) &&
+    safeStr(metaA.scala) === safeStr(metaB.scala) &&
+    safeStr(metaA.piano) === safeStr(metaB.piano) &&
+    safeStr(metaA.lato) === safeStr(metaB.lato) &&
+    safeStr(metaA.nome) === safeStr(metaB.nome)
+  );
+}
+
+async function resetPinSuperAdminTotale(){
+  if (!chatOpenMeta) return;
+  if (!confirm("RESET TOTALE PIN UTENTE?\n- Chat Amministrazione\n- Chat Parti Comuni\n- Card Segnalazione")) return;
+
+  const m = chatOpenMeta;
+
+  try{
+    /* 1) RESET PIN CHAT: tutte le chat della stessa unità (admin+pc) */
+    let chatDocs = [];
+
+    try{
+      /* tentativo preciso (può richiedere indice composito) */
+      const q = await fdb.collection("chats")
+        .where("meta.complesso","==", m.complesso)
+        .where("meta.scala","==", m.scala)
+        .where("meta.piano","==", m.piano)
+        .where("meta.lato","==", m.lato)
+        .where("meta.nome","==", m.nome)
+        .get();
+      chatDocs = q.docs || [];
+    } catch(e){
+      /* fallback robusto: riduce where per evitare indice, filtra client */
+      const q2 = await fdb.collection("chats")
+        .where("meta.complesso","==", m.complesso)
+        .where("meta.scala","==", m.scala)
+        .get();
+
+      const docs = q2.docs || [];
+      chatDocs = docs.filter(d=>{
+        const data = d.data() || {};
+        const mm = data.meta || {};
+        return __sameUnit(mm, m);
+      });
+    }
+
+    const batch = fdb.batch();
+    chatDocs.forEach(d=>{
+      batch.update(d.ref, { "meta.pinHash": null });
+    });
+
+    /* 2) RESET PIN CARD: segnalazioni_pin/s_<hashUnità>.pinHash = null */
+    const segKey = `${safeStr(m.complesso)}||${safeStr(m.scala)}||${safeStr(m.piano)}||${safeStr(m.lato)}||${safeStr(m.nome)}`;
+    const segHash = await __sha256Hex(segKey);
+    const segPinId = `s_${segHash}`;
+
+    batch.set(
+      fdb.collection("segnalazioni_pin").doc(segPinId),
+      { pinHash: null },
+      { merge: true }
+    );
+
+    await batch.commit();
+    alert("RESET PIN TOTALE COMPLETATO.");
+  }catch(err){
+    alert("Errore RESET PIN TOTALE: " + err.message);
+  }
 }
 
 /* ===== INDICE CHAT: un solo listener su /chats ===== */
