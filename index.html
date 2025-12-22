@@ -2,722 +2,624 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>SUPER ADMIN – Chat + Segnalazioni</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segnalazioni Condominio Piazza Guala</title>
 
-<link rel="stylesheet" href="dashboard.css">
-<link rel="icon" href="data:,">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#cc0000">
+
+<style>
+:root {
+  --primary: #cc0000;
+  --bg: #f3f4f6;
+  --card-bg: #f7f7f7;
+  --border: #cc0000;
+  --shadow: 0 4px 14px rgba(0,0,0,0.12);
+  --shadow-strong: 0 6px 22px rgba(204,0,0,0.45);
+  --t-blue: #0077ff;
+  --t-yellow: #ffcc00;
+  --t-red: #d50000;
+}
+
+body {
+  background: var(--bg);
+  margin: 0;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: .2rem; }
+h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+.scalaBox {
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  max-height: 87vh;
+  overflow-y: auto;
+}
+
+.scalaTitle { text-align: center; font-size: 1.4rem; font-weight: bold; margin-bottom: 1rem; }
+
+.pianoBox {
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+  padding: 1rem;
+  border-radius: .9rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+.pianoTop { font-weight: bold; margin-bottom: .8rem; font-size: 1rem; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .6rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: .6rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: var(--shadow);
+  transition: .15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-strong);
+}
+
+.tempBox {
+  font-size: .85rem;
+  margin-top: 3px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
+}
+.tempDot { width: 12px; height: 12px; border-radius: 50%; }
+.t-blue { background: var(--t-blue); }
+.t-yellow { background: var(--t-yellow); }
+.t-red { background: var(--t-red); }
+
+.alert-red { animation: redBlink 1s infinite; background:#ff0000!important; color:white;}
+.alert-orange { animation: orangeBlink 1.4s infinite; background:#ff8800!important; color:white;}
+.alert-yellow { animation: yellowBlink 1.8s infinite; background:#fff06a!important;}
+.alert-green { background:#00b454!important; color:white;}
+
+@keyframes redBlink {
+  0%,100%{background:#b00000;}
+  50%{background:#ff4444;}
+}
+@keyframes orangeBlink {
+  0%,100%{background:#cc6a00;}
+  50%{background:#ff9c22;}
+}
+@keyframes yellowBlink {
+  0%,100%{background:#d4bf00;}
+  50%{background:#fff455;}
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  padding: 1rem;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 1rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: .6rem;
+  margin-top: .4rem;
+  border: 1px solid #ccc;
+  border-radius: .6rem;
+}
+textarea { height: 90px; resize: none; }
+
+.btn {
+  margin-top: .8rem;
+  padding: .8rem;
+  width: 100%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+.btnClose {
+  margin-top: .6rem;
+  padding: .8rem;
+  width: 100%;
+  background: #ccc;
+  border-radius: .6rem;
+  cursor: pointer;
+}
+
+#selectPartiComuniWrapper {
+  display: none;
+  margin-top: .6rem;
+}
+
+/* Pulsante INSTALLA APP */
+#installPWA {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  padding: 14px 20px;
+  font-size: 15px;
+  background:#cc0000;
+  color:white;
+  border:none;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  cursor:pointer;
+  display:none;
+  z-index:9999;
+}
+
+/* ==========================================================
+   CHAT (ACCESSORIO) – ICONA ESTERNA ALLA CARD (NON DENTRO)
+========================================================== */
+.cardWrap {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.chatUserIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  transform: translateZ(0);
+}
+
+/* AMMINISTRAZIONE (blu) */
+.chat-blue {
+  background: radial-gradient(circle at 30% 30%, #7fe0ff, #0088ff 65%, #0057b3);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(0,136,255,.35);
+}
+
+/* PARTI COMUNI (giallo) */
+.chat-yellow {
+  background: radial-gradient(circle at 30% 30%, #fff3a0, #ffcc00 65%, #b38b00);
+  color: #111;
+  box-shadow: 0 8px 22px rgba(255,204,0,.35);
+}
+
+/* stato disabilitato (solo per sicurezza UI) */
+.chat-disabled {
+  opacity: .35;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+/* ==========================================================
+   CHAT – MODALI
+========================================================== */
+#modalPinSet .modal-content,
+#modalPinEnter .modal-content,
+#modalChat .modal-content {
+  max-width: 420px;
+}
+
+.pinRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .6rem;
+  margin-top: .4rem;
+}
+
+.pinHint {
+  font-size: .9rem;
+  opacity: .8;
+  margin-top: .4rem;
+  line-height: 1.25rem;
+}
+
+.pinError {
+  margin-top: .6rem;
+  color: #b00000;
+  font-weight: 700;
+  display: none;
+}
+
+/* chat window in stile user */
+#modalChat .modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 78vh;
+  max-height: 78vh;
+}
+
+#chatTitle {
+  margin: 0;
+  text-align: center;
+}
+
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e2e2e2;
+  border-radius: .8rem;
+  padding: .8rem;
+  background: #fafafa;
+  margin-top: .6rem;
+}
+
+.chat-bubble {
+  max-width: 82%;
+  padding: .6rem .75rem;
+  border-radius: .9rem;
+  margin: .35rem 0;
+  display: inline-flex;
+  flex-direction: column;
+  gap: .25rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.chat-bubble-user {
+  background: #e6f2ff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.chat-bubble-admin {
+  background: #d6ffd6;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.chat-time {
+  font-size: .75rem;
+  opacity: .65;
+  text-align: right;
+}
+
+#chatInput {
+  height: 70px;
+  resize: none;
+  margin-top: .6rem;
+}
+</style>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG -->
-<script src="firebase-config.js"></script>
-<script src="admin-auth.js"></script>
-<script src="dashboard.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAneaPGbeUWMNurMzGghrOoYpw4dsuIwr4",
+  authDomain: "segnalazioni-guala.firebaseapp.com",
+  projectId: "segnalazioni-guala",
+  storageBucket: "segnalazioni-guala.firebasestorage.app",
+  messagingSenderId: "118462666966",
+  appId: "1:118462666966:web:9ca2cdb6985581fe79d177"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
 
-<style>
-.logout-btn{
-  position:absolute;top:15px;right:20px;
-  background:#ff0000;color:#fff;
-  padding:10px 18px;border-radius:6px;
-  cursor:pointer;font-weight:bold
-}
-.section{margin-bottom:30px}
-
-/* ===== CHAT – 2 CARD SOPRA SEGNALAZIONI ===== */
-.chat-cards{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:14px;
-  margin-bottom:18px;
-}
-@media (max-width: 900px){
-  .chat-cards{ grid-template-columns: 1fr; }
-}
-
-.chat-card{
-  background:#0f2a3d;
-  border-radius:12px;
-  padding:12px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  color:#fff;
-  border: 1px solid rgba(255,255,255,0.08);
-  transform: translateZ(0);
-}
-
-/* lampeggio contenitore (giallo) quando arrivano nuovi messaggi */
-.chat-card.attn{
-  animation: cardBlinkYellow 1.2s infinite;
-  border-color: rgba(255,204,0,0.65);
-  box-shadow: 0 8px 24px rgba(255,204,0,0.25), 0 4px 14px rgba(0,0,0,0.18);
-}
-@keyframes cardBlinkYellow{
-  0%,100%{ filter: brightness(1); }
-  50%{ filter: brightness(1.25); }
-}
-
-.chat-card-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:pointer;
-  user-select:none;
-  font-weight:900;
-  letter-spacing:.2px;
-}
-
-.chat-card-sub{
-  color: rgba(255,255,255,0.82);
-  margin-top:6px;
-  font-size:13px;
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-}
-.card-unread-pill{
-  display:none;
-  font-size:12px;
-  font-weight:900;
-  padding:4px 10px;
-  border-radius:999px;
-  background: rgba(255,204,0,0.18);
-  border: 1px solid rgba(255,204,0,0.45);
-  color:#fff;
-  white-space:nowrap;
-}
-
-.chat-list{
-  margin-top:10px;
-  display:none;
-  max-height:300px;
-  overflow-y:auto;
-  padding-right:4px;
-}
-
-.chat-item{
-  background:#102f45;
-  border-radius:10px;
-  padding:10px 10px;
-  margin-bottom:8px;
-  cursor:pointer;
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  border: 1px solid rgba(255,255,255,0.06);
-  transform: translateZ(0);
-}
-.chat-item:hover{ background:#123e5c; }
-
-.chat-item .left{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-.chat-item .title{
-  color:#ffffff;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.chat-item .meta{
-  color: rgba(255,255,255,0.85);
-  font-size:12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.badges{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex-shrink:0;
-}
-.badge{
-  font-size:11px;
-  padding:4px 8px;
-  border-radius:999px;
-  font-weight:900;
-  white-space:nowrap;
-}
-.badge-admin{ background:#0077ff; color:#fff; }
-.badge-pc{ background:#ffcc00; color:#111; }
-.badge-dup{ background:#ff6b00; color:#111; }
-
-/* ===== unread badge + effetto wow ===== */
-.badge-unread{
-  display:none;
-  border:1px solid rgba(0,0,0,0.15);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
-  transform: perspective(600px) rotateX(6deg);
-}
-.chat-item.unread-1 .badge-unread,
-.chat-item.unread-2 .badge-unread,
-.chat-item.unread-3 .badge-unread{ display:inline-flex; }
-
-.chat-item.unread-green{
-  border-color: rgba(0,200,83,0.35);
-  box-shadow: 0 10px 26px rgba(0,200,83,0.10), 0 4px 14px rgba(0,0,0,0.18);
-  animation: wowPulse 1.6s infinite;
-}
-.chat-item.unread-orange{
-  border-color: rgba(255,136,0,0.45);
-  box-shadow: 0 12px 28px rgba(255,136,0,0.18), 0 4px 14px rgba(0,0,0,0.18);
-  animation: wowPulse 1.2s infinite;
-}
-.chat-item.unread-red{
-  border-color: rgba(213,0,0,0.55);
-  box-shadow: 0 14px 32px rgba(213,0,0,0.22), 0 4px 14px rgba(0,0,0,0.18);
-  animation: wowPulse 0.9s infinite;
-}
-
-@keyframes wowPulse{
-  0%,100%{ transform: translateZ(0) scale(1); filter: brightness(1); }
-  50%{ transform: translateZ(0) scale(1.012); filter: brightness(1.18); }
-}
-
-.badge-unread.green{ background:#00c853; color:#081b10; }
-.badge-unread.orange{ background:#ff8800; color:#111; }
-.badge-unread.red{ background:#d50000; color:#fff; }
-
-/* ===== MODALE CHAT (stile bubble alternato) ===== */
-.modal{
-  position:fixed;
-  inset:0;
-  background: rgba(0,0,0,.45);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-.modal-content{
-  background:white;
-  width:92%;
-  max-width:520px;
-  height:78vh;
-  max-height:78vh;
-  border-radius:16px;
-  padding:14px;
-  display:flex;
-  flex-direction:column;
-}
-#chatTitle{
-  margin:0;
-  text-align:center;
-  font-weight:900;
-
-  /* ===== FIX SOLO TESTO NERO (titolo) ===== */
-  color:#000;
-}
-#chatDocHint{
-  margin-top:6px;
-  font-size:12px;
-  opacity:.75;
-  text-align:center;
-
-  /* ===== FIX SOLO TESTO NERO (hint) ===== */
-  color:#000;
-  opacity:1;
-}
-#chatMessages{
-  flex:1;
-  overflow-y:auto;
-  border:1px solid #e2e2e2;
-  border-radius:12px;
-  padding:10px;
-  background:#fafafa;
-  margin-top:10px;
-}
-.chat-bubble{
-  max-width:82%;
-  padding:.6rem .75rem;
-  border-radius:.9rem;
-  margin:.35rem 0;
-  display:inline-flex;
-  flex-direction:column;
-  gap:.25rem;
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
-  word-wrap:break-word;
-  white-space:pre-wrap;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
-  color:#000;
-}
-.chat-bubble-user{
-  background:#e6f2ff;
-  align-self:flex-start;
-  margin-right:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
-  color:#000;
-}
-.chat-bubble-admin{
-  background:#d6ffd6;
-  align-self:flex-end;
-  margin-left:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
-  color:#000;
-}
-.chat-time{
-  font-size:.75rem;
-  opacity:.65;
-  text-align:right;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
-  color:#000;
-}
-
-textarea{
-  width:100%;
-  height:70px;
-  resize:none;
-  border:1px solid #ccc;
-  border-radius:12px;
-  padding:10px;
-  margin-top:10px;
-  box-sizing:border-box;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
-  color:#000;
-}
-.btn{
-  margin-top:10px;
-  padding:12px;
-  width:100%;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:900;
-}
-.btnSend{ background:#00c853; color:#111; }
-.btnClose{ background:#ccc; color:#111; }
-.btnResetPin{ background:#ff9800; color:#111; }
-</style>
 </head>
-
 <body>
 
-<a class="logout-btn" onclick="adminLogout()">Logout</a>
+<h1>APP DEDICATA ALLE SEGNALAZIONI DEL CONDOMINIO</h1>
+<h2>Piazza Guala • Via Piobesi</h2>
 
-<div class="header">SUPER ADMIN – CHAT + SEGNALAZIONI</div>
+<div class="container"></div>
 
-<div class="content">
+<!-- ===============================
+     MODALI SEGNALAZIONE (TUOI)
+================================= -->
 
-<!-- ================= CHAT (SOPRA SEGNALAZIONI) ================= -->
-<div class="section">
-  <h2>💬 CHAT</h2>
+<div class="modal" id="modalSegnalazione">
+  <div class="modal-content">
 
-  <div class="chat-cards">
-    <div class="chat-card" id="cardGuala">
-      <div class="chat-card-head" onclick="toggleChatCard('guala')">
-        <div>Chat Guala</div>
-        <div id="chevGuala">▸</div>
-      </div>
-      <div class="chat-card-sub">
-        <span>Apri per vedere tutte le chat del complesso Guala (amministrazione + parti comuni).</span>
-        <span class="card-unread-pill" id="pillGuala">Nuovi: 0</span>
-      </div>
-      <div class="chat-list" id="listGuala">Caricamento…</div>
+    <h3 id="modalTitle"></h3>
+
+    <label>Temperatura (facoltativa)</label>
+    <input type="number" id="tempInput" placeholder="es: 23">
+
+    <label style="margin-top:10px;">Tipo di intervento</label>
+    <select id="tipoInput" onchange="gestisciPartiComuni()">
+
+      <optgroup label="🔴 EMERGENZA">
+        <option value="118">118 – Emergenza sanitaria</option>
+        <option value="112">112 – Forze dell’ordine</option>
+        <option value="115">115 – Vigili del fuoco</option>
+      </optgroup>
+
+      <optgroup label="🟠 ALTA URGENZA">
+        <option value="ascensore">Ascensore</option>
+        <option value="elettricista">Elettricista</option>
+        <option value="idraulico">Idraulico</option>
+        <option value="centrale">Centrale termica</option>
+        <option value="autoclave">Autoclave</option>
+      </optgroup>
+
+      <optgroup label="🟡 MEDIA URGENZA">
+        <option value="serramenti">Serramentista</option>
+        <option value="antincendio">Manutenzione antincendio</option>
+      </optgroup>
+
+      <optgroup label="🟢 PUÒ ATTENDERE">
+        <option value="pulizie">Pulizie</option>
+        <option value="altro">Altro</option>
+      </optgroup>
+
+      <optgroup label="🟡 PARTI COMUNI">
+        <option value="particomuni">Segnala PARTI COMUNI</option>
+      </optgroup>
+
+    </select>
+
+    <div id="selectPartiComuniWrapper">
+      <label>Seleziona la parte comune</label>
+      <select id="selectPartiComuni">
+        <option value="">— Seleziona —</option>
+        <option value="Luci cortile">Luci cortile</option>
+        <option value="Cancello Automatico (su Via Piobesi)">Cancello Automatico (su Via Piobesi)</option>
+        <option value="Cancello Carraio a Bandiera Via Piobesi 10">Cancello Carraio a Bandiera</option>
+        <option value="Cancello Pedonale">Cancello Pedonale</option>
+        <option value="Cortile">Cortile</option>
+        <option value="Aree verdi">Aree verdi</option>
+        <option value="Box interrati">Box interrati</option>
+        <option value="Garage">Serrande garage</option>
+        <option value="Vano scale">Vano scale</option>
+        <option value="Locale contatori">Locale contatori</option>
+      </select>
     </div>
 
-    <div class="chat-card" id="cardPiobesi">
-      <div class="chat-card-head" onclick="toggleChatCard('piobesi')">
-        <div>Chat Piobesi</div>
-        <div id="chevPiobesi">▸</div>
-      </div>
-      <div class="chat-card-sub">
-        <span>Apri per vedere tutte le chat del complesso Piobesi (amministrazione + parti comuni).</span>
-        <span class="card-unread-pill" id="pillPiobesi">Nuovi: 0</span>
-      </div>
-      <div class="chat-list" id="listPiobesi">Caricamento…</div>
-    </div>
+    <label style="margin-top:12px;">Descrizione</label>
+    <textarea id="descrizioneInput" placeholder="Descrizione dettagliata"></textarea>
+
+    <button class="btn" onclick="confermaInvio()">Procedi</button>
+    <button class="btnClose" onclick="chiudiModal()">Chiudi</button>
+
   </div>
 </div>
 
-<!-- ================= SEGNALAZIONI (INVARIATE) ================= -->
-<div class="section">
-  <h2>📋 TUTTE LE SEGNALAZIONI</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Data</th><th>Scala</th><th>Piano</th><th>Lato</th>
-        <th>Nome</th><th>Temp</th><th>Tipo</th><th>Descrizione</th><th>Az.</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<div class="modal" id="modalConferma">
+  <div class="modal-content">
+    <h3 id="confermaTesto"></h3>
+    <button class="btn" onclick="inviaSegnalazioneFinale()">Confermo</button>
+    <button class="btnClose" onclick="chiudiConferma()">Annulla</button>
+  </div>
 </div>
 
+<!-- ===============================
+     MODALI CHAT + PIN
+================================= -->
+
+<div class="modal" id="modalPinSet">
+  <div class="modal-content">
+    <h3 id="pinSetTitle"></h3>
+    <div class="pinHint">Imposta un codice PIN di <b>4 cifre</b> per accedere alla chat di questa unità.</div>
+
+    <div class="pinRow">
+      <input type="password" id="pinSet1" inputmode="numeric" maxlength="4" placeholder="Inserisci PIN (4 cifre)">
+      <input type="password" id="pinSet2" inputmode="numeric" maxlength="4" placeholder="Ripeti PIN">
+    </div>
+
+    <div id="pinSetError" class="pinError">Errore</div>
+
+    <button class="btn" onclick="confirmSetPin()">Conferma PIN</button>
+    <button class="btnClose" onclick="closePinSet()">Chiudi</button>
+  </div>
 </div>
 
-<!-- ================= MODALE CHAT ================= -->
+<div class="modal" id="modalPinEnter">
+  <div class="modal-content">
+    <h3 id="pinEnterTitle"></h3>
+    <div class="pinHint">Inserisci il codice PIN di <b>4 cifre</b> per aprire la chat.</div>
+
+    <div class="pinRow">
+      <input type="password" id="pinEnter" inputmode="numeric" maxlength="4" placeholder="PIN (4 cifre)">
+    </div>
+
+    <div id="pinEnterError" class="pinError">PIN errato</div>
+
+    <button class="btn" onclick="confirmEnterPin()">Apri chat</button>
+    <button class="btnClose" onclick="closePinEnter()">Chiudi</button>
+  </div>
+</div>
+
 <div class="modal" id="modalChat">
   <div class="modal-content">
     <h3 id="chatTitle"></h3>
-    <div id="chatDocHint"></div>
+
     <div id="chatMessages"></div>
-    <textarea id="chatInput" placeholder="Scrivi come admin..."></textarea>
-    <button class="btn btnSend" onclick="sendAdminMessage()">Invia</button>
-    <!-- HOOK AGGIORNATO: reset totale PIN -->
-    <button class="btn btnResetPin" onclick="resetPinSuperAdminTotale()">RESET PIN UTENTE</button>
-    <button class="btn btnClose" onclick="closeChatModal()">Chiudi</button>
+
+    <textarea id="chatInput" placeholder="Scrivi un messaggio..."></textarea>
+
+    <button class="btn" onclick="sendUserChatMessage()">Invia</button>
+    <button class="btnClose" onclick="closeUserChat()">Chiudi</button>
   </div>
 </div>
 
 <script>
-requireRole("superadmin");
-loadSegnalazioni(r=>true,true);
+/* ============================================
+   LETTURA PARAM ?complesso=guala/piobesi
+============================================ */
+const complessoSelezionato =
+  new URLSearchParams(location.search).get("complesso");
 
-/* ==========================================================
-   CHAT – SUPERADMIN CORRETTO + UI ALERT
-   - AGGANCIO CHAT SOLO SU doc.id (NESSUN HASH)
-   - 1 listener messages alla volta (solo modale aperta)
-   - Deduplica VISIVA: 1 riga per "stessa unità + destinatario"
-   - Reset PIN (SOLO superadmin): meta.pinHash = null
-   - Alert: card contenitore lampeggia giallo se ci sono nuovi messaggi
-   - Alert: chat item
-       1-2 nuovi -> verde
-       3-6 nuovi -> arancione
-       >=7 nuovi -> rosso
-========================================================== */
+const scaleGuala = ["SCALA 131", "SCALA 131 BIS", "SCALA 133"];
+const scalePiobesi = ["SCALA 6", "SCALA 8", "SCALA 10"];
 
-const fdb = (window.db && window.db.collection) ? window.db : firebase.firestore();
+function scalaAppartiene(scala) {
+  if (!complessoSelezionato) return true;
 
-const listGuala = document.getElementById("listGuala");
-const listPiobesi = document.getElementById("listPiobesi");
+  if (complessoSelezionato === "guala")
+    return scaleGuala.includes(scala);
 
-const cardGuala = document.getElementById("cardGuala");
-const cardPiobesi = document.getElementById("cardPiobesi");
-const pillGuala = document.getElementById("pillGuala");
-const pillPiobesi = document.getElementById("pillPiobesi");
+  if (complessoSelezionato === "piobesi")
+    return scalePiobesi.includes(scala);
 
-const modalChat = document.getElementById("modalChat");
-const chatTitle = document.getElementById("chatTitle");
-const chatDocHint = document.getElementById("chatDocHint");
-const chatMessages = document.getElementById("chatMessages");
-const chatInput = document.getElementById("chatInput");
-
-let chatOpenDocId = null;
-let chatOpenMeta = null;
-let unsubscribeOpenChat = null;
-
-/* listeners per calcolo "nuovi messaggi" (senza cambiare la logica chat) */
-const perChatListener = new Map();     // docId -> unsubscribe
-const perChatUnread = new Map();       // docId -> unreadCount (user messages)
-const perChatLastSeen = new Map();     // docId -> lastReadMs (local cache)
-let renderCacheG = [];
-let renderCacheP = [];
-
-function toggleChatCard(complesso){
-  const list = (complesso === "guala") ? listGuala : listPiobesi;
-  const chev = document.getElementById(complesso === "guala" ? "chevGuala" : "chevPiobesi");
-  const open = list.style.display === "block";
-  list.style.display = open ? "none" : "block";
-  chev.innerText = open ? "▸" : "▾";
+  return true;
 }
 
-function safeStr(v){ return (v === null || v === undefined) ? "" : String(v); }
-function toLower(v){ return safeStr(v).toLowerCase(); }
+/* ============================================
+   DEFINIZIONE CONDOMINIO (TUO)
+============================================ */
+const condominio = {
+  "SCALA 131": {
+    piani: {
+      9:{dx:"BARBA / RIPANDELLI", sx:"BORDIGNON"},
+      8:{dx:"BROCCARDO", sx:"ROMEO / VALENTINO"},
+      7:{dx:"GERMANO", sx:"GERMANO"},
+      6:{dx:"NASELLI / DE REGIBUS", sx:"RAGAZZONE / CUGNO"},
+      5:{dx:"SALVO", sx:"GARBARDINO"},
+      4:{dx:"VIRANDO", sx:"BRUNETTI"},
+      3:{dx:"TREBIAN / MINIUSSI", sx:"BROCARDO / VAGNONE"},
+      2:{dx:"MANCA / FOTI", sx:"MILEO / RAIMONDI"},
+      1:{dx:"FERRERO / PEROSINO", sx:"AUTOMOBILE CLUB TORINO"},
+      portico:[
+        "SARA ASSICURAZIONI (131/A)",
+        "VIA DELLE FIRME OUTLET (131/C)"
+      ]
+    }
+  },
 
-function buildVisualKey(meta){
-  const destinatario = toLower(meta.destinatario);
-  const complesso = toLower(meta.complesso);
-  const scala = toLower(meta.scala);
-  const piano = toLower(meta.piano);
-  const lato = toLower(meta.lato);
-  const nome = toLower(meta.nome);
-  return `${destinatario}||${complesso}||${scala}||${piano}||${lato}||${nome}`;
-}
+  "SCALA 131 BIS": {
+    piani: {
+      9:{dx:"ROETTI", sx:"COLPO / TOMASSO"},
+      8:{dx:"BOSIO / ANERDI", sx:"CAMPODONICO"},
+      7:{dx:"BEFFA / GAGLIANO", sx:"SACCO / ARENGA"},
+      6:{dx:"ZANNINI", sx:"IANNIELLO / BACCAGLINI"},
+      5:{dx:"NEGRÒ / DE MARTINI", sx:"MONTAGNINO"},
+      4:{dx:"D’ADAMO", sx:"MARTINETTO / BELLUCCIO"},
+      3:{dx:"BOGGIO LOTTO", sx:"IMPEDOVO"},
+      2:{dx:"CURCI / HADJ AHMED", sx:"BACCAGLINI"},
+      1:{dx:"CAUDA / BASSINO", sx:"CAUDA / GALLINO"},
+      portico:[
+        "MODERN MAX STYLE (131BIS/A)",
+        "IL REGNO DEL CAFFÈ (131BIS/C)"
+      ]
+    }
+  },
 
-function pickTimestamp(meta){
-  try{
-    if (meta && meta.createdAt && meta.createdAt.toMillis) return meta.createdAt.toMillis();
-    if (meta && meta.pinSetAt && meta.pinSetAt.toMillis) return meta.pinSetAt.toMillis();
-  }catch(e){}
-  return 0;
-}
+  "SCALA 133": {
+    piani:{
+      9:{dx:"MONACO", sx:"P. MERLIN / C. RAPETTI"},
+      8:{dx:"CONTI / CARDACI", sx:"ANERDI / BOSIO"},
+      7:{dx:"ANSINI / ARPAIA", sx:"LOTITO"},
+      6:{dx:"RACCA", sx:"SPADAFORA / BERTELLI"},
+      5:{dx:"PUGLIA / LA ROSA", sx:"BILOTTA / BERRUTO"},
+      4:{dx:"MODEO / OTTONE", sx:"MOSAGNA / MINATO"},
+      3:{dx:"CANGIANO / CORDERO", sx:"LA IACONA / PEDULLÀ"},
+      2:{dx:"BALOCCO", sx:"BRUNETTI / REY"},
+      1:{dx:"AQUILINO / DI PUMPO", sx:"PARPAGLIONE / BERTERO"},
+      portico:[
+        "L’ARTE DELL’AGO – SARTORIA (133/A)"
+      ]
+    }
+  },
 
-function getUnreadClass(n){
-  if (!n || n <= 0) return { cls:"", badge:"", color:"" };
-  if (n <= 2) return { cls:"unread-green", badge:`Nuovi ${n}`, color:"green" };
-  if (n <= 6) return { cls:"unread-orange", badge:`Nuovi ${n}`, color:"orange" };
-  return { cls:"unread-red", badge:`Nuovi ${n}`, color:"red" };
-}
+  "SCALA 6": {
+    piani: {
+      9:{dx:"MERULLA I", sx:"MERULLA/ARDU"},
+      8:{dx:"MASSOLA/OSELLA", sx:"CIVERA/CASTROTA"},
+      7:{dx:"BORCA/GERMANO G", sx:"ONIDA M A"},
+      6:{dx:"BREGA F TITA/ARESE", sx:"BREGA-PENNINI/VALENTINI"},
+      5:{dx:"MENDOGNI/BOTTA", sx:"GATTONI/CAPPELLARO"},
+      4:{dx:"PLATANIA", sx:"GERVASI/RACCO"},
+      3:{dx:"HAZIZAJ", sx:"MAMELI/CANTINO"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
 
-function updateContainerIndicators(){
-  let totG = 0;
-  let totP = 0;
+  "SCALA 8": {
+    piani: {
+      9:{dx:"URBINATI", sx:"GASTONE"},
+      8:{dx:"FILIPPI", sx:"BLANDA"},
+      7:{dx:"ROCCUZZO", sx:"TENORE"},
+      6:{dx:"GIARRUSSO", sx:"DE MAGLIANIS"},
+      5:{dx:"RUTIGLIANO", sx:"ZAGAROLI"},
+      4:{dx:"CROVELLA", sx:"GATTONI"},
+      3:{dx:"CARACI/PATANE", sx:"Studio Legale QUERCIA"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
+    }
+  },
 
-  renderCacheG.forEach(it => { totG += (perChatUnread.get(it.docId) || 0); });
-  renderCacheP.forEach(it => { totP += (perChatUnread.get(it.docId) || 0); });
-
-  if (totG > 0) cardGuala.classList.add("attn"); else cardGuala.classList.remove("attn");
-  if (totP > 0) cardPiobesi.classList.add("attn"); else cardPiobesi.classList.remove("attn");
-
-  if (totG > 0){
-    pillGuala.style.display = "inline-flex";
-    pillGuala.innerText = `Nuovi: ${totG}`;
-  } else {
-    pillGuala.style.display = "none";
-  }
-
-  if (totP > 0){
-    pillPiobesi.style.display = "inline-flex";
-    pillPiobesi.innerText = `Nuovi: ${totP}`;
-  } else {
-    pillPiobesi.style.display = "none";
-  }
-}
-
-/* calcolo nuovi messaggi: conta messaggi "user" recenti (ultimi 50) dopo lastReadAdminAt */
-function ensurePerChatUnreadListener(docId){
-  if (perChatListener.has(docId)) return;
-
-  const unsub = fdb
-    .collection("chats")
-    .doc(docId)
-    .collection("messages")
-    .orderBy("timestamp","desc")
-    .limit(50)
-    .onSnapshot((snap)=>{
-      fdb.collection("chats").doc(docId).get().then((chatSnap)=>{
-        let lastReadMs = 0;
-        const data = chatSnap.exists ? (chatSnap.data() || {}) : {};
-        const meta = data.meta || {};
-        try{
-          if (meta.lastReadAdminAt && meta.lastReadAdminAt.toMillis) lastReadMs = meta.lastReadAdminAt.toMillis();
-        }catch(e){ lastReadMs = 0; }
-
-        const localSeen = perChatLastSeen.get(docId);
-        if (localSeen && localSeen > lastReadMs) lastReadMs = localSeen;
-
-        let unread = 0;
-        snap.forEach((d)=>{
-          const m = d.data() || {};
-          if (m.mittente !== "user") return;
-          let tms = 0;
-          try{
-            if (m.timestamp && m.timestamp.toMillis) tms = m.timestamp.toMillis();
-            else if (m.timestamp && m.timestamp.toDate) tms = m.timestamp.toDate().getTime();
-          }catch(e){ tms = 0; }
-
-          if (tms > lastReadMs) unread += 1;
-        });
-
-        if (chatOpenDocId && chatOpenDocId === docId && modalChat.style.display === "flex"){
-          unread = 0;
-        }
-
-        perChatUnread.set(docId, unread);
-
-        renderChatList(listGuala, renderCacheG);
-        renderChatList(listPiobesi, renderCacheP);
-        updateContainerIndicators();
-      }).catch(()=>{
-        perChatUnread.set(docId, perChatUnread.get(docId) || 0);
-        renderChatList(listGuala, renderCacheG);
-        renderChatList(listPiobesi, renderCacheP);
-        updateContainerIndicators();
-      });
-    });
-
-  perChatListener.set(docId, unsub);
-}
-
-function cleanupPerChatListeners(currentIdsSet){
-  for (const [docId, unsub] of perChatListener.entries()){
-    if (!currentIdsSet.has(docId)){
-      try{ unsub(); }catch(e){}
-      perChatListener.delete(docId);
-      perChatUnread.delete(docId);
-      perChatLastSeen.delete(docId);
+  "SCALA 10": {
+    piani: {
+      9:{dx:"VENTILII / LELII", sx:"DI FILIPPO / CARMANDO"},
+      8:{dx:"DESSANTI / ACCORNERO", sx:"DELLA ROCCA / MIGNONE"},
+      7:{dx:"PICCABLOTTO / CORTINOVIS", sx:"CASTELLO / CARAVETTA"},
+      6:{dx:"SPADA / VISCA", sx:"RESTO"},
+      5:{dx:"PROIETTI / MATTONE", sx:"FINI / BRONTE"},
+      4:{dx:"MARTINETTO / PORPORATO", sx:"GAGLIANO / MARUGGI"},
+      3:{dx:"QUERCIA", sx:"MIRREZA / HASSANI"},
+      2:{dx:"ACI B.F.", sx:"ACI B.F."},
+      1:{dx:"ACI B.F.", sx:"ACI B.F."},
+      portico:[]
     }
   }
+};
+
+/* ============================================
+   CHAT – STATO GLOBALE
+   - 1 chat per CARD per DESTINATARIO
+   - destinatario: "amministrazione" oppure "particomuni"
+============================================ */
+let chatPendingMeta = null;           // meta della card
+let chatPendingKeyString = null;      // chiave stabile
+let chatCurrentChatId = null;         // docId chats/
+let unsubscribeUserChat = null;
+
+function buildChatKeyString(meta){
+  // REGOLA 1-a-1: destinatario + complesso + card
+  return `${meta.destinatario}||${meta.complesso}||${meta.scala}||${meta.piano}||${meta.lato}||${meta.nome}`;
 }
 
-function renderChatList(targetEl, rows){
-  targetEl.innerHTML = "";
-  if (!rows.length){
-    targetEl.innerText = "Nessuna chat";
-    return;
-  }
-
-  rows.sort((a,b)=>{
-    const an = (a.meta && a.meta.nome) ? a.meta.nome.toLowerCase() : "";
-    const bn = (b.meta && b.meta.nome) ? b.meta.nome.toLowerCase() : "";
-    if (an < bn) return -1;
-    if (an > bn) return 1;
-    return 0;
-  });
-
-  rows.forEach(item=>{
-    const m = item.meta || {};
-    const row = document.createElement("div");
-    row.className = "chat-item";
-
-    const destLabel = (toLower(m.destinatario) === "particomuni") ? "PARTI COMUNI" : "AMMIN.";
-    const badgeClass = (toLower(m.destinatario) === "particomuni") ? "badge-pc" : "badge-admin";
-
-    const titolo = safeStr(m.nome);
-    const metaLine = `${safeStr(m.scala)} • ${safeStr(m.piano)} • ${safeStr(m.lato)}`;
-
-    const dupCount = item.dupCount || 0;
-    const unreadCount = perChatUnread.get(item.docId) || 0;
-    const u = getUnreadClass(unreadCount);
-
-    if (unreadCount > 0){
-      row.classList.add("unread-1");
-      row.classList.add(u.cls);
-    }
-
-    row.innerHTML = `
-      <div class="left">
-        <div class="title">${titolo}</div>
-        <div class="meta">${metaLine}</div>
-      </div>
-      <div class="badges">
-        <div class="badge badge-unread ${u.color}">${u.badge || ""}</div>
-        ${dupCount > 0 ? `<div class="badge badge-dup">DUP x${dupCount + 1}</div>` : ``}
-        <div class="badge ${badgeClass}">${destLabel}</div>
-      </div>
-    `;
-
-    const unreadBadge = row.querySelector(".badge-unread");
-    if (unreadBadge){
-      if (unreadCount > 0){
-        unreadBadge.style.display = "inline-flex";
-      } else {
-        unreadBadge.style.display = "none";
-      }
-    }
-
-    row.onclick = () => openChatByDocId(item.docId, m);
-    targetEl.appendChild(row);
-  });
-}
-
-function markChatRead(docId){
-  perChatLastSeen.set(docId, Date.now());
-  fdb.collection("chats").doc(docId).update({
-    "meta.lastReadAdminAt": firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(()=>{});
-  perChatUnread.set(docId, 0);
-}
-
-function openChatByDocId(docId, meta){
-  chatOpenDocId = docId;
-  chatOpenMeta = meta || {};
-
-  const titoloDest = (toLower(meta.destinatario) === "particomuni") ? "Parti Comuni" : "Amministrazione";
-  chatTitle.innerText = `Chat • ${titoloDest} • ${safeStr(meta.nome)} • ${safeStr(meta.scala)} • ${safeStr(meta.piano)} • ${safeStr(meta.lato)}`;
-  chatDocHint.innerText = `Documento chat: ${docId}`;
-
-  modalChat.style.display = "flex";
-  chatMessages.innerHTML = "";
-
-  markChatRead(docId);
-  updateContainerIndicators();
-
-  if (unsubscribeOpenChat) unsubscribeOpenChat();
-
-  unsubscribeOpenChat = fdb
-    .collection("chats")
-    .doc(docId)
-    .collection("messages")
-    .orderBy("timestamp","asc")
-    .onSnapshot((s)=>{
-      chatMessages.innerHTML = "";
-      s.forEach((d)=>{
-        const mm = d.data() || {};
-        const bubble = document.createElement("div");
-        bubble.className = "chat-bubble " + (mm.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
-
-        const textDiv = document.createElement("div");
-        textDiv.innerText = safeStr(mm.testo);
-
-        const timeDiv = document.createElement("div");
-        timeDiv.className = "chat-time";
-        if (mm.timestamp && mm.timestamp.toDate) {
-          timeDiv.innerText = mm.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
-        } else {
-          timeDiv.innerText = "";
-        }
-
-        bubble.appendChild(textDiv);
-        bubble.appendChild(timeDiv);
-        chatMessages.appendChild(bubble);
-      });
-
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      if (chatOpenDocId === docId){
-        markChatRead(docId);
-        updateContainerIndicators();
-      }
-    }, (err)=>{
-      alert("Errore lettura chat: " + err.message);
-    });
-}
-
-function closeChatModal(){
-  modalChat.style.display = "none";
-  chatInput.value = "";
-  chatMessages.innerHTML = "";
-  chatOpenDocId = null;
-  chatOpenMeta = null;
-  if (unsubscribeOpenChat) unsubscribeOpenChat();
-  unsubscribeOpenChat = null;
-  updateContainerIndicators();
-}
-
-function sendAdminMessage(){
-  const text = (chatInput.value || "").trim();
-  if (!text) return;
-  if (!chatOpenDocId) return;
-
-  fdb
-    .collection("chats")
-    .doc(chatOpenDocId)
-    .collection("messages")
-    .add({
-      testo: text,
-      mittente: "admin",
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(()=>{
-      chatInput.value = "";
-      markChatRead(chatOpenDocId);
-      updateContainerIndicators();
-    })
-    .catch((err)=>{
-      alert("Errore invio: " + err.message);
-    });
-}
-
-/* RESET PIN (SOLO SUPERADMIN): mette meta.pinHash = null (singolo doc aperto) */
-function resetPinSuperAdmin(){
-  if (!chatOpenDocId) return;
-  if (!confirm("Reset PIN utente? L'utente dovrà reimpostare il PIN per aprire la chat.")) return;
-
-  fdb.collection("chats")
-    .doc(chatOpenDocId)
-    .update({ "meta.pinHash": null })
-    .then(()=>{ alert("PIN resettato."); })
-    .catch((err)=>{ alert("Errore reset PIN: " + err.message); });
-}
-
-/* =====================================================
-   AGGIUNTA UNICA: RESET PIN TOTALE (3 ingressi)
-   - SOLO PIN: chat admin + chat parti comuni + card segnalazione
-   - NON cancella nulla, NON tocca messaggi/segnalazioni
-===================================================== */
-
-async function __sha256Hex(str){
+async function sha256Hex(str){
   const data = new TextEncoder().encode(str);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest))
@@ -725,123 +627,614 @@ async function __sha256Hex(str){
     .join("");
 }
 
-function __sameUnit(metaA, metaB){
-  return (
-    safeStr(metaA.complesso) === safeStr(metaB.complesso) &&
-    safeStr(metaA.scala) === safeStr(metaB.scala) &&
-    safeStr(metaA.piano) === safeStr(metaB.piano) &&
-    safeStr(metaA.lato) === safeStr(metaB.lato) &&
-    safeStr(metaA.nome) === safeStr(metaB.nome)
-  );
+function only4Digits(v){
+  return (v || "").replace(/\D/g, "").slice(0, 4);
 }
 
-async function resetPinSuperAdminTotale(){
-  if (!chatOpenMeta) return;
-  if (!confirm("RESET TOTALE PIN UTENTE?\n- Chat Amministrazione\n- Chat Parti Comuni\n- Card Segnalazione")) return;
+function showEl(id){ document.getElementById(id).style.display = "flex"; }
+function hideEl(id){ document.getElementById(id).style.display = "none"; }
 
-  const m = chatOpenMeta;
+function setPinError(id, msg){
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.style.display = "block";
+}
+function clearPinError(id){
+  const el = document.getElementById(id);
+  el.style.display = "none";
+  el.innerText = "";
+}
 
-  try{
-    /* 1) RESET PIN CHAT: tutte le chat della stessa unità (admin+pc) */
-    let chatDocs = [];
+function closePinSet(){
+  hideEl("modalPinSet");
+  document.getElementById("pinSet1").value = "";
+  document.getElementById("pinSet2").value = "";
+  clearPinError("pinSetError");
+  chatPendingMeta = null;
+  chatPendingKeyString = null;
+  chatCurrentChatId = null;
+}
 
-    try{
-      /* tentativo preciso (può richiedere indice composito) */
-      const q = await fdb.collection("chats")
-        .where("meta.complesso","==", m.complesso)
-        .where("meta.scala","==", m.scala)
-        .where("meta.piano","==", m.piano)
-        .where("meta.lato","==", m.lato)
-        .where("meta.nome","==", m.nome)
-        .get();
-      chatDocs = q.docs || [];
-    } catch(e){
-      /* fallback robusto: riduce where per evitare indice, filtra client */
-      const q2 = await fdb.collection("chats")
-        .where("meta.complesso","==", m.complesso)
-        .where("meta.scala","==", m.scala)
-        .get();
+function closePinEnter(){
+  hideEl("modalPinEnter");
+  document.getElementById("pinEnter").value = "";
+  clearPinError("pinEnterError");
+  chatPendingMeta = null;
+  chatPendingKeyString = null;
+  chatCurrentChatId = null;
+}
 
-      const docs = q2.docs || [];
-      chatDocs = docs.filter(d=>{
-        const data = d.data() || {};
-        const mm = data.meta || {};
-        return __sameUnit(mm, m);
-      });
+function openPinFlowForCard(meta){
+  chatPendingMeta = meta;
+  chatPendingKeyString = buildChatKeyString(meta);
+
+  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  document.getElementById("pinSetTitle").innerText = `Chat • ${titoloDest} • ${meta.nome}`;
+  document.getElementById("pinEnterTitle").innerText = `Chat • ${titoloDest} • ${meta.nome}`;
+
+  sha256Hex(chatPendingKeyString).then(async (hash) => {
+    chatCurrentChatId = `c_${hash}`;
+    const ref = db.collection("chats").doc(chatCurrentChatId);
+    const snap = await ref.get();
+
+    if (!snap.exists || !snap.data() || !snap.data().meta || !snap.data().meta.pinHash) {
+      document.getElementById("pinSet1").value = "";
+      document.getElementById("pinSet2").value = "";
+      clearPinError("pinSetError");
+      showEl("modalPinSet");
+    } else {
+      document.getElementById("pinEnter").value = "";
+      clearPinError("pinEnterError");
+      showEl("modalPinEnter");
     }
+  }).catch(() => {
+    alert("Errore inizializzazione chat.");
+  });
+}
 
-    const batch = fdb.batch();
-    chatDocs.forEach(d=>{
-      batch.update(d.ref, { "meta.pinHash": null });
-    });
+async function confirmSetPin(){
+  clearPinError("pinSetError");
 
-    /* 2) RESET PIN CARD: segnalazioni_pin/s_<hashUnità>.pinHash = null */
-    const segKey = `${safeStr(m.complesso)}||${safeStr(m.scala)}||${safeStr(m.piano)}||${safeStr(m.lato)}||${safeStr(m.nome)}`;
-    const segHash = await __sha256Hex(segKey);
-    const segPinId = `s_${segHash}`;
+  const p1 = only4Digits(document.getElementById("pinSet1").value);
+  const p2 = only4Digits(document.getElementById("pinSet2").value);
 
-    batch.set(
-      fdb.collection("segnalazioni_pin").doc(segPinId),
-      { pinHash: null },
-      { merge: true }
-    );
+  document.getElementById("pinSet1").value = p1;
+  document.getElementById("pinSet2").value = p2;
 
-    await batch.commit();
-    alert("RESET PIN TOTALE COMPLETATO.");
-  }catch(err){
-    alert("Errore RESET PIN TOTALE: " + err.message);
+  if (p1.length !== 4 || p2.length !== 4) {
+    setPinError("pinSetError", "Inserisci 4 cifre in entrambi i campi.");
+    return;
+  }
+  if (p1 !== p2) {
+    setPinError("pinSetError", "I due PIN non coincidono.");
+    return;
+  }
+  if (!chatPendingMeta || !chatCurrentChatId) {
+    setPinError("pinSetError", "Errore interno.");
+    return;
+  }
+
+  try {
+    const pinHash = await sha256Hex(p1);
+    const ref = db.collection("chats").doc(chatCurrentChatId);
+
+    await ref.set({
+      meta: {
+        destinatario: chatPendingMeta.destinatario,  // "amministrazione" | "particomuni"
+        scala: chatPendingMeta.scala,
+        piano: chatPendingMeta.piano,
+        lato: chatPendingMeta.lato,
+        nome: chatPendingMeta.nome,
+        complesso: chatPendingMeta.complesso,
+        pinHash: pinHash,
+        pinSetAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }
+    }, { merge: true });
+
+    hideEl("modalPinSet");
+    document.getElementById("pinSet1").value = "";
+    document.getElementById("pinSet2").value = "";
+    clearPinError("pinSetError");
+
+    openUserChat(chatCurrentChatId, chatPendingMeta);
+
+    chatPendingMeta = null;
+    chatPendingKeyString = null;
+
+  } catch (e) {
+    setPinError("pinSetError", "Errore salvataggio PIN.");
   }
 }
 
-/* ===== INDICE CHAT: un solo listener su /chats ===== */
-fdb.collection("chats").onSnapshot((snap)=>{
-  const mapG = new Map();
-  const mapP = new Map();
-  const currentIds = new Set();
+async function confirmEnterPin(){
+  clearPinError("pinEnterError");
 
-  snap.forEach(doc=>{
-    const d = doc.data() || {};
-    const m = d.meta || {};
-    const complesso = toLower(m.complesso);
-    if (complesso !== "guala" && complesso !== "piobesi") return;
+  const p = only4Digits(document.getElementById("pinEnter").value);
+  document.getElementById("pinEnter").value = p;
 
-    currentIds.add(doc.id);
-    ensurePerChatUnreadListener(doc.id);
+  if (p.length !== 4) {
+    setPinError("pinEnterError", "Inserisci un PIN di 4 cifre.");
+    return;
+  }
+  if (!chatPendingMeta || !chatCurrentChatId) {
+    setPinError("pinEnterError", "Errore interno.");
+    return;
+  }
 
-    const visualKey = buildVisualKey(m);
-    const ts = pickTimestamp(m);
-    const targetMap = (complesso === "guala") ? mapG : mapP;
+  try {
+    const pinHashTry = await sha256Hex(p);
+    const ref = db.collection("chats").doc(chatCurrentChatId);
+    const snap = await ref.get();
 
-    if (!targetMap.has(visualKey)){
-      targetMap.set(visualKey, {
-        docId: doc.id,
-        meta: m,
-        bestTs: ts,
-        dupCount: 0
-      });
-    } else {
-      const existing = targetMap.get(visualKey);
-      existing.dupCount += 1;
-      if (ts > (existing.bestTs || 0)){
-        existing.docId = doc.id;
-        existing.meta = m;
-        existing.bestTs = ts;
-      }
-      targetMap.set(visualKey, existing);
+    const saved = snap.exists && snap.data() && snap.data().meta ? snap.data().meta.pinHash : null;
+    if (!saved) {
+      hideEl("modalPinEnter");
+      showEl("modalPinSet");
+      return;
     }
+    if (saved !== pinHashTry) {
+      setPinError("pinEnterError", "PIN errato.");
+      return;
+    }
+
+    hideEl("modalPinEnter");
+    document.getElementById("pinEnter").value = "";
+    clearPinError("pinEnterError");
+
+    openUserChat(chatCurrentChatId, chatPendingMeta);
+
+    chatPendingMeta = null;
+    chatPendingKeyString = null;
+
+  } catch (e) {
+    setPinError("pinEnterError", "Errore verifica PIN.");
+  }
+}
+
+function closeUserChat(){
+  hideEl("modalChat");
+  document.getElementById("chatInput").value = "";
+  if (unsubscribeUserChat) unsubscribeUserChat();
+  unsubscribeUserChat = null;
+  chatCurrentChatId = null;
+}
+
+function openUserChat(chatId, meta){
+  chatCurrentChatId = chatId;
+
+  const titoloDest = (meta.destinatario === "particomuni") ? "Parti Comuni" : "Amministrazione";
+  document.getElementById("chatTitle").innerText =
+    `Chat • ${titoloDest} • ${meta.nome} • ${meta.scala} • ${meta.piano} • ${meta.lato}`;
+
+  showEl("modalChat");
+
+  const box = document.getElementById("chatMessages");
+  box.innerHTML = "";
+
+  if (unsubscribeUserChat) unsubscribeUserChat();
+
+  unsubscribeUserChat = db.collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snap) => {
+      box.innerHTML = "";
+      snap.forEach((d) => {
+        const m = d.data() || {};
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble " + (m.mittente === "admin" ? "chat-bubble-admin" : "chat-bubble-user");
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = m.testo || "";
+
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "chat-time";
+        if (m.timestamp && m.timestamp.toDate) {
+          timeDiv.innerText = m.timestamp.toDate().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          timeDiv.innerText = "";
+        }
+
+        bubble.appendChild(textDiv);
+        bubble.appendChild(timeDiv);
+        box.appendChild(bubble);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+function sendUserChatMessage(){
+  const input = document.getElementById("chatInput");
+  const text = (input.value || "").trim();
+  if (!text) return;
+  if (!chatCurrentChatId) return;
+
+  db.collection("chats")
+    .doc(chatCurrentChatId)
+    .collection("messages")
+    .add({
+      testo: text,
+      mittente: "user",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      input.value = "";
+    })
+    .catch((err) => {
+      alert("Errore durante l'invio del messaggio: " + err.message);
+    });
+}
+
+/* ============================================
+   GENERA LE CARD (TUO) + ICONE CHAT
+   - 2 icone: AMMINISTRAZIONE (blu) + PARTI COMUNI (gialla)
+============================================ */
+const container = document.querySelector(".container");
+
+Object.keys(condominio).forEach(scala => {
+
+  if (!scalaAppartiene(scala)) return;
+
+  const box = document.createElement("div");
+  box.className = "scalaBox";
+  box.innerHTML = `<div class="scalaTitle">${scala}</div>`;
+
+  const piani = condominio[scala].piani;
+
+  Object.keys(piani)
+    .filter(p => !isNaN(p))
+    .sort((a,b)=>b-a)
+    .forEach(piano => {
+
+      const dati = piani[piano];
+      const complessoCard = ["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala";
+      const safeDx = (dati.dx || "").replace(/'/g, "\\'");
+      const safeSx = (dati.sx || "").replace(/'/g, "\\'");
+
+      let html = `
+        <div class="pianoBox">
+          <div class="pianoTop">${piano}° piano</div>
+          <div class="cards">
+
+            <div class="cardWrap">
+              <div class="card" onclick="openSegnalazioneConPin({complesso:'${complessoCard}'}, '${scala}','${piano}','DX','${safeDx}', this)">
+                ${dati.dx}
+                <div class="tempBox">
+                  <span class="tempDot t-blue"></span>
+                  <span class="tempVal">—°C</span>
+                </div>
+              </div>
+
+              <!-- AMMINISTRAZIONE -->
+              <div class="chatUserIcon chat-blue"
+                   title="Chat Amministrazione"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${safeDx}'});">💬</div>
+
+              <!-- PARTI COMUNI -->
+              <div class="chatUserIcon chat-yellow"
+                   title="Chat Parti Comuni"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${safeDx}'});">🧰</div>
+            </div>
+
+            <div class="cardWrap">
+              <div class="card" onclick="openSegnalazioneConPin({complesso:'${complessoCard}'}, '${scala}','${piano}','SX','${safeSx}', this)">
+                ${dati.sx}
+                <div class="tempBox">
+                  <span class="tempDot t-blue"></span>
+                  <span class="tempVal">—°C</span>
+                </div>
+              </div>
+
+              <!-- AMMINISTRAZIONE -->
+              <div class="chatUserIcon chat-blue"
+                   title="Chat Amministrazione"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${safeSx}'});">💬</div>
+
+              <!-- PARTI COMUNI -->
+              <div class="chatUserIcon chat-yellow"
+                   title="Chat Parti Comuni"
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${safeSx}'});">🧰</div>
+            </div>
+
+          </div>
+        </div>
+      `;
+
+      box.innerHTML += html;
+    });
+
+  if (piani.portico && piani.portico.length > 0){
+    let html = `
+      <div class="pianoBox">
+        <div class="pianoTop">Livello strada</div>
+        <div class="cards">
+    `;
+    piani.portico.forEach(nome => {
+      const compl = ["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala";
+      const safeNome = (nome || "").replace(/'/g, "\\'");
+      html += `
+        <div class="cardWrap">
+          <div class="card" onclick="openSegnalazioneConPin({complesso:'${compl}'}, '${scala}','PORTICO','NEGOZIO','${safeNome}', this)">
+            ${nome}
+            <div class="tempBox">
+              <span class="tempDot t-blue"></span>
+              <span class="tempVal">—°C</span>
+            </div>
+          </div>
+
+          <!-- AMMINISTRAZIONE -->
+          <div class="chatUserIcon chat-blue"
+               title="Chat Amministrazione"
+               onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${compl}', scala:'${scala}', piano:'PORTICO', lato:'NEGOZIO', nome:'${safeNome}'});">💬</div>
+
+          <!-- PARTI COMUNI -->
+          <div class="chatUserIcon chat-yellow"
+               title="Chat Parti Comuni"
+               onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${compl}', scala:'${scala}', piano:'PORTICO', lato:'NEGOZIO', nome:'${safeNome}'});">🧰</div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+    box.innerHTML += html;
+  }
+
+  container.appendChild(box);
+});
+
+/* ============================================
+   LOGICA MODALI E INVIO (TUA)
+============================================ */
+let elementoSelezionato = null;
+let nominativo = "";
+let scalaSel = "";
+let pianoSel = "";
+let latoSel = "";
+
+function apri(scala, piano, lato, nome, elem){
+  elementoSelezionato = elem;
+  nominativo = nome;
+  scalaSel = scala;
+  pianoSel = piano;
+  latoSel = lato;
+
+  document.getElementById("modalTitle").innerText =
+    `${scala} • ${piano} • ${lato} • ${nome}`;
+
+  document.getElementById("modalSegnalazione").style.display = "flex";
+}
+
+function chiudiModal(){
+  document.getElementById("modalSegnalazione").style.display = "none";
+}
+
+function chiudiConferma(){
+  document.getElementById("modalConferma").style.display = "none";
+}
+
+function gestisciPartiComuni() {
+  const tipo = document.getElementById("tipoInput").value;
+  const wrapper = document.getElementById("selectPartiComuniWrapper");
+
+  if (tipo === "particomuni") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("selectPartiComuni").value = "";
+  }
+}
+
+function confermaInvio(){
+  const tipo = document.getElementById("tipoInput").value;
+
+  if (tipo === "particomuni") {
+    const sotto = document.getElementById("selectPartiComuni").value;
+    if (sotto === "") {
+      alert("Seleziona la parte comune.");
+      return;
+    }
+    if (document.getElementById("descrizioneInput").value.trim() === "") {
+      alert("La descrizione è obbligatoria.");
+      return;
+    }
+  }
+
+  document.getElementById("confermaTesto").innerText =
+    `Confermi la segnalazione per:\n${nominativo}`;
+
+  document.getElementById("modalConferma").style.display = "flex";
+}
+
+function inviaSegnalazioneFinale() {
+
+  const tipo = document.getElementById("tipoInput").value;
+  const sotto = document.getElementById("selectPartiComuni").value;
+  const temp = document.getElementById("tempInput").value || "ND";
+  const desc = document.getElementById("descrizioneInput").value.trim() || "Nessuna descrizione";
+
+  let priorita = "VERDE";
+
+  if (["118","112","115"].includes(tipo)) priorita = "ROSSO";
+  else if(["ascensore","elettricista","idraulico","centrale","autoclave"].includes(tipo))
+      priorita = "ARANCIONE";
+  else if(["serramenti","antincendio"].includes(tipo))
+      priorita = "GIALLO";
+  else if(tipo === "particomuni")
+      priorita = "GIALLO";
+
+  elementoSelezionato.classList.remove(
+    "alert-red","alert-orange","alert-yellow","alert-green"
+  );
+
+  let css = "alert-green";
+  if (priorita === "ROSSO") css = "alert-red";
+  else if (priorita === "ARANCIONE") css = "alert-orange";
+  else if (priorita === "GIALLO") css = "alert-yellow";
+
+  elementoSelezionato.classList.add(css);
+
+  const dot = elementoSelezionato.querySelector(".tempDot");
+  const val = elementoSelezionato.querySelector(".tempVal");
+
+  if (temp !== "ND") {
+    if (temp >= 28) dot.className = "tempDot t-red";
+    else if (temp >= 24) dot.className = "tempDot t-yellow";
+    else dot.className = "tempDot t-blue";
+
+    val.innerText = temp + "°C";
+  }
+
+  db.collection("segnalazioni").add({
+      scala: scalaSel,
+      piano: pianoSel,
+      lato: latoSel,
+      nome: nominativo,
+      temperatura: temp,
+      descrizione: desc,
+      tipo: tipo === "particomuni" ? "Parti comuni" : tipo,
+      sottotipo: sotto,
+      complesso: ["SCALA 6","SCALA 8","SCALA 10"].includes(scalaSel) ? "piobesi" : "guala",
+      priorita: priorita,
+      stato: "attiva",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  cleanupPerChatListeners(currentIds);
+  chiudiConferma();
+  chiudiModal();
 
-  renderCacheG = Array.from(mapG.values());
-  renderCacheP = Array.from(mapP.values());
+  document.getElementById("tempInput").value = "";
+  document.getElementById("descrizioneInput").value = "";
+  document.getElementById("tipoInput").value = "altro";
+  document.getElementById("selectPartiComuni").value = "";
+  document.getElementById("selectPartiComuniWrapper").style.display = "none";
+}
+</script>
 
-  renderChatList(listGuala, renderCacheG);
-  renderChatList(listPiobesi, renderCacheP);
-  updateContainerIndicators();
-}, (err)=>{
-  alert("Errore lettura indice chat: " + err.message);
+<!-- ===============================
+     SERVICE WORKER
+================================= -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .catch(err => console.log("SW error:", err));
+}
+</script>
+
+<!-- ===============================
+     PULSANTE INSTALLA APP (PWA)
+================================= -->
+<script>
+let deferredPrompt;
+const btnInstall = document.createElement("button");
+btnInstall.id = "installPWA";
+btnInstall.innerText = "📲 Installa App";
+document.body.appendChild(btnInstall);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = "block";
 });
+
+btnInstall.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  btnInstall.style.display = "none";
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+</script>
+
+<script>
+/* =====================================================
+   PIN CARD SEGNALAZIONE – BLOCCO AUTONOMO
+   - NON tocca chat
+   - NON tocca invio segnalazioni
+   - Riusa modali PIN esistenti
+===================================================== */
+
+let __segPinDocId = null;
+let __segPinCallback = null;
+
+/* utilità già usata dalla chat (stesso metodo) */
+async function __segSha256Hex(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
+}
+function __segOnly4Digits(v){
+  return (v||"").replace(/\D/g,"").slice(0,4);
+}
+
+/* ENTRY POINT: wrapper sicuro per la card */
+function openSegnalazioneConPin(meta, scala, piano, lato, nome, elem){
+  const key = `${meta.complesso}||${scala}||${piano}||${lato}||${nome}`;
+
+  __segSha256Hex(key).then(async (h)=>{
+    __segPinDocId = "s_"+h;
+    const ref = db.collection("segnalazioni_pin").doc(__segPinDocId);
+    const snap = await ref.get();
+
+    __segPinCallback = () => apri(scala, piano, lato, nome, elem);
+
+    if(!snap.exists || !snap.data().pinHash){
+      showEl("modalPinSet");
+    }else{
+      showEl("modalPinEnter");
+    }
+  }).catch(()=>{
+    alert("Errore inizializzazione PIN.");
+  });
+}
+
+/* === override controllato conferma PIN SET === */
+const __origConfirmSetPin = confirmSetPin;
+confirmSetPin = async function(){
+  if(__segPinDocId){
+    const p1 = __segOnly4Digits(pinSet1.value);
+    const p2 = __segOnly4Digits(pinSet2.value);
+    pinSet1.value = p1; pinSet2.value = p2;
+
+    if(p1.length!==4 || p1!==p2) return;
+
+    const h = await __segSha256Hex(p1);
+    await db.collection("segnalazioni_pin").doc(__segPinDocId).set({
+      pinHash: h,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    hideEl("modalPinSet");
+    __segPinCallback();
+    __segPinDocId = null;
+    __segPinCallback = null;
+    return;
+  }
+  __origConfirmSetPin();
+};
+
+/* === override controllato conferma PIN ENTER === */
+const __origConfirmEnterPin = confirmEnterPin;
+confirmEnterPin = async function(){
+  if(__segPinDocId){
+    const p = __segOnly4Digits(pinEnter.value);
+    pinEnter.value = p;
+    if(p.length!==4) return;
+
+    const h = await __segSha256Hex(p);
+    const snap = await db.collection("segnalazioni_pin").doc(__segPinDocId).get();
+    if(!snap.exists || snap.data().pinHash !== h) return;
+
+    hideEl("modalPinEnter");
+    __segPinCallback();
+    __segPinDocId = null;
+    __segPinCallback = null;
+    return;
+  }
+  __origConfirmEnterPin();
+};
 </script>
 
 </body>
