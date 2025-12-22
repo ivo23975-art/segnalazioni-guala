@@ -1142,6 +1142,96 @@ btnInstall.addEventListener("click", async () => {
   deferredPrompt = null;
 });
 </script>
+<script>
+/* =====================================================
+   PIN CARD SEGNALAZIONE – BLOCCO AUTONOMO
+   - NON tocca chat
+   - NON tocca invio segnalazioni
+   - Riusa modali PIN esistenti
+===================================================== */
+
+let __segPinDocId = null;
+let __segPinCallback = null;
+
+/* utilità già usata dalla chat (stesso metodo) */
+async function __segSha256Hex(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
+}
+function __segOnly4Digits(v){
+  return (v||"").replace(/\D/g,"").slice(0,4);
+}
+
+/* ENTRY POINT: wrapper sicuro per la card */
+function openSegnalazioneConPin(meta, scala, piano, lato, nome, elem){
+  const key = `${meta.complesso}||${scala}||${piano}||${lato}||${nome}`;
+
+  __segSha256Hex(key).then(async (h)=>{
+    __segPinDocId = "s_"+h;
+    const ref = db.collection("segnalazioni_pin").doc(__segPinDocId);
+    const snap = await ref.get();
+
+    __segPinCallback = () => apri(scala, piano, lato, nome, elem);
+
+    if(!snap.exists || !snap.data().pinHash){
+      showEl("modalPinSet");
+    }else{
+      showEl("modalPinEnter");
+    }
+  }).catch(()=>{
+    alert("Errore inizializzazione PIN.");
+  });
+}
+
+/* === override controllato conferma PIN SET === */
+const __origConfirmSetPin = confirmSetPin;
+confirmSetPin = async function(){
+  if(__segPinDocId){
+    const p1 = __segOnly4Digits(pinSet1.value);
+    const p2 = __segOnly4Digits(pinSet2.value);
+    pinSet1.value = p1; pinSet2.value = p2;
+
+    if(p1.length!==4 || p1!==p2) return;
+
+    const h = await __segSha256Hex(p1);
+    await db.collection("segnalazioni_pin").doc(__segPinDocId).set({
+      pinHash: h,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    hideEl("modalPinSet");
+    __segPinCallback();
+    __segPinDocId = null;
+    __segPinCallback = null;
+    return;
+  }
+  __origConfirmSetPin();
+};
+
+/* === override controllato conferma PIN ENTER === */
+const __origConfirmEnterPin = confirmEnterPin;
+confirmEnterPin = async function(){
+  if(__segPinDocId){
+    const p = __segOnly4Digits(pinEnter.value);
+    pinEnter.value = p;
+    if(p.length!==4) return;
+
+    const h = await __segSha256Hex(p);
+    const snap = await db.collection("segnalazioni_pin").doc(__segPinDocId).get();
+    if(!snap.exists || snap.data().pinHash !== h) return;
+
+    hideEl("modalPinEnter");
+    __segPinCallback();
+    __segPinDocId = null;
+    __segPinCallback = null;
+    return;
+  }
+  __origConfirmEnterPin();
+};
+</script>
 
 </body>
 </html>
