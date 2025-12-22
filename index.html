@@ -889,6 +889,9 @@ Object.keys(condominio).forEach(scala => {
     .forEach(piano => {
 
       const dati = piani[piano];
+      const complessoCard = ["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala";
+      const safeDx = (dati.dx || "").replace(/'/g, "\\'");
+      const safeSx = (dati.sx || "").replace(/'/g, "\\'");
 
       let html = `
         <div class="pianoBox">
@@ -896,7 +899,7 @@ Object.keys(condominio).forEach(scala => {
           <div class="cards">
 
             <div class="cardWrap">
-              <div class="card" onclick="apri('${scala}','${piano}','DX','${dati.dx}', this)">
+              <div class="card" onclick="openSegnalazioneConPin({complesso:'${complessoCard}'}, '${scala}','${piano}','DX','${safeDx}', this)">
                 ${dati.dx}
                 <div class="tempBox">
                   <span class="tempDot t-blue"></span>
@@ -907,16 +910,16 @@ Object.keys(condominio).forEach(scala => {
               <!-- AMMINISTRAZIONE -->
               <div class="chatUserIcon chat-blue"
                    title="Chat Amministrazione"
-                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${dati.dx.replace(/'/g, "\\'")}'});">💬</div>
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${safeDx}'});">💬</div>
 
               <!-- PARTI COMUNI -->
               <div class="chatUserIcon chat-yellow"
                    title="Chat Parti Comuni"
-                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${dati.dx.replace(/'/g, "\\'")}'});">🧰</div>
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'DX', nome:'${safeDx}'});">🧰</div>
             </div>
 
             <div class="cardWrap">
-              <div class="card" onclick="apri('${scala}','${piano}','SX','${dati.sx}', this)">
+              <div class="card" onclick="openSegnalazioneConPin({complesso:'${complessoCard}'}, '${scala}','${piano}','SX','${safeSx}', this)">
                 ${dati.sx}
                 <div class="tempBox">
                   <span class="tempDot t-blue"></span>
@@ -927,12 +930,12 @@ Object.keys(condominio).forEach(scala => {
               <!-- AMMINISTRAZIONE -->
               <div class="chatUserIcon chat-blue"
                    title="Chat Amministrazione"
-                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${dati.sx.replace(/'/g, "\\'")}'});">💬</div>
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'amministrazione', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${safeSx}'});">💬</div>
 
               <!-- PARTI COMUNI -->
               <div class="chatUserIcon chat-yellow"
                    title="Chat Parti Comuni"
-                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${["SCALA 6","SCALA 8","SCALA 10"].includes(scala) ? "piobesi" : "guala"}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${dati.sx.replace(/'/g, "\\'")}'});">🧰</div>
+                   onclick="event.stopPropagation(); openPinFlowForCard({destinatario:'particomuni', complesso:'${complessoCard}', scala:'${scala}', piano:'${piano}', lato:'SX', nome:'${safeSx}'});">🧰</div>
             </div>
 
           </div>
@@ -953,7 +956,7 @@ Object.keys(condominio).forEach(scala => {
       const safeNome = (nome || "").replace(/'/g, "\\'");
       html += `
         <div class="cardWrap">
-          <div class="card" onclick="apri('${scala}','PORTICO','NEGOZIO','${safeNome}', this)">
+          <div class="card" onclick="openSegnalazioneConPin({complesso:'${compl}'}, '${scala}','PORTICO','NEGOZIO','${safeNome}', this)">
             ${nome}
             <div class="tempBox">
               <span class="tempDot t-blue"></span>
@@ -1142,6 +1145,7 @@ btnInstall.addEventListener("click", async () => {
   deferredPrompt = null;
 });
 </script>
+
 <script>
 /* =====================================================
    PIN CARD SEGNALAZIONE – BLOCCO AUTONOMO
