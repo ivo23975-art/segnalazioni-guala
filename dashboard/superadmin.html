@@ -11,8 +11,11 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG -->
-<script src="firebase-config.js"></script>
+<!-- CONFIG (DASHBOARD) -->
+<!-- IMPORTANTE: usa il config dashboard SENZA App Check (evita: firebase.appCheck is not a function) -->
+<script src="firebase-config-dashboard.js"></script>
+
+<!-- AUTH + DASHBOARD -->
 <script src="admin-auth.js"></script>
 <script src="dashboard.js"></script>
 
@@ -209,19 +212,13 @@
   margin:0;
   text-align:center;
   font-weight:900;
-
-  /* ===== FIX SOLO TESTO NERO (titolo) ===== */
   color:#000;
 }
 #chatDocHint{
   margin-top:6px;
   font-size:12px;
-  opacity:.75;
   text-align:center;
-
-  /* ===== FIX SOLO TESTO NERO (hint) ===== */
   color:#000;
-  opacity:1;
 }
 #chatMessages{
   flex:1;
@@ -243,32 +240,24 @@
   box-shadow:0 2px 10px rgba(0,0,0,.08);
   word-wrap:break-word;
   white-space:pre-wrap;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-user{
   background:#e6f2ff;
   align-self:flex-start;
   margin-right:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-bubble-admin{
   background:#d6ffd6;
   align-self:flex-end;
   margin-left:auto;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .chat-time{
   font-size:.75rem;
   opacity:.65;
   text-align:right;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 
@@ -281,8 +270,6 @@ textarea{
   padding:10px;
   margin-top:10px;
   box-sizing:border-box;
-
-  /* ===== FIX SOLO TESTO NERO ===== */
   color:#000;
 }
 .btn{
@@ -411,10 +398,9 @@ let chatOpenDocId = null;
 let chatOpenMeta = null;
 let unsubscribeOpenChat = null;
 
-/* listeners per calcolo "nuovi messaggi" (senza cambiare la logica chat) */
-const perChatListener = new Map();     // docId -> unsubscribe
-const perChatUnread = new Map();       // docId -> unreadCount (user messages)
-const perChatLastSeen = new Map();     // docId -> lastReadMs (local cache)
+const perChatListener = new Map();
+const perChatUnread = new Map();
+const perChatLastSeen = new Map();
 let renderCacheG = [];
 let renderCacheP = [];
 
@@ -479,7 +465,6 @@ function updateContainerIndicators(){
   }
 }
 
-/* calcolo nuovi messaggi: conta messaggi "user" recenti (ultimi 50) dopo lastReadAdminAt */
 function ensurePerChatUnreadListener(docId){
   if (perChatListener.has(docId)) return;
 
@@ -510,13 +495,10 @@ function ensurePerChatUnreadListener(docId){
             if (m.timestamp && m.timestamp.toMillis) tms = m.timestamp.toMillis();
             else if (m.timestamp && m.timestamp.toDate) tms = m.timestamp.toDate().getTime();
           }catch(e){ tms = 0; }
-
           if (tms > lastReadMs) unread += 1;
         });
 
-        if (chatOpenDocId && chatOpenDocId === docId && modalChat.style.display === "flex"){
-          unread = 0;
-        }
+        if (chatOpenDocId && chatOpenDocId === docId && modalChat.style.display === "flex") unread = 0;
 
         perChatUnread.set(docId, unread);
 
@@ -577,7 +559,7 @@ function renderChatList(targetEl, rows){
 
     if (unreadCount > 0){
       row.classList.add("unread-1");
-      row.classList.add(u.cls);
+      if (u.cls) row.classList.add(u.cls);
     }
 
     row.innerHTML = `
@@ -594,11 +576,7 @@ function renderChatList(targetEl, rows){
 
     const unreadBadge = row.querySelector(".badge-unread");
     if (unreadBadge){
-      if (unreadCount > 0){
-        unreadBadge.style.display = "inline-flex";
-      } else {
-        unreadBadge.style.display = "none";
-      }
+      unreadBadge.style.display = (unreadCount > 0) ? "inline-flex" : "none";
     }
 
     row.onclick = () => openChatByDocId(item.docId, m);
@@ -729,7 +707,6 @@ function __sameUnitExact(metaA, metaB){
   );
 }
 
-/* 1) RESET PIN CHAT (AMMIN. + PARTI COMUNI) */
 async function resetPinChatsEntrambi(){
   if (!chatOpenMeta) return;
 
@@ -740,7 +717,6 @@ async function resetPinChatsEntrambi(){
   try{
     const targets = [];
 
-    // Tentativo "preciso" (può richiedere indice): facciamo due query separate per destinatario
     try{
       const qAdmin = await fdb.collection("chats")
         .where("meta.complesso","==", m.complesso)
@@ -764,7 +740,6 @@ async function resetPinChatsEntrambi(){
       (qPc.docs || []).forEach(d => targets.push(d));
 
     } catch(ePrec){
-      // Fallback (no indice): filtro client su un set più piccolo
       const q2 = await fdb.collection("chats")
         .where("meta.complesso","==", m.complesso)
         .where("meta.scala","==", m.scala)
@@ -782,19 +757,13 @@ async function resetPinChatsEntrambi(){
     }
 
     if (!targets.length){
-      alert("Nessuna chat trovata per questa unità (admin/parti comuni).");
+      alert("Nessuna chat trovata per questa unità (admin/parti comuni)." );
       return;
     }
 
-    // Update uno-per-uno (evita batch misti, e isola eventuali errori rules/doc)
     let ok = 0;
     for (const d of targets){
-      try{
-        await d.ref.update({ "meta.pinHash": null });
-        ok += 1;
-      } catch(upErr){
-        // se fallisce anche una, lo segnaliamo ma continuiamo sugli altri
-      }
+      try{ await d.ref.update({ "meta.pinHash": null }); ok += 1; } catch(upErr){}
     }
 
     alert("RESET PIN CHAT completato. Aggiornati: " + ok + " doc.");
@@ -803,7 +772,6 @@ async function resetPinChatsEntrambi(){
   }
 }
 
-/* 2) RESET PIN CARD SEGNALAZIONE */
 async function resetPinCard(){
   if (!chatOpenMeta) return;
 
@@ -827,7 +795,6 @@ async function resetPinCard(){
   }
 }
 
-/* ===== INDICE CHAT: un solo listener su /chats ===== */
 fdb.collection("chats").onSnapshot((snap)=>{
   const mapG = new Map();
   const mapP = new Map();
@@ -847,12 +814,7 @@ fdb.collection("chats").onSnapshot((snap)=>{
     const targetMap = (complesso === "guala") ? mapG : mapP;
 
     if (!targetMap.has(visualKey)){
-      targetMap.set(visualKey, {
-        docId: doc.id,
-        meta: m,
-        bestTs: ts,
-        dupCount: 0
-      });
+      targetMap.set(visualKey, { docId: doc.id, meta: m, bestTs: ts, dupCount: 0 });
     } else {
       const existing = targetMap.get(visualKey);
       existing.dupCount += 1;
