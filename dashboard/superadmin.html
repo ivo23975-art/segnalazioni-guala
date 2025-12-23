@@ -18,6 +18,44 @@
 <!-- AUTH + DASHBOARD -->
 <script src="admin-auth.js"></script>
 <script src="dashboard.js"></script>
+<script>
+/* =====================================================
+   SUPERADMIN – RICERCA CHAT (LOGICA)
+   - Filtra TUTTE le chat (Guala + Piobesi)
+   - Agisce SOLO sul DOM
+===================================================== */
+
+(function initChatSearch(){
+  const input = document.getElementById("chatSearchInput");
+  if (!input) return;
+
+  input.addEventListener("input", () => {
+    const q = input.value.toLowerCase().trim();
+
+    // tutte le singole righe chat
+    const allChatItems = document.querySelectorAll(".chat-item");
+
+    allChatItems.forEach(item => {
+      // testo completo visibile della chat
+      const text = item.innerText.toLowerCase();
+
+      // match semplice
+      const match = text.includes(q);
+
+      item.style.display = match ? "" : "none";
+    });
+
+    // gestione contenitori vuoti (Guala / Piobesi)
+    document.querySelectorAll(".chat-list").forEach(list => {
+      const visible = Array.from(list.children)
+        .some(el => el.style.display !== "none");
+
+      // nasconde solo il contenuto, non il titolo
+      list.style.display = visible ? "" : "none";
+    });
+  });
+})();
+</script>
 
 <style>
 .logout-btn{
