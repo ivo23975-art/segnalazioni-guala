@@ -12,7 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG DASHBOARD (NO APP CHECK) -->
+<!-- CONFIG DASHBOARD -->
 <script src="firebase-config-dashboard.js"></script>
 
 <!-- AUTH -->
@@ -126,7 +126,7 @@ select{
     </select>
 
     <div class="hint">
-      I dati esportati rispettano il tuo ruolo di accesso.
+      I dati esportati sono limitati dal pannello di provenienza.
     </div>
   </div>
 
@@ -144,57 +144,49 @@ select{
 
 <script>
 /* =====================================================
-   BLOCCO ACCESSI – VERSIONE CHIRURGICA
+   CENTRO STAMPA — BLOCCO DEFINITIVO
+   - basato su ?from=
+   - NON dipende dal ruolo
 ===================================================== */
 
-const role = getCurrentRole();
+const params = new URLSearchParams(window.location.search);
+const from = params.get("from"); // guala | piobesi | particomuni | null
+
 const complessoSelect = document.getElementById("complessoSelect");
+const tipoSelect = document.getElementById("tipoSelect");
 const backWrap = document.getElementById("backWrap");
 
-/* --- LIMITAZIONE GUALA --- */
-if (role === "guala"){
+/* ===== CONFIGURAZIONE IN BASE ALLA PROVENIENZA ===== */
+
+if (from === "guala"){
   complessoSelect.value = "guala";
   complessoSelect.disabled = true;
+  backWrap.innerHTML =
+    `<a class="back-btn" href="guala.html">⬅️ Torna al pannello Guala</a>`;
 }
-
-/* --- LIMITAZIONE PIOBESI --- */
-if (role === "piobesi"){
+else if (from === "piobesi"){
   complessoSelect.value = "piobesi";
   complessoSelect.disabled = true;
+  backWrap.innerHTML =
+    `<a class="back-btn" href="piobesi.html">⬅️ Torna al pannello Piobesi</a>`;
 }
-
-/* --- PARTI COMUNI (aggregato) --- */
-if (role === "particomuni"){
+else if (from === "particomuni"){
   complessoSelect.value = "tutti";
   complessoSelect.disabled = true;
+  backWrap.innerHTML =
+    `<a class="back-btn" href="particomuni.html">⬅️ Torna a Parti Comuni</a>`;
+}
+else {
+  // superadmin / master / accesso diretto
+  backWrap.innerHTML =
+    `<a class="back-btn" href="superadmin.html">⬅️ Torna al pannello</a>`;
 }
 
-/* =====================================================
-   TORNA AL PANNELLO (GIÀ PRESENTE, RIPRISTINATO)
-===================================================== */
-
-(function renderBack(){
-  if (role === "guala")
-    backWrap.innerHTML = `<a class="back-btn" href="guala.html">⬅️ Torna al pannello Guala</a>`;
-  else if (role === "piobesi")
-    backWrap.innerHTML = `<a class="back-btn" href="piobesi.html">⬅️ Torna al pannello Piobesi</a>`;
-  else if (role === "particomuni")
-    backWrap.innerHTML = `<a class="back-btn" href="particomuni.html">⬅️ Torna a Parti Comuni</a>`;
-  else if (role === "superadmin")
-    backWrap.innerHTML = `<a class="back-btn" href="superadmin.html">⬅️ Torna al SuperAdmin</a>`;
-  else if (role === "master")
-    backWrap.innerHTML = `<a class="back-btn" href="master.html">⬅️ Torna al Master</a>`;
-})();
-
-/* =====================================================
-   EXPORT – BLINDATO (ANTI-FORZATURA)
-===================================================== */
-
+/* ===== BLINDATURA EXPORT ===== */
 function syncExportParams(){
-  // hard clamp: se qualcuno forza il DOM
-  if (role === "guala") complessoSelect.value = "guala";
-  if (role === "piobesi") complessoSelect.value = "piobesi";
-  if (role === "particomuni") complessoSelect.value = "tutti";
+  if (from === "guala") complessoSelect.value = "guala";
+  if (from === "piobesi") complessoSelect.value = "piobesi";
+  if (from === "particomuni") complessoSelect.value = "tutti";
 
   document.getElementById("exportComplesso")?.remove();
   document.getElementById("exportTipo")?.remove();
@@ -207,12 +199,13 @@ function syncExportParams(){
   const t = document.createElement("input");
   t.type = "hidden";
   t.id = "exportTipo";
-  t.value = document.getElementById("tipoSelect").value;
+  t.value = tipoSelect.value;
 
   document.body.appendChild(c);
   document.body.appendChild(t);
 }
 
+/* ===== AZIONI ===== */
 function doStampa(){ syncExportParams(); stampaSegnalazioni(); }
 function doExportPDF(){ syncExportParams(); exportPDF(); }
 function doExportExcel(){ syncExportParams(); exportExcel(); }
