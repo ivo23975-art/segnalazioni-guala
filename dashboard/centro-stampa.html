@@ -25,7 +25,7 @@
 .header{
   font-size:1.8rem;
   font-weight:900;
-  margin-bottom:20px;
+  margin-bottom:12px;
 }
 
 .panel{
@@ -92,6 +92,21 @@ select{
   font-weight:bold;
   cursor:pointer;
 }
+
+.back-wrap{
+  margin: 10px 0 18px 0;
+}
+
+.back-btn{
+  display:inline-block;
+  padding:10px 16px;
+  border-radius:10px;
+  background:#444;
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
 </style>
 </head>
 
@@ -102,6 +117,9 @@ select{
 <div class="panel">
 
   <div class="header">🖨️ Centro Stampa Segnalazioni</div>
+
+  <!-- TORNA AL PANNELLO -->
+  <div class="back-wrap" id="backWrap"></div>
 
   <!-- =========================
        SELEZIONE FILTRI
@@ -133,17 +151,17 @@ select{
        AZIONI
   ========================== -->
   <div class="section actions">
-    <button class="btn btn-print" onclick="stampa()">🖨️ Stampa</button>
-    <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF</button>
-    <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
-    <button class="btn btn-csv" onclick="exportCSV()">📁 CSV</button>
+    <button class="btn btn-print" onclick="doStampa()">🖨️ Stampa</button>
+    <button class="btn btn-pdf" onclick="doExportPDF()">📄 PDF</button>
+    <button class="btn btn-excel" onclick="doExportExcel()">📊 Excel</button>
+    <button class="btn btn-csv" onclick="doExportCSV()">📁 CSV</button>
   </div>
 
 </div>
 
 <script>
 /* =====================================================
-   CENTRO STAMPA – LOGICA ACCESSI
+   CENTRO STAMPA – LOGICA ACCESSI + RITORNO
 ===================================================== */
 
 const params = new URLSearchParams(window.location.search);
@@ -151,14 +169,15 @@ const complessoParam = params.get("complesso");
 
 const complessoSelect = document.getElementById("complessoSelect");
 const tipoSelect = document.getElementById("tipoSelect");
+const backWrap = document.getElementById("backWrap");
 
-/* PREIMPOSTAZIONE DA URL */
-if (complessoParam){
+/* PREIMPOSTAZIONE DA URL (solo se valore valido) */
+if (complessoParam && ["guala","piobesi","particomuni","tutti"].includes(complessoParam)){
   complessoSelect.value = complessoParam;
 }
 
 /* BLOCCO ACCESSI IN BASE AL RUOLO */
-const role = getCurrentRole(); // da admin-auth.js
+const role = (typeof getCurrentRole === "function") ? getCurrentRole() : null;
 
 if (role === "guala"){
   complessoSelect.value = "guala";
@@ -174,17 +193,47 @@ if (role === "particomuni"){
 }
 
 /* =====================================================
+   PULSANTE: TORNA AL PANNELLO DI COMPETENZA
+   - priorità: role (se presente), altrimenti querystring
+===================================================== */
+(function renderBackButton(){
+  let target = null;
+  let label = "⬅️ Torna indietro";
+
+  const key = role || complessoParam || null;
+
+  if (key === "guala"){
+    target = "guala.html";
+    label = "⬅️ Torna al pannello Guala";
+  } else if (key === "piobesi"){
+    target = "piobesi.html";
+    label = "⬅️ Torna al pannello Piobesi";
+  } else if (key === "particomuni" || key === "tutti"){
+    target = "particomuni.html";
+    label = "⬅️ Torna a Parti Comuni";
+  } else if (key === "superadmin"){
+    target = "superadmin.html";
+    label = "⬅️ Torna al SuperAdmin";
+  } else if (key === "master"){
+    target = "master.html";
+    label = "⬅️ Torna al Master";
+  }
+
+  if (!target) return;
+
+  backWrap.innerHTML = `<a class="back-btn" href="${target}">${label}</a>`;
+})();
+
+/* =====================================================
    COLLEGAMENTO A EXPORT ENGINE
+   - sync SEMPRE prima di stampa/pdf/excel/csv
 ===================================================== */
 
-function stampa(){
-  syncExportParams();
-  stampaSegnalazioni();
-}
-
 function syncExportParams(){
-  document.getElementById("exportComplesso")?.remove();
-  document.getElementById("exportTipo")?.remove();
+  const oldC = document.getElementById("exportComplesso");
+  const oldT = document.getElementById("exportTipo");
+  if (oldC) oldC.remove();
+  if (oldT) oldT.remove();
 
   const c = document.createElement("input");
   c.type = "hidden";
@@ -198,6 +247,26 @@ function syncExportParams(){
 
   document.body.appendChild(c);
   document.body.appendChild(t);
+}
+
+function doStampa(){
+  syncExportParams();
+  if (typeof stampaSegnalazioni === "function") stampaSegnalazioni();
+}
+
+function doExportPDF(){
+  syncExportParams();
+  if (typeof exportPDF === "function") exportPDF();
+}
+
+function doExportExcel(){
+  syncExportParams();
+  if (typeof exportExcel === "function") exportExcel();
+}
+
+function doExportCSV(){
+  syncExportParams();
+  if (typeof exportCSV === "function") exportCSV();
 }
 </script>
 
