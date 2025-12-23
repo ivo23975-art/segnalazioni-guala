@@ -157,71 +157,85 @@ select{
 
 <script>
 /* =====================================================
-   CENTRO STAMPA — LOGICA ACCESSI BLINDATA
+   CENTRO STAMPA — ACCESSI + TORNA INDIETRO (FIX REALE)
 ===================================================== */
 
 const params = new URLSearchParams(window.location.search);
-const complessoParam = params.get("complesso");
-
+const fromParam = params.get("from");        // guala | piobesi | particomuni | superadmin | master
+const complessoParam = params.get("complesso"); // opzionale
 const complessoSelect = document.getElementById("complessoSelect");
 const tipoSelect = document.getElementById("tipoSelect");
 const backWrap = document.getElementById("backWrap");
 
 const role = (typeof getCurrentRole === "function") ? getCurrentRole() : null;
 
-/* reset opzioni */
-Array.from(complessoSelect.options).forEach(o => o.disabled = false);
-
-/* BLOCCO PER RUOLO */
-if (role === "guala"){
-  complessoSelect.value = "guala";
-  Array.from(complessoSelect.options).forEach(o => {
-    if (o.value !== "guala") o.disabled = true;
-  });
-}
-else if (role === "piobesi"){
-  complessoSelect.value = "piobesi";
-  Array.from(complessoSelect.options).forEach(o => {
-    if (o.value !== "piobesi") o.disabled = true;
-  });
-}
-else if (role === "particomuni"){
-  complessoSelect.value = "tutti";
-  Array.from(complessoSelect.options).forEach(o => {
-    if (o.value !== "tutti") o.disabled = true;
-  });
-}
-else if (!role && complessoParam){
-  complessoSelect.value = complessoParam;
+function isValidComplesso(v){
+  return ["guala","piobesi","particomuni","tutti"].includes(v);
 }
 
-/* =====================================================
-   TORNA AL PANNELLO
-===================================================== */
-(function(){
+/* Mappa permessi per ruolo */
+function getAllowedComplessiByRole(r){
+  if (r === "guala") return ["guala"];
+  if (r === "piobesi") return ["piobesi"];
+  if (r === "particomuni") return ["tutti"];        // particomuni = aggregato
+  if (r === "superadmin") return ["guala","piobesi","particomuni","tutti"];
+  if (r === "master") return ["guala","piobesi","particomuni","tutti"];
+  return ["guala","piobesi","particomuni","tutti"]; // fallback
+}
+
+const allowed = getAllowedComplessiByRole(role);
+
+/* 1) UI: disabilita opzioni NON permesse */
+(function lockSelectUI(){
+  const opts = Array.from(complessoSelect.options);
+  opts.forEach(o => {
+    o.disabled = !allowed.includes(o.value);
+  });
+
+  // scelta iniziale: priorità a complessoParam solo se valido e consentito
+  let initial = null;
+
+  if (complessoParam && isValidComplesso(complessoParam) && allowed.includes(complessoParam)){
+    initial = complessoParam;
+  } else if (fromParam){
+    // se arrivo da particomuni imposto "tutti" (se consentito), altrimenti ignoro
+    if (fromParam === "particomuni" && allowed.includes("tutti")) initial = "tutti";
+    if (fromParam === "guala" && allowed.includes("guala")) initial = "guala";
+    if (fromParam === "piobesi" && allowed.includes("piobesi")) initial = "piobesi";
+  }
+
+  if (!initial){
+    // default: primo consentito
+    initial = allowed[0] || "guala";
+  }
+
+  complessoSelect.value = initial;
+
+  // se è ruolo ristretto, blocco dropdown
+  if (role === "guala" || role === "piobesi" || role === "particomuni"){
+    complessoSelect.disabled = true;
+  }
+})();
+
+/* 2) Hard clamp: anche se qualcuno forza via DOM, lo correggo */
+function clampComplesso(){
+  let v = complessoSelect.value;
+  if (!allowed.includes(v)){
+    complessoSelect.value = allowed[0] || "guala";
+  }
+}
+
+/* 3) Torna indietro: basato su fromParam (prima) o su role */
+(function renderBackButton(){
+  let key = fromParam || role || null;
   let target = null;
   let label = "⬅️ Torna indietro";
 
-  if (role === "guala"){
-    target = "guala.html";
-    label = "⬅️ Torna al pannello Guala";
-  }
-  else if (role === "piobesi"){
-    target = "piobesi.html";
-    label = "⬅️ Torna al pannello Piobesi";
-  }
-  else if (role === "particomuni"){
-    target = "particomuni.html";
-    label = "⬅️ Torna a Parti Comuni";
-  }
-  else if (role === "superadmin"){
-    target = "superadmin.html";
-    label = "⬅️ Torna al SuperAdmin";
-  }
-  else if (role === "master"){
-    target = "master.html";
-    label = "⬅️ Torna al Master";
-  }
+  if (key === "guala"){ target = "guala.html"; label = "⬅️ Torna al pannello Guala"; }
+  else if (key === "piobesi"){ target = "piobesi.html"; label = "⬅️ Torna al pannello Piobesi"; }
+  else if (key === "particomuni"){ target = "particomuni.html"; label = "⬅️ Torna a Parti Comuni"; }
+  else if (key === "superadmin"){ target = "superadmin.html"; label = "⬅️ Torna al SuperAdmin"; }
+  else if (key === "master"){ target = "master.html"; label = "⬅️ Torna al Master"; }
 
   if (target){
     backWrap.innerHTML = `<a class="back-btn" href="${target}">${label}</a>`;
@@ -229,10 +243,12 @@ else if (!role && complessoParam){
 })();
 
 /* =====================================================
-   EXPORT — SYNC SICURO
+   EXPORT — SYNC BLINDATO (QUESTO È IL FIX DEL BUG)
 ===================================================== */
 
 function syncExportParams(){
+  clampComplesso(); // <<< IMPORTANTISSIMO: impedisce a guala/piobesi di esportare "tutti"
+
   document.getElementById("exportComplesso")?.remove();
   document.getElementById("exportTipo")?.remove();
 
@@ -250,10 +266,10 @@ function syncExportParams(){
   document.body.appendChild(t);
 }
 
-function doStampa(){ syncExportParams(); stampaSegnalazioni(); }
-function doExportPDF(){ syncExportParams(); exportPDF(); }
-function doExportExcel(){ syncExportParams(); exportExcel(); }
-function doExportCSV(){ syncExportParams(); exportCSV(); }
+function doStampa(){ syncExportParams(); if (typeof stampaSegnalazioni === "function") stampaSegnalazioni(); }
+function doExportPDF(){ syncExportParams(); if (typeof exportPDF === "function") exportPDF(); }
+function doExportExcel(){ syncExportParams(); if (typeof exportExcel === "function") exportExcel(); }
+function doExportCSV(){ syncExportParams(); if (typeof exportCSV === "function") exportCSV(); }
 </script>
 
 </body>
