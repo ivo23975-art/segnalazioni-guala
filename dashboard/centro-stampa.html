@@ -18,7 +18,7 @@
 <!-- AUTH -->
 <script src="admin-auth.js"></script>
 
-<!-- EXPORT ENGINE (GIÀ ESISTENTE) -->
+<!-- EXPORT ENGINE -->
 <script src="../export_new.js"></script>
 
 <style>
@@ -27,7 +27,6 @@
   font-weight:900;
   margin-bottom:12px;
 }
-
 .panel{
   max-width:900px;
   margin:auto;
@@ -36,17 +35,12 @@
   padding:25px;
   box-shadow:0 6px 20px rgba(0,0,0,0.15);
 }
-
-.section{
-  margin-bottom:30px;
-}
-
+.section{ margin-bottom:30px; }
 label{
   display:block;
   margin-top:12px;
   font-weight:700;
 }
-
 select{
   width:100%;
   padding:10px;
@@ -54,14 +48,12 @@ select{
   border:1px solid #ccc;
   margin-top:6px;
 }
-
 .actions{
   margin-top:20px;
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap:12px;
 }
-
 .btn{
   padding:12px;
   border:none;
@@ -69,18 +61,15 @@ select{
   font-weight:900;
   cursor:pointer;
 }
-
 .btn-print{ background:#0077ff; color:#fff; }
 .btn-pdf{ background:#6f42c1; color:#fff; }
 .btn-excel{ background:#28a745; color:#fff; }
 .btn-csv{ background:#ff9800; color:#111; }
-
 .hint{
   font-size:0.9rem;
   opacity:0.75;
   margin-top:6px;
 }
-
 .logout-btn{
   position:fixed;
   top:12px;
@@ -92,11 +81,7 @@ select{
   font-weight:bold;
   cursor:pointer;
 }
-
-.back-wrap{
-  margin: 10px 0 18px 0;
-}
-
+.back-wrap{ margin:10px 0 18px 0; }
 .back-btn{
   display:inline-block;
   padding:10px 16px;
@@ -105,7 +90,6 @@ select{
   color:#fff;
   font-weight:900;
   text-decoration:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 </style>
 </head>
@@ -122,7 +106,7 @@ select{
   <div class="back-wrap" id="backWrap"></div>
 
   <!-- =========================
-       SELEZIONE FILTRI
+       FILTRI
   ========================== -->
   <div class="section">
 
@@ -144,7 +128,6 @@ select{
     <div class="hint">
       I dati esportati rispettano il tuo ruolo di accesso.
     </div>
-
   </div>
 
   <!-- =========================
@@ -161,79 +144,60 @@ select{
 
 <script>
 /* =====================================================
-   CENTRO STAMPA – LOGICA ACCESSI + RITORNO
+   BLOCCO ACCESSI – VERSIONE CHIRURGICA
 ===================================================== */
 
-const params = new URLSearchParams(window.location.search);
-const complessoParam = params.get("complesso");
-
+const role = getCurrentRole();
 const complessoSelect = document.getElementById("complessoSelect");
-const tipoSelect = document.getElementById("tipoSelect");
 const backWrap = document.getElementById("backWrap");
 
-/* PREIMPOSTAZIONE DA URL (solo se valore valido) */
-if (complessoParam && ["guala","piobesi","particomuni","tutti"].includes(complessoParam)){
-  complessoSelect.value = complessoParam;
-}
-
-/* BLOCCO ACCESSI IN BASE AL RUOLO */
-const role = (typeof getCurrentRole === "function") ? getCurrentRole() : null;
-
+/* --- LIMITAZIONE GUALA --- */
 if (role === "guala"){
   complessoSelect.value = "guala";
   complessoSelect.disabled = true;
 }
+
+/* --- LIMITAZIONE PIOBESI --- */
 if (role === "piobesi"){
   complessoSelect.value = "piobesi";
   complessoSelect.disabled = true;
 }
+
+/* --- PARTI COMUNI (aggregato) --- */
 if (role === "particomuni"){
   complessoSelect.value = "tutti";
   complessoSelect.disabled = true;
 }
 
 /* =====================================================
-   PULSANTE: TORNA AL PANNELLO DI COMPETENZA
-   - priorità: role (se presente), altrimenti querystring
+   TORNA AL PANNELLO (GIÀ PRESENTE, RIPRISTINATO)
 ===================================================== */
-(function renderBackButton(){
-  let target = null;
-  let label = "⬅️ Torna indietro";
 
-  const key = role || complessoParam || null;
-
-  if (key === "guala"){
-    target = "guala.html";
-    label = "⬅️ Torna al pannello Guala";
-  } else if (key === "piobesi"){
-    target = "piobesi.html";
-    label = "⬅️ Torna al pannello Piobesi";
-  } else if (key === "particomuni" || key === "tutti"){
-    target = "particomuni.html";
-    label = "⬅️ Torna a Parti Comuni";
-  } else if (key === "superadmin"){
-    target = "superadmin.html";
-    label = "⬅️ Torna al SuperAdmin";
-  } else if (key === "master"){
-    target = "master.html";
-    label = "⬅️ Torna al Master";
-  }
-
-  if (!target) return;
-
-  backWrap.innerHTML = `<a class="back-btn" href="${target}">${label}</a>`;
+(function renderBack(){
+  if (role === "guala")
+    backWrap.innerHTML = `<a class="back-btn" href="guala.html">⬅️ Torna al pannello Guala</a>`;
+  else if (role === "piobesi")
+    backWrap.innerHTML = `<a class="back-btn" href="piobesi.html">⬅️ Torna al pannello Piobesi</a>`;
+  else if (role === "particomuni")
+    backWrap.innerHTML = `<a class="back-btn" href="particomuni.html">⬅️ Torna a Parti Comuni</a>`;
+  else if (role === "superadmin")
+    backWrap.innerHTML = `<a class="back-btn" href="superadmin.html">⬅️ Torna al SuperAdmin</a>`;
+  else if (role === "master")
+    backWrap.innerHTML = `<a class="back-btn" href="master.html">⬅️ Torna al Master</a>`;
 })();
 
 /* =====================================================
-   COLLEGAMENTO A EXPORT ENGINE
-   - sync SEMPRE prima di stampa/pdf/excel/csv
+   EXPORT – BLINDATO (ANTI-FORZATURA)
 ===================================================== */
 
 function syncExportParams(){
-  const oldC = document.getElementById("exportComplesso");
-  const oldT = document.getElementById("exportTipo");
-  if (oldC) oldC.remove();
-  if (oldT) oldT.remove();
+  // hard clamp: se qualcuno forza il DOM
+  if (role === "guala") complessoSelect.value = "guala";
+  if (role === "piobesi") complessoSelect.value = "piobesi";
+  if (role === "particomuni") complessoSelect.value = "tutti";
+
+  document.getElementById("exportComplesso")?.remove();
+  document.getElementById("exportTipo")?.remove();
 
   const c = document.createElement("input");
   c.type = "hidden";
@@ -243,31 +207,16 @@ function syncExportParams(){
   const t = document.createElement("input");
   t.type = "hidden";
   t.id = "exportTipo";
-  t.value = tipoSelect.value;
+  t.value = document.getElementById("tipoSelect").value;
 
   document.body.appendChild(c);
   document.body.appendChild(t);
 }
 
-function doStampa(){
-  syncExportParams();
-  if (typeof stampaSegnalazioni === "function") stampaSegnalazioni();
-}
-
-function doExportPDF(){
-  syncExportParams();
-  if (typeof exportPDF === "function") exportPDF();
-}
-
-function doExportExcel(){
-  syncExportParams();
-  if (typeof exportExcel === "function") exportExcel();
-}
-
-function doExportCSV(){
-  syncExportParams();
-  if (typeof exportCSV === "function") exportCSV();
-}
+function doStampa(){ syncExportParams(); stampaSegnalazioni(); }
+function doExportPDF(){ syncExportParams(); exportPDF(); }
+function doExportExcel(){ syncExportParams(); exportExcel(); }
+function doExportCSV(){ syncExportParams(); exportCSV(); }
 </script>
 
 </body>
