@@ -18,7 +18,7 @@
 <!-- AUTH -->
 <script src="admin-auth.js"></script>
 
-<!-- EXPORT ENGINE -->
+<!-- EXPORT ENGINE (GIÀ ESISTENTE) -->
 <script src="../export_new.js"></script>
 
 <style>
@@ -37,7 +37,9 @@
   box-shadow:0 6px 20px rgba(0,0,0,0.15);
 }
 
-.section{ margin-bottom:30px; }
+.section{
+  margin-bottom:30px;
+}
 
 label{
   display:block;
@@ -91,7 +93,9 @@ select{
   cursor:pointer;
 }
 
-.back-wrap{ margin: 10px 0 18px 0; }
+.back-wrap{
+  margin: 10px 0 18px 0;
+}
 
 .back-btn{
   display:inline-block;
@@ -118,7 +122,7 @@ select{
   <div class="back-wrap" id="backWrap"></div>
 
   <!-- =========================
-       FILTRI
+       SELEZIONE FILTRI
   ========================== -->
   <div class="section">
 
@@ -138,7 +142,7 @@ select{
     </select>
 
     <div class="hint">
-      I dati esportati rispettano rigorosamente il tuo ruolo di accesso.
+      I dati esportati rispettano il tuo ruolo di accesso.
     </div>
 
   </div>
@@ -157,100 +161,79 @@ select{
 
 <script>
 /* =====================================================
-   CENTRO STAMPA — ACCESSI + TORNA INDIETRO (FIX REALE)
+   CENTRO STAMPA – LOGICA ACCESSI + RITORNO
 ===================================================== */
 
 const params = new URLSearchParams(window.location.search);
-const fromParam = params.get("from");        // guala | piobesi | particomuni | superadmin | master
-const complessoParam = params.get("complesso"); // opzionale
+const complessoParam = params.get("complesso");
+
 const complessoSelect = document.getElementById("complessoSelect");
 const tipoSelect = document.getElementById("tipoSelect");
 const backWrap = document.getElementById("backWrap");
 
+/* PREIMPOSTAZIONE DA URL (solo se valore valido) */
+if (complessoParam && ["guala","piobesi","particomuni","tutti"].includes(complessoParam)){
+  complessoSelect.value = complessoParam;
+}
+
+/* BLOCCO ACCESSI IN BASE AL RUOLO */
 const role = (typeof getCurrentRole === "function") ? getCurrentRole() : null;
 
-function isValidComplesso(v){
-  return ["guala","piobesi","particomuni","tutti"].includes(v);
+if (role === "guala"){
+  complessoSelect.value = "guala";
+  complessoSelect.disabled = true;
+}
+if (role === "piobesi"){
+  complessoSelect.value = "piobesi";
+  complessoSelect.disabled = true;
+}
+if (role === "particomuni"){
+  complessoSelect.value = "tutti";
+  complessoSelect.disabled = true;
 }
 
-/* Mappa permessi per ruolo */
-function getAllowedComplessiByRole(r){
-  if (r === "guala") return ["guala"];
-  if (r === "piobesi") return ["piobesi"];
-  if (r === "particomuni") return ["tutti"];        // particomuni = aggregato
-  if (r === "superadmin") return ["guala","piobesi","particomuni","tutti"];
-  if (r === "master") return ["guala","piobesi","particomuni","tutti"];
-  return ["guala","piobesi","particomuni","tutti"]; // fallback
-}
-
-const allowed = getAllowedComplessiByRole(role);
-
-/* 1) UI: disabilita opzioni NON permesse */
-(function lockSelectUI(){
-  const opts = Array.from(complessoSelect.options);
-  opts.forEach(o => {
-    o.disabled = !allowed.includes(o.value);
-  });
-
-  // scelta iniziale: priorità a complessoParam solo se valido e consentito
-  let initial = null;
-
-  if (complessoParam && isValidComplesso(complessoParam) && allowed.includes(complessoParam)){
-    initial = complessoParam;
-  } else if (fromParam){
-    // se arrivo da particomuni imposto "tutti" (se consentito), altrimenti ignoro
-    if (fromParam === "particomuni" && allowed.includes("tutti")) initial = "tutti";
-    if (fromParam === "guala" && allowed.includes("guala")) initial = "guala";
-    if (fromParam === "piobesi" && allowed.includes("piobesi")) initial = "piobesi";
-  }
-
-  if (!initial){
-    // default: primo consentito
-    initial = allowed[0] || "guala";
-  }
-
-  complessoSelect.value = initial;
-
-  // se è ruolo ristretto, blocco dropdown
-  if (role === "guala" || role === "piobesi" || role === "particomuni"){
-    complessoSelect.disabled = true;
-  }
-})();
-
-/* 2) Hard clamp: anche se qualcuno forza via DOM, lo correggo */
-function clampComplesso(){
-  let v = complessoSelect.value;
-  if (!allowed.includes(v)){
-    complessoSelect.value = allowed[0] || "guala";
-  }
-}
-
-/* 3) Torna indietro: basato su fromParam (prima) o su role */
+/* =====================================================
+   PULSANTE: TORNA AL PANNELLO DI COMPETENZA
+   - priorità: role (se presente), altrimenti querystring
+===================================================== */
 (function renderBackButton(){
-  let key = fromParam || role || null;
   let target = null;
   let label = "⬅️ Torna indietro";
 
-  if (key === "guala"){ target = "guala.html"; label = "⬅️ Torna al pannello Guala"; }
-  else if (key === "piobesi"){ target = "piobesi.html"; label = "⬅️ Torna al pannello Piobesi"; }
-  else if (key === "particomuni"){ target = "particomuni.html"; label = "⬅️ Torna a Parti Comuni"; }
-  else if (key === "superadmin"){ target = "superadmin.html"; label = "⬅️ Torna al SuperAdmin"; }
-  else if (key === "master"){ target = "master.html"; label = "⬅️ Torna al Master"; }
+  const key = role || complessoParam || null;
 
-  if (target){
-    backWrap.innerHTML = `<a class="back-btn" href="${target}">${label}</a>`;
+  if (key === "guala"){
+    target = "guala.html";
+    label = "⬅️ Torna al pannello Guala";
+  } else if (key === "piobesi"){
+    target = "piobesi.html";
+    label = "⬅️ Torna al pannello Piobesi";
+  } else if (key === "particomuni" || key === "tutti"){
+    target = "particomuni.html";
+    label = "⬅️ Torna a Parti Comuni";
+  } else if (key === "superadmin"){
+    target = "superadmin.html";
+    label = "⬅️ Torna al SuperAdmin";
+  } else if (key === "master"){
+    target = "master.html";
+    label = "⬅️ Torna al Master";
   }
+
+  if (!target) return;
+
+  backWrap.innerHTML = `<a class="back-btn" href="${target}">${label}</a>`;
 })();
 
 /* =====================================================
-   EXPORT — SYNC BLINDATO (QUESTO È IL FIX DEL BUG)
+   COLLEGAMENTO A EXPORT ENGINE
+   - sync SEMPRE prima di stampa/pdf/excel/csv
 ===================================================== */
 
 function syncExportParams(){
-  clampComplesso(); // <<< IMPORTANTISSIMO: impedisce a guala/piobesi di esportare "tutti"
-
-  document.getElementById("exportComplesso")?.remove();
-  document.getElementById("exportTipo")?.remove();
+  const oldC = document.getElementById("exportComplesso");
+  const oldT = document.getElementById("exportTipo");
+  if (oldC) oldC.remove();
+  if (oldT) oldT.remove();
 
   const c = document.createElement("input");
   c.type = "hidden";
@@ -266,10 +249,25 @@ function syncExportParams(){
   document.body.appendChild(t);
 }
 
-function doStampa(){ syncExportParams(); if (typeof stampaSegnalazioni === "function") stampaSegnalazioni(); }
-function doExportPDF(){ syncExportParams(); if (typeof exportPDF === "function") exportPDF(); }
-function doExportExcel(){ syncExportParams(); if (typeof exportExcel === "function") exportExcel(); }
-function doExportCSV(){ syncExportParams(); if (typeof exportCSV === "function") exportCSV(); }
+function doStampa(){
+  syncExportParams();
+  if (typeof stampaSegnalazioni === "function") stampaSegnalazioni();
+}
+
+function doExportPDF(){
+  syncExportParams();
+  if (typeof exportPDF === "function") exportPDF();
+}
+
+function doExportExcel(){
+  syncExportParams();
+  if (typeof exportExcel === "function") exportExcel();
+}
+
+function doExportCSV(){
+  syncExportParams();
+  if (typeof exportCSV === "function") exportCSV();
+}
 </script>
 
 </body>
