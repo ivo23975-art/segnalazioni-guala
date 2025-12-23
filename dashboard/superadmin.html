@@ -978,6 +978,65 @@ fdb.collection("chats").onSnapshot((snap)=>{
   alert("Errore lettura indice chat: " + err.message);
 });
 </script>
+<script>
+/* =====================================================
+   SUPERADMIN — RESET TOOL (STEP 1)
+   - parsing ricerca
+   - costruzione ID deterministici
+   - NESSUN accesso Firestore (per ora)
+===================================================== */
+
+function normalize(str) {
+  return (str || "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function parseSearchInput(raw) {
+  const t = normalize(raw);
+
+  return {
+    nome: t.match(/[A-ZÀ-Ü\/ ]+/)?.[0]?.trim() || "",
+    scala: t.match(/\b(131|131 BIS|133|6|8|10)\b/)?.[0] || "",
+    piano: t.match(/\b(PORTICO|[0-9]{1,2})\b/)?.[0] || "",
+    lato: t.match(/\b(DX|SX|NEGOZIO)\b/)?.[0] || ""
+  };
+}
+
+async function sha256Hex(str) {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/* ===== TEST MANUALE DA CONSOLE ===== */
+window.__testResetSearch = async function (input) {
+  const d = parseSearchInput(input);
+
+  console.log("DATI PARSATI:", d);
+
+  if (!d.nome || !d.scala || !d.piano || !d.lato) {
+    console.warn("⚠️ DATI INCOMPLETI");
+    return;
+  }
+
+  const complesso =
+    ["6","8","10"].includes(d.scala) ? "piobesi" : "guala";
+
+  const base = `${complesso}||SCALA ${d.scala}||${d.piano}||${d.lato}||${d.nome}`;
+
+  const chatAdminId = "c_" + await sha256Hex("amministrazione||" + base);
+  const chatPcId    = "c_" + await sha256Hex("particomuni||" + base);
+  const segPinId    = "s_" + await sha256Hex(`${complesso}||SCALA ${d.scala}||${d.piano}||${d.lato}||${d.nome}`);
+
+  console.log("CHAT ADMIN ID:", chatAdminId);
+  console.log("CHAT PARTI COMUNI ID:", chatPcId);
+  console.log("SEGNALAZIONE PIN ID:", segPinId);
+};
+</script>
 
 </body>
 </html>
