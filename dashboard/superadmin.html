@@ -683,6 +683,63 @@ function sendAdminMessage(){
       alert("Errore invio: " + err.message);
     });
 }
+    async function superadminClearChatMessages(){
+  if (!chatOpenDocId){
+    alert("Nessuna chat aperta.");
+    return;
+  }
+
+  const m = chatOpenMeta || {};
+  const titolo =
+    (m.nome || "") + " • " +
+    (m.scala || "") + " • " +
+    (m.piano || "") + " • " +
+    (m.lato || "") + " • " +
+    (m.complesso || "") + " • " +
+    (m.destinatario || "");
+
+  if (!confirm(
+    "⚠️ Confermi la cancellazione di TUTTI i messaggi della chat:\n\n" +
+    titolo +
+    "\n\nOperazione IRREVERSIBILE."
+  )){
+    return;
+  }
+
+  try{
+    const ref = fdb
+      .collection("chats")
+      .doc(chatOpenDocId)
+      .collection("messages");
+
+    while (true){
+      const snap = await ref.orderBy("timestamp","asc").limit(400).get();
+      if (snap.empty) break;
+
+      const batch = fdb.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+
+    try{
+      await fdb.collection("chats").doc(chatOpenDocId).update({
+        "meta.lastReadAdminAt": firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(e){}
+
+    chatMessages.innerHTML = "";
+    chatInput.value = "";
+
+    perChatUnread.set(chatOpenDocId, 0);
+    perChatLastSeen.set(chatOpenDocId, Date.now());
+    updateContainerIndicators();
+
+    alert("✅ Chat svuotata correttamente.");
+
+  }catch(err){
+    alert("Errore durante la cancellazione chat: " + err.message);
+  }
+}
 
 /* =====================================================
    DUE AZIONI SEPARATE (RICHIESTE)
