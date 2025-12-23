@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centro Stampa – Segnalazioni</title>
+
+<link rel="stylesheet" href="dashboard.css">
+<link rel="icon" href="data:,">
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<!-- CONFIG DASHBOARD (NO APP CHECK) -->
+<script src="firebase-config-dashboard.js"></script>
+
+<!-- AUTH -->
+<script src="admin-auth.js"></script>
+
+<!-- EXPORT ENGINE (GIÀ ESISTENTE) -->
+<script src="../export_new.js"></script>
+
+<style>
+.header{
+  font-size:1.8rem;
+  font-weight:900;
+  margin-bottom:20px;
+}
+
+.panel{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+.section{
+  margin-bottom:30px;
+}
+
+label{
+  display:block;
+  margin-top:12px;
+  font-weight:700;
+}
+
+select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-top:6px;
+}
+
+.actions{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap:12px;
+}
+
+.btn{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.btn-print{ background:#0077ff; color:#fff; }
+.btn-pdf{ background:#6f42c1; color:#fff; }
+.btn-excel{ background:#28a745; color:#fff; }
+.btn-csv{ background:#ff9800; color:#111; }
+
+.hint{
+  font-size:0.9rem;
+  opacity:0.75;
+  margin-top:6px;
+}
+
+.logout-btn{
+  position:fixed;
+  top:12px;
+  right:20px;
+  background:#ff4444;
+  color:#fff;
+  padding:8px 16px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<a class="logout-btn" onclick="adminLogout()">Logout</a>
+
+<div class="panel">
+
+  <div class="header">🖨️ Centro Stampa Segnalazioni</div>
+
+  <!-- =========================
+       SELEZIONE FILTRI
+  ========================== -->
+  <div class="section">
+
+    <label>Complesso</label>
+    <select id="complessoSelect">
+      <option value="guala">🔵 Guala</option>
+      <option value="piobesi">🟢 Piobesi</option>
+      <option value="particomuni">🟡 Parti Comuni</option>
+      <option value="tutti">🟣 Tutti</option>
+    </select>
+
+    <label>Tipo di segnalazioni</label>
+    <select id="tipoSelect">
+      <option value="attive">Solo segnalazioni attive</option>
+      <option value="risolte">Solo segnalazioni risolte</option>
+      <option value="tutte">Tutte (attive + risolte)</option>
+    </select>
+
+    <div class="hint">
+      I dati esportati rispettano il tuo ruolo di accesso.
+    </div>
+
+  </div>
+
+  <!-- =========================
+       AZIONI
+  ========================== -->
+  <div class="section actions">
+    <button class="btn btn-print" onclick="stampa()">🖨️ Stampa</button>
+    <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF</button>
+    <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
+    <button class="btn btn-csv" onclick="exportCSV()">📁 CSV</button>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================
+   CENTRO STAMPA – LOGICA ACCESSI
+===================================================== */
+
+const params = new URLSearchParams(window.location.search);
+const complessoParam = params.get("complesso");
+
+const complessoSelect = document.getElementById("complessoSelect");
+const tipoSelect = document.getElementById("tipoSelect");
+
+/* PREIMPOSTAZIONE DA URL */
+if (complessoParam){
+  complessoSelect.value = complessoParam;
+}
+
+/* BLOCCO ACCESSI IN BASE AL RUOLO */
+const role = getCurrentRole(); // da admin-auth.js
+
+if (role === "guala"){
+  complessoSelect.value = "guala";
+  complessoSelect.disabled = true;
+}
+if (role === "piobesi"){
+  complessoSelect.value = "piobesi";
+  complessoSelect.disabled = true;
+}
+if (role === "particomuni"){
+  complessoSelect.value = "tutti";
+  complessoSelect.disabled = true;
+}
+
+/* =====================================================
+   COLLEGAMENTO A EXPORT ENGINE
+===================================================== */
+
+function stampa(){
+  syncExportParams();
+  stampaSegnalazioni();
+}
+
+function syncExportParams(){
+  document.getElementById("exportComplesso")?.remove();
+  document.getElementById("exportTipo")?.remove();
+
+  const c = document.createElement("input");
+  c.type = "hidden";
+  c.id = "exportComplesso";
+  c.value = complessoSelect.value;
+
+  const t = document.createElement("input");
+  t.type = "hidden";
+  t.id = "exportTipo";
+  t.value = tipoSelect.value;
+
+  document.body.appendChild(c);
+  document.body.appendChild(t);
+}
+</script>
+
+</body>
+</html>
