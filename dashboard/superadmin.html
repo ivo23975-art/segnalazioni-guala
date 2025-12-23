@@ -18,34 +18,6 @@
 <!-- AUTH + DASHBOARD -->
 <script src="admin-auth.js"></script>
 <script src="dashboard.js"></script>
-/* =========================
-   SUPERADMIN - SEARCH CHAT
-========================= */
-.chatSearchWrap {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-#chatSearchInput {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.25);
-  color: #fff;
-  outline: none;
-  font-size: 14px;
-}
-
-#chatSearchInput::placeholder {
-  color: rgba(255,255,255,.65);
-}
-
-.chatSearchHint {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: .75;
-}
 
 <style>
 .logout-btn{
@@ -325,16 +297,6 @@ textarea{
 <div class="header">SUPER ADMIN – CHAT + SEGNALAZIONI</div>
 
 <div class="content">
-
-   <!-- 🔎 RICERCA CHAT / CARD -->
-   <div class="chat-search-box">
-  <input
-    type="text"
-    id="chatSearchInput"
-    placeholder="Cerca per nome, scala, piano, lato…"
-    oninput="filterAdminChats()"
-  >
-</div>
 
 <!-- ================= CHAT (SOPRA SEGNALAZIONI) ================= -->
 <div class="section">
