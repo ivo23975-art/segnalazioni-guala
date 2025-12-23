@@ -102,7 +102,10 @@ function lockTo(value){
 if(from === "guala") lockTo("guala");
 if(from === "piobesi") lockTo("piobesi");
 if(from === "particomuni") lockTo("tutti");
-
+if (from === "particomuni") {
+  document.getElementById("tipoSelect").value = "attive";
+  document.getElementById("tipoSelect").disabled = true;
+}
 /* === BLOCCO LOGICA EXPORT === */
 function syncExportParams(){
   document.getElementById("exportComplesso")?.remove();
