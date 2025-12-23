@@ -12,85 +12,29 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- CONFIG DASHBOARD -->
+<!-- CONFIG -->
 <script src="firebase-config-dashboard.js"></script>
 
 <!-- AUTH -->
 <script src="admin-auth.js"></script>
 
-<!-- EXPORT ENGINE -->
+<!-- EXPORT -->
 <script src="../export_new.js"></script>
 
 <style>
-.header{
-  font-size:1.8rem;
-  font-weight:900;
-  margin-bottom:12px;
-}
-.panel{
-  max-width:900px;
-  margin:auto;
-  background:white;
-  border-radius:18px;
-  padding:25px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.15);
-}
-.section{ margin-bottom:30px; }
-label{
-  display:block;
-  margin-top:12px;
-  font-weight:700;
-}
-select{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:6px;
-}
-.actions{
-  margin-top:20px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap:12px;
-}
-.btn{
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  font-weight:900;
-  cursor:pointer;
-}
-.btn-print{ background:#0077ff; color:#fff; }
-.btn-pdf{ background:#6f42c1; color:#fff; }
-.btn-excel{ background:#28a745; color:#fff; }
-.btn-csv{ background:#ff9800; color:#111; }
-.hint{
-  font-size:0.9rem;
-  opacity:0.75;
-  margin-top:6px;
-}
-.logout-btn{
-  position:fixed;
-  top:12px;
-  right:20px;
-  background:#ff4444;
-  color:#fff;
-  padding:8px 16px;
-  border-radius:8px;
-  font-weight:bold;
-  cursor:pointer;
-}
-.back-wrap{ margin:10px 0 18px 0; }
-.back-btn{
-  display:inline-block;
-  padding:10px 16px;
-  border-radius:10px;
-  background:#444;
-  color:#fff;
-  font-weight:900;
-  text-decoration:none;
-}
+.header{font-size:1.8rem;font-weight:900;margin-bottom:12px}
+.panel{max-width:900px;margin:auto;background:white;border-radius:18px;padding:25px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.section{margin-bottom:30px}
+label{display:block;margin-top:12px;font-weight:700}
+select{width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;margin-top:6px}
+.actions{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.btn{padding:12px;border:none;border-radius:12px;font-weight:900;cursor:pointer}
+.btn-print{background:#0077ff;color:#fff}
+.btn-pdf{background:#6f42c1;color:#fff}
+.btn-excel{background:#28a745;color:#fff}
+.btn-csv{background:#ff9800;color:#111}
+.logout-btn{position:fixed;top:12px;right:20px;background:#ff4444;color:#fff;padding:8px 16px;border-radius:8px;font-weight:bold;cursor:pointer}
+.back-btn{display:inline-block;padding:10px 16px;border-radius:10px;background:#444;color:#fff;font-weight:900;text-decoration:none}
 </style>
 </head>
 
@@ -102,14 +46,13 @@ select{
 
   <div class="header">🖨️ Centro Stampa Segnalazioni</div>
 
-  <!-- TORNA AL PANNELLO -->
-  <div class="back-wrap" id="backWrap"></div>
+  <!-- TORNA -->
+  <div style="margin-bottom:18px">
+    <a class="back-btn" href="javascript:void(0)" onclick="history.back()">⬅️ Torna al pannello</a>
+  </div>
 
-  <!-- =========================
-       FILTRI
-  ========================== -->
+  <!-- FILTRI -->
   <div class="section">
-
     <label>Complesso</label>
     <select id="complessoSelect">
       <option value="guala">🔵 Guala</option>
@@ -124,15 +67,9 @@ select{
       <option value="risolte">Solo segnalazioni risolte</option>
       <option value="tutte">Tutte (attive + risolte)</option>
     </select>
-
-    <div class="hint">
-      I dati esportati sono limitati dal pannello di provenienza.
-    </div>
   </div>
 
-  <!-- =========================
-       AZIONI
-  ========================== -->
+  <!-- AZIONI -->
   <div class="section actions">
     <button class="btn btn-print" onclick="doStampa()">🖨️ Stampa</button>
     <button class="btn btn-pdf" onclick="doExportPDF()">📄 PDF</button>
@@ -143,51 +80,30 @@ select{
 </div>
 
 <script>
-/* =====================================================
-   CENTRO STAMPA — BLOCCO DEFINITIVO
-   - basato su ?from=
-   - NON dipende dal ruolo
-===================================================== */
+/* ===============================
+   BLINDATURA DEFINITIVA
+=============================== */
 
 const params = new URLSearchParams(window.location.search);
 const from = params.get("from"); // guala | piobesi | particomuni | null
 
 const complessoSelect = document.getElementById("complessoSelect");
-const tipoSelect = document.getElementById("tipoSelect");
-const backWrap = document.getElementById("backWrap");
 
-/* ===== CONFIGURAZIONE IN BASE ALLA PROVENIENZA ===== */
-
-if (from === "guala"){
-  complessoSelect.value = "guala";
+/* === BLOCCO UI === */
+function lockTo(value){
+  [...complessoSelect.options].forEach(o=>{
+    if(o.value !== value) o.remove();
+  });
+  complessoSelect.value = value;
   complessoSelect.disabled = true;
-  backWrap.innerHTML =
-    `<a class="back-btn" href="guala.html">⬅️ Torna al pannello Guala</a>`;
-}
-else if (from === "piobesi"){
-  complessoSelect.value = "piobesi";
-  complessoSelect.disabled = true;
-  backWrap.innerHTML =
-    `<a class="back-btn" href="piobesi.html">⬅️ Torna al pannello Piobesi</a>`;
-}
-else if (from === "particomuni"){
-  complessoSelect.value = "tutti";
-  complessoSelect.disabled = true;
-  backWrap.innerHTML =
-    `<a class="back-btn" href="particomuni.html">⬅️ Torna a Parti Comuni</a>`;
-}
-else {
-  // superadmin / master / accesso diretto
-  backWrap.innerHTML =
-    `<a class="back-btn" href="superadmin.html">⬅️ Torna al pannello</a>`;
 }
 
-/* ===== BLINDATURA EXPORT ===== */
+if(from === "guala") lockTo("guala");
+if(from === "piobesi") lockTo("piobesi");
+if(from === "particomuni") lockTo("tutti");
+
+/* === BLOCCO LOGICA EXPORT === */
 function syncExportParams(){
-  if (from === "guala") complessoSelect.value = "guala";
-  if (from === "piobesi") complessoSelect.value = "piobesi";
-  if (from === "particomuni") complessoSelect.value = "tutti";
-
   document.getElementById("exportComplesso")?.remove();
   document.getElementById("exportTipo")?.remove();
 
@@ -199,13 +115,12 @@ function syncExportParams(){
   const t = document.createElement("input");
   t.type = "hidden";
   t.id = "exportTipo";
-  t.value = tipoSelect.value;
+  t.value = document.getElementById("tipoSelect").value;
 
   document.body.appendChild(c);
   document.body.appendChild(t);
 }
 
-/* ===== AZIONI ===== */
 function doStampa(){ syncExportParams(); stampaSegnalazioni(); }
 function doExportPDF(){ syncExportParams(); exportPDF(); }
 function doExportExcel(){ syncExportParams(); exportExcel(); }
